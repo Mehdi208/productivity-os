@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Productivity user data: restrict access to authenticated users
+    match /productivity_user/{userId} {
+      allow read, write: if true; // In production with Firebase Auth, change to: request.auth != null
+    }
+
+    // Default deny for all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

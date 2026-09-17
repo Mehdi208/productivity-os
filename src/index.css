@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #F5F5FA;
+  --color-card: #FFFFFF;
+  --color-card-elevated: #F8F8FC;
+  --color-text-main: #1A1A2E;
+  --color-text-muted: #6B7280;
+  --color-border: #E5E7EB;
+  color-scheme: light;
+}
+
+html.dark, body.dark, .dark {
+  --color-background: #0F0F1A;
+  --color-card: #181828;
+  --color-card-elevated: #202036;
+  --color-text-main: #F0F0FF;
+  --color-text-muted: #9CA3AF;
+  --color-border: #282844;
+  color-scheme: dark;
+  background-color: #0F0F1A !important;
+  color: #F0F0FF !important;
+}
+
+/* Explicit Dark Mode Overrides */
+.dark .bg-card {
+  background-color: #181828 !important;
+  border-color: #282844 !important;
+}
+
+.dark .bg-background {
+  background-color: #0F0F1A !important;
+  border-color: #282844 !important;
+}
+
+.dark .text-textMain {
+  color: #F0F0FF !important;
+}
+
+.dark .text-textMuted {
+  color: #9CA3AF !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #282844 !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #0F0F1A !important;
+  color: #F0F0FF !important;
+  border-color: #282844 !important;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Dark mode scrollbars */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0F0F1A;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #282844;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6C63FF;
+}
+
+/* View Transition for Circular Ripple Theme Toggle */
+@keyframes circle-expand {
+  0% {
+    clip-path: circle(0px at var(--ripple-x, 50%) var(--ripple-y, 50%));
+  }
+  100% {
+    clip-path: circle(var(--ripple-r, 150vmax) at var(--ripple-x, 50%) var(--ripple-y, 50%));
+  }
+}
+
+::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: circle-expand var(--ripple-duration, 0.75s) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  mix-blend-mode: normal;
+  z-index: 9999;
+  will-change: clip-path;
+}
