@@ -268,6 +268,20 @@ export const translations = {
     permanentRoutineDesc: 'Repeats every day across all weeks',
     singleDayTaskDesc: 'Single-day task only',
 
+    // Agenda Availability & Conflict Detection
+    slotConflictTitle: 'Slot already taken!',
+    slotConflictWarning: (title, start, end) => `This slot is already booked by "${title}" (${start} - ${end}).`,
+    slotConflictAdvice: 'To prevent overlapping activities, please pick an available slot.',
+    shiftAfterSlot: (time) => `⚡ Shift after this task (${time})`,
+    availableSlotsTitle: 'Recommended free slots',
+    alreadyBookedTitle: 'Already booked on this day',
+    noBookedSlots: 'No booked tasks on this day (100% free)',
+    slotBlocked: 'Taken',
+    slotAvailable: 'Free',
+    slotInvalidDuration: 'End time must be after start time',
+    btnSlotConflictDisabled: 'Slot unavailable (conflict)',
+    chooseQuickSlot: 'Quick hour selection:',
+
     // Modals generic
     cancel: 'Cancel',
     confirm: 'Confirm',
@@ -574,6 +588,20 @@ export const translations = {
     permanentRoutine: 'Routine quotidienne permanente',
     permanentRoutineDesc: 'Se répète chaque jour sur toutes les semaines',
     singleDayTaskDesc: 'Activité pour cette date uniquement',
+
+    // Agenda Availability & Conflict Detection
+    slotConflictTitle: 'Ce créneau a déjà été pris !',
+    slotConflictWarning: (title, start, end) => `Ce créneau a déjà été pris par « ${title} » (${start} - ${end}).`,
+    slotConflictAdvice: 'Pour éviter que les activités ne s’empilent, veuillez choisir un créneau libre.',
+    shiftAfterSlot: (time) => `⚡ Décaler après cette tâche (${time})`,
+    availableSlotsTitle: 'Créneaux libres recommandés',
+    alreadyBookedTitle: 'Déjà réservé sur cette journée',
+    noBookedSlots: 'Aucun créneau réservé (journée 100% libre)',
+    slotBlocked: 'Pris',
+    slotAvailable: 'Libre',
+    slotInvalidDuration: 'L’heure de fin doit être après l’heure de début',
+    btnSlotConflictDisabled: 'Créneau indisponible (conflit)',
+    chooseQuickSlot: 'Choix rapide de l’heure :',
 
     // Modals generic
     cancel: 'Annuler',

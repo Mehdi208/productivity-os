@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { X, Clock, Trash2, Edit3, Calendar, CheckSquare, AlertTriangle, Lock } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { AlertTriangle, Clock, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   checkSlotConflict, 
@@ -9,77 +9,60 @@ import {
   minutesToTimeStr 
 } from '../../utils/calendarLayout';
 
-const EditBlockModal = ({ 
-  isOpen, 
-  onClose, 
-  block, 
-  dayIndex = 0, 
-  isoDate = '',
-  onSaveBlock, 
-  onDeleteBlock,
+const COLOR_OPTIONS = ['#6C63FF', '#3B82F6', '#00D4AA', '#F97316', '#FF4757', '#64748B'];
+
+const NewTaskModal = ({
+  isOpen,
+  onClose,
+  form,
+  setForm,
+  onSubmit,
   getDayBlocks,
   dailyRoutines = []
 }) => {
   const { lang, t } = useLanguage();
 
-  const initialDate = block?.date || isoDate || new Date().toISOString().split('T')[0];
-
-  const [form, setForm] = useState({
-    title: block?.title || '',
-    subtitle: block?.subtitle || '',
-    start: block?.start || '09:00',
-    end: block?.end || '10:30',
-    color: block?.color || '#6C63FF',
-    checkable: block?.checkable !== false,
-    isRoutine: Boolean(block?.isRoutine),
-    dayIndex: dayIndex,
-    date: initialDate
-  });
-
-  useEffect(() => {
-    if (block) {
-      setForm({
-        title: block.title || '',
-        subtitle: block.subtitle || '',
-        start: block.start || '09:00',
-        end: block.end || '10:30',
-        color: block.color || '#6C63FF',
-        checkable: block.checkable !== false,
-        isRoutine: Boolean(block.isRoutine),
-        dayIndex: dayIndex,
-        date: block.date || isoDate || new Date().toISOString().split('T')[0]
-      });
-    }
-  }, [block, dayIndex, isoDate]);
-
-  // Target blocks on the date or daily routines (ignoring this block's current id)
+  // Retrieve existing blocks for target date / routines to evaluate availability
   const targetBlocks = useMemo(() => {
     if (!isOpen) return [];
     if (form.isRoutine) {
+      // When creating a routine, compare against other existing daily routines
       return Array.isArray(dailyRoutines) ? dailyRoutines : [];
     }
-    const targetDate = form.date || isoDate || block?.date || new Date().toISOString().split('T')[0];
+    const targetDate = form.date || new Date().toISOString().split('T')[0];
     return getDayBlocks ? getDayBlocks(targetDate) : [];
-  }, [isOpen, form.isRoutine, form.date, isoDate, block?.date, getDayBlocks, dailyRoutines]);
+  }, [isOpen, form.isRoutine, form.date, getDayBlocks, dailyRoutines]);
 
-  // Conflict detection
+  // Real-time conflict analysis as user types or adjusts hours
   const conflict = useMemo(() => {
     if (!isOpen || !form.start || !form.end) return { hasConflict: false };
-    return checkSlotConflict(form.start, form.end, targetBlocks, block?.id);
-  }, [isOpen, form.start, form.end, targetBlocks, block?.id]);
+    return checkSlotConflict(form.start, form.end, targetBlocks, null);
+  }, [isOpen, form.start, form.end, targetBlocks]);
 
-  // Hourly slots (06:00 to 22:00) with 🔒 on blocked hours
+  // Hourly availability (06:00 to 22:00) with blocked status
   const hourlySlots = useMemo(() => {
     if (!isOpen) return [];
-    return getHourlyAvailability(targetBlocks, block?.id, 6, 22);
-  }, [isOpen, targetBlocks, block?.id]);
+    return getHourlyAvailability(targetBlocks, null, 6, 22);
+  }, [isOpen, targetBlocks]);
 
-  // Free slots chips
+  // Continuous free slots throughout the day
   const freeSlots = useMemo(() => {
     if (!isOpen) return [];
-    return getAvailableDaySlots(targetBlocks, 30, '06:00', '23:00', block?.id);
-  }, [isOpen, targetBlocks, block?.id]);
+    return getAvailableDaySlots(targetBlocks, 30, '06:00', '23:00');
+  }, [isOpen, targetBlocks]);
 
+  if (!isOpen) return null;
+
+  // Handler to apply a free slot
+  const handleApplySlot = (slot) => {
+    setForm(prev => ({
+      ...prev,
+      start: slot.start,
+      end: slot.end
+    }));
+  };
+
+  // Handler to shift after conflicting block
   const handleAutoShift = () => {
     if (conflict?.suggestedStart && conflict?.suggestedEnd) {
       setForm(prev => ({
@@ -90,11 +73,13 @@ const EditBlockModal = ({
     }
   };
 
+  // Handler for clicking an hour from the hourly selector
   const handleSelectHour = (hItem) => {
     if (hItem.isBlocked) return;
     const startM = timeStrToMinutes(hItem.timeStr);
-    const currentDur = (form.start && form.end)
-      ? Math.max(30, timeStrToMinutes(form.end) - timeStrToMinutes(form.start))
+    // Default duration 60 mins or preserve current duration
+    const currentDur = (form.start && form.end) 
+      ? Math.max(30, timeStrToMinutes(form.end) - timeStrToMinutes(form.start)) 
       : 60;
     const endM = Math.min(1439, startM + currentDur);
     setForm(prev => ({
@@ -104,144 +89,140 @@ const EditBlockModal = ({
     }));
   };
 
-  const handleApplySlot = (slot) => {
-    setForm(prev => ({
-      ...prev,
-      start: slot.start,
-      end: slot.end
-    }));
-  };
-
-  if (!isOpen || !block) return null;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.title.trim() || conflict.hasConflict) return;
-    onSaveBlock({
-      ...block,
-      ...form
-    }, form.dayIndex, form.date);
-    onClose();
-  };
-
-  const daysNames = lang === 'en'
-    ? ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    : ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[85] flex items-center justify-center p-4">
-      <div className="bg-card rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-card rounded-3xl p-6 w-full max-w-lg shadow-2xl border border-gray-100 dark:border-darkBorder transition-all max-h-[92vh] overflow-y-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-darkBorder">
           <div className="flex items-center gap-2">
-            <Edit3 size={18} className="text-primary" />
+            <Sparkles size={18} className="text-primary" />
             <h3 className="text-lg font-bold text-textMain">
-              {lang === 'en' ? 'Edit Scheduled Block' : 'Modifier le Bloc Horaire'}
+              {lang === 'en' ? '✨ New Scheduled Slot' : '✨ Nouveau Créneau'}
             </h3>
           </div>
-          <button onClick={onClose} className="text-textMuted hover:text-textMain font-bold">✕</button>
+          <button 
+            onClick={onClose} 
+            className="text-textMuted hover:text-textMain font-bold p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+        <form onSubmit={onSubmit} className="space-y-4 pt-4">
           
-          {/* Permanent Daily Routine Switcher */}
-          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
-            <div className="flex items-center gap-2.5">
-              <span className="text-lg">🔁</span>
-              <div>
-                <label htmlFor="modalRoutineToggle" className="text-xs font-bold text-textMain block cursor-pointer">
-                  {lang === 'en' ? 'Permanent Daily Routine' : 'Routine quotidienne permanente'}
-                </label>
-                <span className="text-[11px] text-textMuted">
-                  {form.isRoutine 
-                    ? (lang === 'en' ? 'Repeats every day across all weeks' : 'Se répète chaque jour sur toutes les semaines')
-                    : (lang === 'en' ? 'Single-day task only' : 'Activité pour cette date uniquement')}
-                </span>
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              id="modalRoutineToggle"
-              checked={form.isRoutine}
-              onChange={(e) => setForm({ ...form, isRoutine: e.target.checked })}
-              className="w-5 h-5 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-          </div>
-
+          {/* Title */}
           <div>
             <label className="text-xs font-semibold text-textMuted block mb-1">
-              {lang === 'en' ? 'Activity / Task Title' : "Titre de l'activité / Tâche"}
+              {lang === 'en' ? 'Task / Slot Title' : 'Titre de la tâche / créneau'}
             </label>
             <input 
               type="text" 
               required 
+              placeholder={lang === 'en' ? 'e.g. Deep Work, Workout, or Client Call' : 'ex: Deep Work, Sport ou Réunion Projet'} 
               value={form.title} 
               onChange={(e) => setForm({ ...form, title: e.target.value })} 
               className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
             />
           </div>
 
+          {/* Subtitle / Notes */}
           <div>
             <label className="text-xs font-semibold text-textMuted block mb-1">
-              {lang === 'en' ? 'Description / Notes' : 'Description / Sous-titre'}
+              {lang === 'en' ? 'Notes / Subtitle' : 'Description / Sous-titre'}
             </label>
             <input 
               type="text" 
+              placeholder={lang === 'en' ? 'e.g. Focused execution without distractions' : 'ex: Exécution focalisée sans distraction'} 
               value={form.subtitle} 
-              placeholder={lang === 'en' ? 'e.g. Uninterrupted focus or workout' : 'ex: Focus sans interruption ou Entraînement'} 
               onChange={(e) => setForm({ ...form, subtitle: e.target.value })} 
               className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
             />
           </div>
 
+          {/* Permanent Daily Routine Switcher */}
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg">🔁</span>
+              <div>
+                <label htmlFor="chkNewRoutine" className="text-xs font-bold text-textMain block cursor-pointer">
+                  {t('permanentRoutine')}
+                </label>
+                <span className="text-[11px] text-textMuted">
+                  {form.isRoutine 
+                    ? t('permanentRoutineDesc')
+                    : t('singleDayTaskDesc')}
+                </span>
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              id="chkNewRoutine"
+              checked={form.isRoutine}
+              onChange={(e) => setForm({ ...form, isRoutine: e.target.checked })}
+              className="w-5 h-5 rounded text-primary focus:ring-primary cursor-pointer"
+            />
+          </div>
+
+          {/* Specific Date */}
           {!form.isRoutine && (
             <div>
               <label className="text-xs font-semibold text-textMuted block mb-1">
-                {lang === 'en' ? 'Scheduled Date' : 'Date spécifique'}
+                {lang === 'en' ? 'Specific Date' : 'Date spécifique'}
               </label>
               <input 
                 type="date" 
-                required
-                value={form.date} 
-                onChange={(e) => setForm({ ...form, date: e.target.value })} 
+                required 
+                value={form.date || new Date().toISOString().split('T')[0]} 
+                onChange={(e) => {
+                  const selectedDate = e.target.value;
+                  const d = new Date(selectedDate);
+                  const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+                  setForm({ ...form, date: selectedDate, dayIndex: dayIdx });
+                }} 
                 className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
               />
             </div>
           )}
 
+          {/* Time Inputs (Start & End) */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-textMuted block mb-1">
                 {lang === 'en' ? 'Start Time' : 'Heure de début'}
               </label>
-              <input 
-                type="time" 
-                required 
-                value={form.start} 
-                onChange={(e) => setForm({ ...form, start: e.target.value })} 
-                className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
-                  conflict.hasConflict 
-                    ? 'border-red-500 ring-1 ring-red-500/30' 
-                    : 'border-gray-200 dark:border-darkBorder focus:border-primary'
-                }`} 
-              />
+              <div className="relative">
+                <input 
+                  type="time" 
+                  required
+                  value={form.start} 
+                  onChange={(e) => setForm({ ...form, start: e.target.value })} 
+                  className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
+                    conflict.hasConflict 
+                      ? 'border-red-500 ring-1 ring-red-500/30' 
+                      : 'border-gray-200 dark:border-darkBorder focus:border-primary'
+                  }`} 
+                />
+              </div>
             </div>
+
             <div>
               <label className="text-xs font-semibold text-textMuted block mb-1">
                 {lang === 'en' ? 'End Time' : 'Heure de fin'}
               </label>
-              <input 
-                type="time" 
-                required 
-                value={form.end} 
-                onChange={(e) => setForm({ ...form, end: e.target.value })} 
-                className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
-                  conflict.hasConflict 
-                    ? 'border-red-500 ring-1 ring-red-500/30' 
-                    : 'border-gray-200 dark:border-darkBorder focus:border-primary'
-                }`} 
-              />
+              <div className="relative">
+                <input 
+                  type="time" 
+                  required
+                  value={form.end} 
+                  onChange={(e) => setForm({ ...form, end: e.target.value })} 
+                  className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
+                    conflict.hasConflict 
+                      ? 'border-red-500 ring-1 ring-red-500/30' 
+                      : 'border-gray-200 dark:border-darkBorder focus:border-primary'
+                  }`} 
+                />
+              </div>
             </div>
           </div>
 
@@ -344,97 +325,73 @@ const EditBlockModal = ({
             </div>
           )}
 
+          {/* Color Selection */}
           <div>
             <label className="text-xs font-semibold text-textMuted block mb-1">
-              {lang === 'en' ? 'Block Color' : 'Couleur du bloc'}
+              {lang === 'en' ? 'Block Color' : 'Couleur du créneau'}
             </label>
-            <div className="flex gap-2.5 pt-1">
-              {['#6C63FF', '#3B82F6', '#00D4AA', '#F97316', '#FF4757', '#64748B'].map((hex) => (
-                <button
-                  key={hex}
-                  type="button"
-                  onClick={() => setForm({ ...form, color: hex })}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                    form.color === hex ? 'scale-125 border-textMain dark:border-white shadow-md' : 'border-transparent'
-                  }`}
-                  style={{ backgroundColor: hex }}
+            <div className="flex gap-2">
+              {COLOR_OPTIONS.map((hex) => (
+                <button 
+                  key={hex} 
+                  type="button" 
+                  onClick={() => setForm({ ...form, color: hex })} 
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${
+                    form.color === hex ? 'scale-125 border-textMain dark:border-white shadow-sm' : 'border-transparent'
+                  }`} 
+                  style={{ backgroundColor: hex }} 
                 />
               ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
+          {/* Checkable toggle */}
+          <div className="flex items-center gap-2 pt-1">
             <input 
               type="checkbox" 
-              id="editCheckable" 
+              id="chkCheckable" 
               checked={form.checkable} 
               onChange={(e) => setForm({ ...form, checkable: e.target.checked })} 
               className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer" 
             />
-            <label htmlFor="editCheckable" className="text-xs font-medium text-textMain cursor-pointer">
-              {lang === 'en' 
-                ? 'Checkable block (included in daily productivity score)' 
-                : 'Bloc à cocher (inclus dans le score de productivité)'}
+            <label htmlFor="chkCheckable" className="text-xs font-medium text-textMain cursor-pointer">
+              {lang === 'en' ? 'Checkable task (counted in daily score)' : 'Tâche à cocher (comptée dans le score)'}
             </label>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-darkBorder">
+          <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-darkBorder">
             <button 
               type="button" 
-              onClick={() => {
-                const confirmMsg = form.isRoutine
-                  ? (lang === 'en'
-                      ? "Delete this permanent daily routine? It will be removed from all days."
-                      : "Supprimer cette routine quotidienne ? Elle sera retirée de tous les jours.")
-                  : (lang === 'en'
-                      ? "Do you want to delete this block from your schedule?"
-                      : "Voulez-vous supprimer ce créneau de votre emploi du temps ?");
-                if (window.confirm(confirmMsg)) {
-                  onDeleteBlock(block.id, dayIndex, form.date, form.isRoutine);
-                  onClose();
-                }
-              }} 
-              className="text-danger hover:bg-danger/10 p-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+              onClick={onClose} 
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard"
             >
-              <Trash2 size={15} />
-              <span>{lang === 'en' ? 'Delete' : 'Supprimer'}</span>
+              {lang === 'en' ? 'Cancel' : 'Annuler'}
             </button>
-
-            <div className="flex gap-2">
-              <button 
-                type="button" 
-                onClick={onClose} 
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                {lang === 'en' ? 'Cancel' : 'Annuler'}
-              </button>
-              <button 
-                type="submit" 
-                disabled={conflict.hasConflict}
-                className={`font-bold px-5 py-2 rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 ${
-                  conflict.hasConflict
-                    ? 'bg-red-500/20 text-red-500 border border-red-500/30 cursor-not-allowed opacity-80'
-                    : 'bg-primary hover:bg-primary/90 text-white active:scale-95'
-                }`}
-              >
-                {conflict.hasConflict ? (
-                  <>
-                    <Lock size={13} />
-                    <span>{t('btnSlotConflictDisabled')}</span>
-                  </>
-                ) : (
-                  <span>{lang === 'en' ? 'Save Changes' : 'Enregistrer'}</span>
-                )}
-              </button>
-            </div>
+            <button 
+              type="submit" 
+              disabled={conflict.hasConflict}
+              className={`font-bold px-5 py-2 rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 ${
+                conflict.hasConflict
+                  ? 'bg-red-500/20 text-red-500 border border-red-500/30 cursor-not-allowed opacity-80'
+                  : 'bg-primary hover:bg-primary/90 text-white active:scale-95'
+              }`}
+            >
+              {conflict.hasConflict ? (
+                <>
+                  <Lock size={13} />
+                  <span>{t('btnSlotConflictDisabled')}</span>
+                </>
+              ) : (
+                <span>{lang === 'en' ? 'Create Slot' : 'Créer le créneau'}</span>
+              )}
+            </button>
           </div>
 
         </form>
-
       </div>
     </div>
   );
 };
 
-export default EditBlockModal;
+export default NewTaskModal;

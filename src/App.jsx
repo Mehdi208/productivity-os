@@ -25,6 +25,7 @@ import MonthlyReview from './pages/MonthlyReview';
 
 import DailyBriefingModal from './components/DailyBriefing/DailyBriefingModal';
 import PriorityCopilot from './components/PriorityCoach/PriorityCopilot';
+import NewTaskModal from './components/Calendar/NewTaskModal';
 import FocusTimerModal from './components/Focus/FocusTimerModal';
 import MiniFocusBar from './components/Focus/MiniFocusBar';
 import { FocusProvider } from './context/FocusContext';
@@ -1033,6 +1034,7 @@ const AppContent = () => {
                   getDayBlocks={getDayBlocks}
                   todayBlocks={annotatedTodayBlocks} 
                   projects={projects}
+                  dailyRoutines={dailyRoutines}
                   onToggleCheckBlock={handleToggleCheckBlock} 
                   onNewTask={() => {
                     setNewTaskForm({ 
@@ -1189,142 +1191,16 @@ const AppContent = () => {
           onOpenModal={() => setShowFocusModal(true)} 
         />
 
-        {/* New Task Modal */}
-        {showNewTaskModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-card rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors">
-              <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-darkBorder">
-                <h3 className="text-lg font-bold text-textMain">
-                  {lang === 'en' ? '✨ New Scheduled Slot' : '✨ Nouveau Créneau'}
-                </h3>
-                <button onClick={() => setShowNewTaskModal(false)} className="text-textMuted hover:text-textMain font-bold">✕</button>
-              </div>
-              <form onSubmit={handleCreateTask} className="space-y-4 pt-4">
-                <div>
-                  <label className="text-xs font-semibold text-textMuted block mb-1">
-                    {lang === 'en' ? 'Task / Slot Title' : 'Titre de la tâche / créneau'}
-                  </label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder={lang === 'en' ? 'e.g. Deep Work, Workout, or Client Call' : 'ex: Deep Work, Sport ou Réunion Projet'} 
-                    value={newTaskForm.title} 
-                    onChange={(e) => setNewTaskForm({ ...newTaskForm, title: e.target.value })} 
-                    className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold text-textMuted block mb-1">
-                      {lang === 'en' ? 'Start' : 'Début'}
-                    </label>
-                    <input 
-                      type="time" 
-                      value={newTaskForm.start} 
-                      onChange={(e) => setNewTaskForm({ ...newTaskForm, start: e.target.value })} 
-                      className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-textMuted block mb-1">
-                      {lang === 'en' ? 'End' : 'Fin'}
-                    </label>
-                    <input 
-                      type="time" 
-                      value={newTaskForm.end} 
-                      onChange={(e) => setNewTaskForm({ ...newTaskForm, end: e.target.value })} 
-                      className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
-                    />
-                  </div>
-                </div>
-
-                {/* Permanent Daily Routine Switcher */}
-                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-lg">🔁</span>
-                    <div>
-                      <label htmlFor="chkNewRoutine" className="text-xs font-bold text-textMain block cursor-pointer">
-                        {lang === 'en' ? 'Permanent Daily Routine' : 'Routine quotidienne permanente'}
-                      </label>
-                      <span className="text-[11px] text-textMuted">
-                        {newTaskForm.isRoutine 
-                          ? (lang === 'en' ? 'Repeats every day across all weeks' : 'Se répète chaque jour sur toutes les semaines')
-                          : (lang === 'en' ? 'Single-day task only' : 'Activité pour cette date uniquement')}
-                      </span>
-                    </div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    id="chkNewRoutine"
-                    checked={newTaskForm.isRoutine}
-                    onChange={(e) => setNewTaskForm({ ...newTaskForm, isRoutine: e.target.checked })}
-                    className="w-5 h-5 rounded text-primary focus:ring-primary cursor-pointer"
-                  />
-                </div>
-
-                {!newTaskForm.isRoutine && (
-                  <div>
-                    <label className="text-xs font-semibold text-textMuted block mb-1">
-                      {lang === 'en' ? 'Specific Date' : 'Date spécifique'}
-                    </label>
-                    <input 
-                      type="date" 
-                      required 
-                      value={newTaskForm.date || getAbidjanDateStr()} 
-                      onChange={(e) => {
-                        const selectedDate = e.target.value;
-                        const d = new Date(selectedDate);
-                        const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
-                        setNewTaskForm({ ...newTaskForm, date: selectedDate, dayIndex: dayIdx });
-                      }} 
-                      className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
-                    />
-                  </div>
-                )}
-
-                <div>
-                  <label className="text-xs font-semibold text-textMuted block mb-1">
-                    {lang === 'en' ? 'Color' : 'Couleur'}
-                  </label>
-                  <div className="flex gap-2">
-                    {['#6C63FF', '#3B82F6', '#00D4AA', '#F97316', '#FF4757', '#64748B'].map((hex) => (
-                      <button 
-                        key={hex} 
-                        type="button" 
-                        onClick={() => setNewTaskForm({ ...newTaskForm, color: hex })} 
-                        className={`w-7 h-7 rounded-full border-2 transition-transform ${newTaskForm.color === hex ? 'scale-125 border-textMain dark:border-white shadow-sm' : 'border-transparent'}`} 
-                        style={{ backgroundColor: hex }} 
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-2">
-                  <input 
-                    type="checkbox" 
-                    id="chkCheckable" 
-                    checked={newTaskForm.checkable} 
-                    onChange={(e) => setNewTaskForm({ ...newTaskForm, checkable: e.target.checked })} 
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer" 
-                  />
-                  <label htmlFor="chkCheckable" className="text-xs font-medium text-textMain cursor-pointer">
-                    {lang === 'en' ? 'Checkable task (counted in daily score)' : 'Tâche à cocher (comptée dans le score)'}
-                  </label>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-darkBorder">
-                  <button type="button" onClick={() => setShowNewTaskModal(false)} className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard">
-                    {lang === 'en' ? 'Cancel' : 'Annuler'}
-                  </button>
-                  <button type="submit" className="bg-primary hover:bg-primary/90 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-sm">
-                    {lang === 'en' ? 'Create Slot' : 'Créer le créneau'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        {/* New Task Modal with Conflict Detection & Blocked Hours Indicator */}
+        <NewTaskModal
+          isOpen={showNewTaskModal}
+          onClose={() => setShowNewTaskModal(false)}
+          form={newTaskForm}
+          setForm={setNewTaskForm}
+          onSubmit={handleCreateTask}
+          getDayBlocks={getDayBlocks}
+          dailyRoutines={dailyRoutines}
+        />
 
         {/* New Project Modal with Importance Selector, Status Selector & Calendar Date Picker */}
         {showNewProjectModal && (

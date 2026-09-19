@@ -8,6 +8,7 @@ const Week = ({
   getDayBlocks,
   todayBlocks = [], 
   projects = [],
+  dailyRoutines = [],
   onToggleCheckBlock, 
   onNewTask, 
   onSaveBlock, 
@@ -82,6 +83,8 @@ const Week = ({
           isoDate={editingBlockData.isoDate}
           onSaveBlock={onSaveBlock}
           onDeleteBlock={onDeleteBlock}
+          getDayBlocks={getDayBlocks}
+          dailyRoutines={dailyRoutines}
         />
       )}
 

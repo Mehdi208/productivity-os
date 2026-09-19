@@ -704,23 +704,37 @@ const WeekView = ({
                 }`}
               >
                 {/* Hour horizontal grid lines with Google Calendar half-hour subtle dashed guide */}
-                {hours.map((h) => (
-                  <div 
-                    key={h} 
-                    style={{ height: `${hourHeight}px` }} 
-                    className="relative border-b border-gray-100 dark:border-darkBorder/60 w-full hover:bg-primary/[0.04] cursor-pointer transition-colors"
-                    onClick={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const isBottomHalf = (e.clientY - rect.top) > (hourHeight / 2);
-                      const timeStr = `${h.toString().padStart(2, '0')}:${isBottomHalf ? '30' : '00'}`;
-                      if (onNewTaskAtSlot) onNewTaskAtSlot(d.dayIndex, timeStr, d.isoDate);
-                    }}
-                    title={lang === 'en' ? `Click to add a task at ${h}:00 on ${d.fullName}` : `Cliquer pour ajouter une tâche à ${h}:00 le ${d.fullName}`}
-                  >
-                    {/* Faint half-hour guideline (Google Calendar style) */}
-                    <div className="absolute top-1/2 left-0 right-0 border-b border-dashed border-gray-100/70 dark:border-darkBorder/30 pointer-events-none" />
-                  </div>
-                ))}
+                {hours.map((h) => {
+                  const slotHourStart = h * 60;
+                  const slotHourEnd = (h + 1) * 60;
+                  const occupiedBlock = rawBlocks.find(b => {
+                    if (!b || !b.start || !b.end) return false;
+                    const bs = timeStrToMinutes(b.start);
+                    let be = timeStrToMinutes(b.end);
+                    if (be === 0 && bs > 0) be = 1440;
+                    return Math.max(slotHourStart, bs) < Math.min(slotHourEnd, be);
+                  });
+
+                  return (
+                    <div 
+                      key={h} 
+                      style={{ height: `${hourHeight}px` }} 
+                      className="relative border-b border-gray-100 dark:border-darkBorder/60 w-full hover:bg-primary/[0.04] cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const isBottomHalf = (e.clientY - rect.top) > (hourHeight / 2);
+                        const timeStr = `${h.toString().padStart(2, '0')}:${isBottomHalf ? '30' : '00'}`;
+                        if (onNewTaskAtSlot) onNewTaskAtSlot(d.dayIndex, timeStr, d.isoDate);
+                      }}
+                      title={occupiedBlock 
+                        ? (lang === 'en' ? `🔒 Slot occupied by "${occupiedBlock.title}" (${occupiedBlock.start} - ${occupiedBlock.end})` : `🔒 Créneau occupé par « ${occupiedBlock.title} » (${occupiedBlock.start} - ${occupiedBlock.end})`)
+                        : (lang === 'en' ? `Click to add a task at ${h}:00 on ${d.fullName}` : `Cliquer pour ajouter une tâche à ${h}:00 le ${d.fullName}`)}
+                    >
+                      {/* Faint half-hour guideline (Google Calendar style) */}
+                      <div className="absolute top-1/2 left-0 right-0 border-b border-dashed border-gray-100/70 dark:border-darkBorder/30 pointer-events-none" />
+                    </div>
+                  );
+                })}
 
                 {/* Subtle End-of-Day (Midnight) boundary label under Hour 23 */}
                 <div className="h-6 border-b-2 border-dashed border-gray-200/60 dark:border-darkBorder/60 flex items-center justify-center pointer-events-none opacity-40">
