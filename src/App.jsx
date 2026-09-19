@@ -30,7 +30,6 @@ import FocusTimerModal from './components/Focus/FocusTimerModal';
 import MiniFocusBar from './components/Focus/MiniFocusBar';
 import { FocusProvider } from './context/FocusContext';
 import { useLanguage } from './context/LanguageContext';
-import ThemeToggle from './components/Theme/ThemeToggle';
 import PWAInstallPrompt, { PWAInstallModal } from './components/PWA/PWAInstallPrompt';
 import OnboardingModal from './components/Onboarding/OnboardingModal';
 import { useAgendaNotificationWatcher } from './hooks/useAgendaNotificationWatcher';
@@ -1123,31 +1122,7 @@ const AppContent = () => {
           onClose={() => setShowInstallModal(false)}
         />
 
-        {/* Desktop Sticky Fixed Bottom-Left Theme & Language Controls */}
-        <div className="hidden md:flex fixed bottom-6 left-6 z-50 bg-card/95 backdrop-blur-md p-1.5 px-3 rounded-2xl shadow-xl border border-gray-200/80 dark:border-darkBorder items-center gap-2.5 select-none transition-all">
-          {/* Quick Language Toggle */}
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-background hover:border-primary/50 border border-gray-200/80 dark:border-darkBorder text-xs font-black text-textMain transition-all active:scale-95 shadow-xs cursor-pointer"
-            title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
-            aria-label="Changer de langue"
-          >
-            <Globe size={14} className="text-primary" />
-            <span>{lang.toUpperCase()}</span>
-          </button>
 
-          {/* Separator */}
-          <div className="w-[1px] h-4 bg-gray-200 dark:bg-darkBorder" />
-
-          {/* Theme Switcher */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-textMuted">
-              {isDark ? '🌙 Sombre' : '☀️ Clair'}
-            </span>
-            <ThemeToggle isDark={isDark} onToggle={handleToggleTheme} />
-          </div>
-        </div>
 
         {/* Priority Coach Copilot (Floating bottom-right button on desktop, integrated in BottomNav on mobile) */}
         <PriorityCopilot

@@ -504,18 +504,6 @@ const WeekView = ({
             </button>
           </div>
 
-          {/* Desktop Language Switcher */}
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="h-9 px-3 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-background hover:border-primary text-xs font-black text-textMain flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
-            title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
-            aria-label="Changer de langue"
-          >
-            <Globe size={14} className="text-primary" />
-            <span>{lang.toUpperCase()}</span>
-          </button>
-
           <button
             onClick={onNewTask}
             className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 text-xs shadow-sm shadow-primary/25 transition-all active:scale-95"

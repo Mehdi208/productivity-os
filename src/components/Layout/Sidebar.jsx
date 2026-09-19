@@ -1,11 +1,22 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe } from 'lucide-react';
+import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe, Bell } from 'lucide-react';
 import { NotificationBadgeButton } from '../ui/NotificationBannerPrompt';
+import LanguageSlideToggle from '../ui/LanguageSlideToggle';
+import ThemeToggle from '../Theme/ThemeToggle';
 import { useLanguage } from '../../context/LanguageContext';
 
-const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceSync, onOpenTour, hasUnreadMonthlyRecap = false }) => {
-  const { lang, toggleLanguage, t } = useLanguage();
+const Sidebar = ({ 
+  onNewTask, 
+  syncStatus = 'synced', 
+  lastSyncTime = '', 
+  onForceSync, 
+  onOpenTour, 
+  hasUnreadMonthlyRecap = false,
+  isDark = false,
+  onToggleTheme
+}) => {
+  const { lang, t } = useLanguage();
 
   const navItems = [
     { name: t('navToday'), path: '/', icon: Calendar },
@@ -16,7 +27,7 @@ const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceS
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-background border-r border-gray-200/60 dark:border-darkBorder min-h-screen p-5 pb-24 select-none flex-shrink-0 transition-colors duration-300">
+    <aside className="hidden md:flex flex-col w-64 bg-background border-r border-gray-200/60 dark:border-darkBorder min-h-screen p-5 pb-8 select-none flex-shrink-0 transition-colors duration-300">
       
       {/* Redesigned Elegant Profile Card */}
       <div className="mb-4 p-4 rounded-3xl bg-card border border-gray-200/80 dark:border-darkBorder shadow-sm flex flex-col gap-3 transition-colors">
@@ -41,22 +52,13 @@ const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceS
           </div>
         </div>
 
-        {/* Action / Notification quick bar */}
-        <div className="pt-2.5 border-t border-gray-100 dark:border-darkBorder flex items-center justify-between gap-2">
-          <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">
-            {lang === 'en' ? 'Alerts' : 'Alertes'}
+        {/* Action / Notification quick bar (Clean, no overflow) */}
+        <div className="pt-2.5 border-t border-gray-100 dark:border-darkBorder flex items-center justify-between gap-2 min-w-0">
+          <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider flex-shrink-0 flex items-center gap-1">
+            <Bell size={11} className="text-primary" />
+            <span>{lang === 'en' ? 'Alerts' : 'Alertes'}</span>
           </span>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className="px-2 py-1 rounded-xl bg-background hover:border-primary border border-gray-200/70 dark:border-darkBorder text-[10px] font-black text-textMain flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer"
-              title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
-              aria-label="Changer de langue"
-            >
-              <Globe size={11} className="text-primary" />
-              <span>{lang.toUpperCase()}</span>
-            </button>
+          <div className="min-w-0 flex justify-end">
             <NotificationBadgeButton isCompact={false} />
           </div>
         </div>
@@ -148,34 +150,37 @@ const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceS
         })}
       </nav>
 
-      {/* Desktop Preferences Bar (Language & Tour) */}
-      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-darkBorder space-y-2">
-        {/* Language Switch */}
-        <button
-          type="button"
-          onClick={toggleLanguage}
-          className="w-full p-2.5 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card hover:border-primary/50 dark:hover:border-primary/50 flex items-center justify-between text-xs font-bold text-textMain transition-all active:scale-[0.98] shadow-xs group cursor-pointer"
-          title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
-          aria-label="Changer de langue"
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-              <Globe size={13} />
-            </div>
-            <span className="truncate">{lang === 'en' ? 'Language' : 'Langue'}</span>
+      {/* Desktop Preferences Bar (Language Slide & Theme & Tour) */}
+      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-darkBorder space-y-2.5">
+        {/* Language Slide Toggle (One single place) */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5 px-0.5">
+            <span className="text-[10px] font-extrabold text-textMuted uppercase tracking-wider flex items-center gap-1">
+              <Globe size={11} className="text-primary" />
+              <span>{lang === 'en' ? 'Language' : 'Langue'}</span>
+            </span>
           </div>
-          <span className="px-2 py-0.5 rounded-lg bg-background border border-gray-200/70 dark:border-darkBorder text-[11px] font-extrabold text-primary flex items-center gap-1 shadow-xs">
-            {lang === 'en' ? 'English' : 'Français'}
-          </span>
-        </button>
+          <LanguageSlideToggle />
+        </div>
+
+        {/* Theme Switcher (Contained inside sidebar, zero overflow) */}
+        <div className="p-2 px-3 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card flex items-center justify-between gap-2 shadow-xs transition-colors">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-sm">{isDark ? '🌙' : '☀️'}</span>
+            <span className="text-xs font-bold text-textMain truncate">
+              {isDark ? (lang === 'en' ? 'Dark Mode' : 'Mode Sombre') : (lang === 'en' ? 'Light Mode' : 'Mode Clair')}
+            </span>
+          </div>
+          <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
+        </div>
 
         {/* App Guide / Tour Trigger */}
         <button
           onClick={onOpenTour}
-          className="w-full p-2.5 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card hover:bg-gray-100 dark:hover:bg-darkCard flex items-center gap-2 text-textMuted hover:text-textMain text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+          className="w-full p-2 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card hover:bg-gray-100 dark:hover:bg-darkCard flex items-center justify-center gap-2 text-textMuted hover:text-textMain text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
           title={t('navTutorial')}
         >
-          <HelpCircle size={15} className="text-primary flex-shrink-0" />
+          <HelpCircle size={14} className="text-primary flex-shrink-0" />
           <span className="truncate">{t('navTutorial')}</span>
         </button>
       </div>

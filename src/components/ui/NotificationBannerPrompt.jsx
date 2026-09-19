@@ -38,7 +38,7 @@ export const NotificationBadgeButton = ({ className = '', isCompact = false }) =
   };
 
   return (
-    <div className={`relative inline-block ${className}`}>
+    <div className={`relative inline-block max-w-full ${className}`}>
       <button
         type="button"
         onClick={() => {
@@ -48,8 +48,8 @@ export const NotificationBadgeButton = ({ className = '', isCompact = false }) =
             setShowMenu(prev => !prev);
           }
         }}
-        className={`rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 border ${
-          isCompact ? 'w-8 h-8 p-0 flex-shrink-0' : 'px-2.5 py-1.5'
+        className={`rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95 border max-w-full ${
+          isCompact ? 'w-8 h-8 p-0 flex-shrink-0' : 'px-2 py-1'
         } ${
           permission === 'granted'
             ? 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
@@ -59,21 +59,21 @@ export const NotificationBadgeButton = ({ className = '', isCompact = false }) =
       >
         {permission === 'granted' ? (
           <>
-            <BellRing size={14} className="text-emerald-500 animate-pulse flex-shrink-0" />
-            {!isCompact && <span className="text-[11px] font-bold whitespace-nowrap">{t('notifBadgeActive')}</span>}
+            <BellRing size={13} className="text-emerald-500 animate-pulse flex-shrink-0" />
+            {!isCompact && <span className="text-[10px] font-bold truncate">{t('notifBadgeActive')}</span>}
           </>
         ) : (
-          <div className="relative flex items-center">
-            <Bell size={14} className="text-primary flex-shrink-0" />
+          <div className="relative flex items-center min-w-0">
+            <Bell size={13} className="text-primary flex-shrink-0" />
             <span className="w-1.5 h-1.5 rounded-full bg-primary absolute -top-0.5 -right-0.5 animate-pulse" />
-            {!isCompact && <span className="text-[11px] font-bold whitespace-nowrap ml-1.5">{t('notifBadgeEnable')}</span>}
+            {!isCompact && <span className="text-[10px] font-bold truncate ml-1">{t('notifBadgeEnable')}</span>}
           </div>
         )}
       </button>
 
       {/* Dropdown menu when already granted */}
       {showMenu && permission === 'granted' && (
-        <div className="absolute right-0 mt-2 w-64 bg-card dark:bg-darkCard rounded-2xl p-3 shadow-2xl border border-gray-200 dark:border-darkBorder z-50 text-xs animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-32px)] bg-card dark:bg-darkCard rounded-2xl p-3 shadow-2xl border border-gray-200 dark:border-darkBorder z-50 text-xs animate-in fade-in zoom-in-95 duration-150">
           <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-darkBorder mb-2">
             <div className="flex items-center gap-1.5 font-bold text-textMain dark:text-darkTextMain">
               <Check size={14} className="text-emerald-500" />
