@@ -207,7 +207,7 @@ const TimeBlock = ({
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
       onClick={handleCardClick} 
-      className={`absolute inset-x-1 rounded-xl ${isCompact ? 'py-1 px-1.5 md:px-2 flex items-center' : 'p-2 md:p-2.5 flex flex-col justify-between'} border-2 transition-all duration-150 overflow-hidden select-none cursor-grab active:cursor-grabbing group ${theme.bg} ${theme.border} ${checked ? 'opacity-40 grayscale' : isTouchDragging ? 'touch-none scale-[1.03] shadow-2xl z-40 ring-2 ring-primary ring-offset-2 opacity-95 border-primary' : isDragging ? 'opacity-25 scale-95 border-dashed' : 'hover:shadow-lg hover:scale-[1.01] z-10'}`}
+      className={`absolute ${style?.left ? '' : 'inset-x-1'} rounded-xl ${isCompact ? 'py-1 px-1.5 md:px-2 flex items-center' : 'p-2 md:p-2.5 flex flex-col justify-between'} border-2 transition-all duration-150 overflow-hidden select-none cursor-grab active:cursor-grabbing group hover:z-30 ${theme.bg} ${theme.border} ${checked ? 'opacity-40 grayscale' : isTouchDragging ? 'touch-none scale-[1.03] shadow-2xl z-40 ring-2 ring-primary ring-offset-2 opacity-95 border-primary' : isDragging ? 'opacity-25 scale-95 border-dashed' : 'hover:shadow-lg hover:scale-[1.01] z-10'}`}
       title={`${title} (${start} - ${end})${subtitle ? ' • ' + subtitle : ''} — ${lang === 'en' ? 'Hold & drag to reschedule' : 'Maintenir pour déplacer'}`}
     >
       <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl" style={{ backgroundColor: theme.accent }} />

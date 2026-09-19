@@ -1,17 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Calendar, Columns, Folder, BarChart2, Plus, RefreshCw, Flame, Award, HelpCircle } from 'lucide-react';
+import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe } from 'lucide-react';
 import { NotificationBadgeButton } from '../ui/NotificationBannerPrompt';
 import { useLanguage } from '../../context/LanguageContext';
 
-const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceSync, onOpenTour }) => {
-  const { lang, t } = useLanguage();
+const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceSync, onOpenTour, hasUnreadMonthlyRecap = false }) => {
+  const { lang, toggleLanguage, t } = useLanguage();
 
   const navItems = [
     { name: t('navToday'), path: '/', icon: Calendar },
     { name: t('navWeek'), path: '/week', icon: Columns },
     { name: t('navProjects'), path: '/projects', icon: Folder },
     { name: t('navStats'), path: '/stats', icon: BarChart2 },
+    { name: t('navMonthlyReview'), path: '/monthly-review', icon: Sparkles, badge: hasUnreadMonthlyRecap ? '1er' : null },
   ];
 
   return (
@@ -45,7 +46,19 @@ const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceS
           <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">
             {lang === 'en' ? 'Alerts' : 'Alertes'}
           </span>
-          <NotificationBadgeButton isCompact={false} />
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="px-2 py-1 rounded-xl bg-background hover:border-primary border border-gray-200/70 dark:border-darkBorder text-[10px] font-black text-textMain flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer"
+              title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
+              aria-label="Changer de langue"
+            >
+              <Globe size={11} className="text-primary" />
+              <span>{lang.toUpperCase()}</span>
+            </button>
+            <NotificationBadgeButton isCompact={false} />
+          </div>
         </div>
       </div>
 
@@ -124,21 +137,48 @@ const Sidebar = ({ onNewTask, syncStatus = 'synced', lastSyncTime = '', onForceS
               }
             >
               <Icon size={16} strokeWidth={2.5} />
-              <span>{item.name}</span>
+              <span className="flex-1 truncate">{item.name}</span>
+              {item.badge && (
+                <span className="bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded-full shadow-sm animate-pulse flex-shrink-0">
+                  {item.badge}
+                </span>
+              )}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* App Guide / Tour Trigger */}
-      <button
-        onClick={onOpenTour}
-        className="mt-4 p-3 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card hover:bg-gray-100 dark:hover:bg-darkCard flex items-center gap-2.5 text-textMuted hover:text-textMain text-xs font-semibold transition-all"
-        title={t('navTutorial')}
-      >
-        <HelpCircle size={16} className="text-primary flex-shrink-0" />
-        <span className="truncate">{t('navTutorial')}</span>
-      </button>
+      {/* Desktop Preferences Bar (Language & Tour) */}
+      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-darkBorder space-y-2">
+        {/* Language Switch */}
+        <button
+          type="button"
+          onClick={toggleLanguage}
+          className="w-full p-2.5 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card hover:border-primary/50 dark:hover:border-primary/50 flex items-center justify-between text-xs font-bold text-textMain transition-all active:scale-[0.98] shadow-xs group cursor-pointer"
+          title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
+          aria-label="Changer de langue"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+              <Globe size={13} />
+            </div>
+            <span className="truncate">{lang === 'en' ? 'Language' : 'Langue'}</span>
+          </div>
+          <span className="px-2 py-0.5 rounded-lg bg-background border border-gray-200/70 dark:border-darkBorder text-[11px] font-extrabold text-primary flex items-center gap-1 shadow-xs">
+            {lang === 'en' ? 'English' : 'Français'}
+          </span>
+        </button>
+
+        {/* App Guide / Tour Trigger */}
+        <button
+          onClick={onOpenTour}
+          className="w-full p-2.5 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-card hover:bg-gray-100 dark:hover:bg-darkCard flex items-center gap-2 text-textMuted hover:text-textMain text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+          title={t('navTutorial')}
+        >
+          <HelpCircle size={15} className="text-primary flex-shrink-0" />
+          <span className="truncate">{t('navTutorial')}</span>
+        </button>
+      </div>
 
     </aside>
   );

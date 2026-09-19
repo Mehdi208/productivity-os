@@ -21,7 +21,8 @@ const MobileDrawer = ({
   onClearSchedule,
   syncStatus,
   lastSyncTime,
-  onForceSync
+  onForceSync,
+  hasUnreadMonthlyRecap = false
 }) => {
   const { lang, toggleLanguage, t } = useLanguage();
 
@@ -30,6 +31,7 @@ const MobileDrawer = ({
     { name: t('navWeek'), path: '/week', icon: Columns },
     { name: t('navProjects'), path: '/projects', icon: Folder },
     { name: t('navStats'), path: '/stats', icon: BarChart2 },
+    { name: t('navMonthlyReview'), path: '/monthly-review', icon: Sparkles, badge: hasUnreadMonthlyRecap ? '1er' : null },
     { name: t('navChallenge'), path: '/challenge', icon: Flame, isSpecial: true },
   ];
 
@@ -159,7 +161,12 @@ const MobileDrawer = ({
                   }
                 >
                   <Icon size={17} />
-                  <span>{link.name}</span>
+                  <span className="flex-1">{link.name}</span>
+                  {link.badge && (
+                    <span className="bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
+                      {link.badge}
+                    </span>
+                  )}
                 </NavLink>
               );
             })}

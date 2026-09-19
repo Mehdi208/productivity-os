@@ -21,6 +21,7 @@ import Week from './pages/Week';
 import Projects from './pages/Projects';
 import Stats from './pages/Stats';
 import Challenge30Days from './pages/Challenge30Days';
+import MonthlyReview from './pages/MonthlyReview';
 
 import DailyBriefingModal from './components/DailyBriefing/DailyBriefingModal';
 import PriorityCopilot from './components/PriorityCoach/PriorityCopilot';
@@ -32,7 +33,9 @@ import ThemeToggle from './components/Theme/ThemeToggle';
 import PWAInstallPrompt, { PWAInstallModal } from './components/PWA/PWAInstallPrompt';
 import OnboardingModal from './components/Onboarding/OnboardingModal';
 import { useAgendaNotificationWatcher } from './hooks/useAgendaNotificationWatcher';
-import { Menu, Globe } from 'lucide-react';
+import { useMonthlyRecapWatcher } from './hooks/useMonthlyRecapWatcher';
+import { formatMonthLabel } from './data/monthlyReviewEngine';
+import { Menu, Globe, Sparkles, ArrowRight, X } from 'lucide-react';
 
 const storageKey = (key) => `pos_${key}`;
 
@@ -174,6 +177,15 @@ const AppContent = () => {
 
   // Agenda Native System Notification Watcher (Pop-up alerts like WhatsApp at block start times)
   useAgendaNotificationWatcher(todayBlocks);
+
+  // Monthly Review Automatic Watcher (Detects 1st of month & handles alerts)
+  const { 
+    hasUnreadRecap, 
+    recapMonthKey, 
+    isSimulated, 
+    dismissRecap, 
+    triggerSimulation 
+  } = useMonthlyRecapWatcher(lang);
 
   // Real auto-computed streak
   const [streak, setStreak] = useState(() => computeStreak(50) || 0);
@@ -949,9 +961,50 @@ const AppContent = () => {
           lastSyncTime={lastSyncTime}
           onForceSync={handleForceSync}
           onOpenTour={() => setShowOnboardingTour(true)}
+          hasUnreadMonthlyRecap={hasUnreadRecap}
         />
         
         <main className={`flex-1 flex flex-col min-w-0 p-3.5 sm:p-6 max-w-[1600px] w-full mx-auto min-h-0 h-full ${isWeekPage ? 'md:overflow-hidden md:p-4 lg:p-6' : 'overflow-y-auto lg:p-8'}`}>
+          {/* Unread Monthly Recap Top Banner (Triggered on 1st of month or simulation) */}
+          {hasUnreadRecap && location.pathname !== '/monthly-review' && (
+            <div className="mb-4 bg-gradient-to-r from-primary via-indigo-600 to-purple-600 text-white rounded-2xl p-3.5 sm:p-4 shadow-lg flex items-center justify-between gap-3 animate-in slide-in-from-top duration-300">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold flex-shrink-0">
+                  <Sparkles size={18} className="animate-pulse text-amber-300" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs sm:text-sm font-black leading-tight truncate">
+                    {lang === 'en' 
+                      ? `📊 Monthly Review Ready: ${formatMonthLabel(recapMonthKey, lang)}` 
+                      : `📊 Bilan Mensuel Prêt : ${formatMonthLabel(recapMonthKey, lang)}`}
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-white/80 truncate mt-0.5">
+                    {lang === 'en' 
+                      ? "It's the 1st of the month! Discover your performance highlights and strategic AI coaching." 
+                      : "C'est le 1er du mois ! Découvrez vos performances et vos axes d'efforts recommandés par l'IA."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Link
+                  to={`/monthly-review?month=${recapMonthKey}`}
+                  onClick={() => dismissRecap()}
+                  className="bg-white text-primary hover:bg-white/95 text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition-transform active:scale-95 flex items-center gap-1.5"
+                >
+                  <span>{lang === 'en' ? 'View Review' : 'Voir mon bilan'}</span>
+                  <ArrowRight size={13} />
+                </Link>
+                <button
+                  onClick={() => dismissRecap()}
+                  className="text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                  title="Fermer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
           <Routes>
             <Route 
               path="/" 
@@ -1017,6 +1070,17 @@ const AppContent = () => {
               />
               <Route path="/stats" element={<Stats hydrationMl={hydrationMl} />} />
               <Route path="/challenge" element={<Challenge30Days />} />
+              <Route 
+                path="/monthly-review" 
+                element={
+                  <MonthlyReview 
+                    projects={projects} 
+                    onOpenCoach={() => setIsCopilotOpen(true)}
+                    onSimulateFirstOfMonth={triggerSimulation}
+                    isSimulated={isSimulated}
+                  />
+                } 
+              />
             </Routes>
           </main>
         </div>
@@ -1039,6 +1103,7 @@ const AppContent = () => {
           syncStatus={syncStatus}
           lastSyncTime={lastSyncTime}
           onForceSync={handleForceSync}
+          hasUnreadMonthlyRecap={hasUnreadRecap}
         />
 
         {/* Onboarding Welcome Tour Modal */}
@@ -1056,12 +1121,30 @@ const AppContent = () => {
           onClose={() => setShowInstallModal(false)}
         />
 
-        {/* Desktop Sticky Fixed Bottom-Left Theme Toggle */}
-        <div className="hidden md:flex fixed bottom-6 left-6 z-50 bg-card p-2 rounded-2xl shadow-xl border border-gray-200/80 dark:border-darkBorder items-center gap-2 select-none transition-colors">
-          <span className="text-xs font-bold text-textMuted pl-1">
-            {isDark ? '🌙 Sombre' : '☀️ Clair'}
-          </span>
-          <ThemeToggle isDark={isDark} onToggle={handleToggleTheme} />
+        {/* Desktop Sticky Fixed Bottom-Left Theme & Language Controls */}
+        <div className="hidden md:flex fixed bottom-6 left-6 z-50 bg-card/95 backdrop-blur-md p-1.5 px-3 rounded-2xl shadow-xl border border-gray-200/80 dark:border-darkBorder items-center gap-2.5 select-none transition-all">
+          {/* Quick Language Toggle */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-background hover:border-primary/50 border border-gray-200/80 dark:border-darkBorder text-xs font-black text-textMain transition-all active:scale-95 shadow-xs cursor-pointer"
+            title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
+            aria-label="Changer de langue"
+          >
+            <Globe size={14} className="text-primary" />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+
+          {/* Separator */}
+          <div className="w-[1px] h-4 bg-gray-200 dark:bg-darkBorder" />
+
+          {/* Theme Switcher */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-textMuted">
+              {isDark ? '🌙 Sombre' : '☀️ Clair'}
+            </span>
+            <ThemeToggle isDark={isDark} onToggle={handleToggleTheme} />
+          </div>
         </div>
 
         {/* Priority Coach Copilot (Floating bottom-right button on desktop, integrated in BottomNav on mobile) */}
@@ -1333,6 +1416,7 @@ const AppContent = () => {
             </div>
           </div>
         )}
+
 
         {/* PWA Install Prompt Banner / Bottom Sheet */}
         <PWAInstallPrompt />

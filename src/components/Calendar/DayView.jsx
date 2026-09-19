@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Clock, Target } from 'lucide-react';
 import TimeBlock from './TimeBlock';
 import { useLanguage } from '../../context/LanguageContext';
+import { layoutDayBlocks, getCalendarCurrentTime } from '../../utils/calendarLayout';
 
 const DayView = ({ 
   blocksByDay = {}, 
@@ -20,7 +21,13 @@ const DayView = ({
   // Full 24-hour timeline from midnight 00:00 to 23:59
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const hourHeight = 64;
-  const [currentTimeOffset, setCurrentTimeOffset] = useState(null);
+  const [currentTimeData, setCurrentTimeData] = useState(() => {
+    const { h, m } = getCalendarCurrentTime();
+    return {
+      offset: (h + m / 60) * hourHeight,
+      timeStr: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+    };
+  });
   const scrollContainerRef = useRef(null);
 
   // Real today index (0 = Monday, 6 = Sunday)
@@ -207,10 +214,11 @@ const DayView = ({
 
   useEffect(() => {
     const updateCurrentTime = () => {
-      const now = new Date();
-      const h = now.getHours();
-      const m = now.getMinutes();
-      setCurrentTimeOffset((h + m / 60) * hourHeight);
+      const { h, m } = getCalendarCurrentTime();
+      setCurrentTimeData({
+        offset: (h + m / 60) * hourHeight,
+        timeStr: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+      });
     };
     updateCurrentTime();
     const interval = setInterval(updateCurrentTime, 60000);
@@ -220,9 +228,8 @@ const DayView = ({
   // Auto-scroll to current time on mount so user sees active hours immediately
   useEffect(() => {
     if (scrollContainerRef.current) {
-      const now = new Date();
-      const currentH = now.getHours();
-      const scrollPos = Math.max(0, (currentH - 1) * hourHeight);
+      const { h } = getCalendarCurrentTime();
+      const scrollPos = Math.max(0, (h - 1) * hourHeight);
       scrollContainerRef.current.scrollTop = scrollPos;
     }
   }, [hourHeight]);
@@ -582,36 +589,53 @@ const DayView = ({
 
           <div className={`grid ${getGridColsClass()} relative min-h-[1536px] pb-16`}>
             
-            {/* Time Gutter */}
-            <div className={`border-r border-gray-200/60 dark:border-darkBorder bg-background select-none z-10 ${viewMode === 'week' ? 'sticky left-0 bg-background/95 backdrop-blur-sm z-20 shadow-[1px_0_3px_rgba(0,0,0,0.06)]' : ''}`}>
+            {/* Time Gutter with zero-drift Google Calendar alignment */}
+            <div className={`border-r border-gray-200/60 dark:border-darkBorder bg-background select-none z-10 relative ${viewMode === 'week' ? 'sticky left-0 bg-background/95 backdrop-blur-sm z-20 shadow-[1px_0_3px_rgba(0,0,0,0.06)]' : ''}`}>
               {hours.map((h) => (
                 <div 
                   key={h} 
                   style={{ height: `${hourHeight}px` }} 
-                  className={`text-[10px] font-bold text-textMuted text-right pr-1.5 transition-colors ${
-                    h === 0 
-                      ? 'pt-2 text-textMain' 
-                      : '-mt-2'
-                  }`}
+                  className="relative border-b border-transparent"
                 >
-                  {h.toString().padStart(2, '0')}:00
+                  {/* Google Calendar centers hour text on the divider line between hours */}
+                  {h > 0 ? (
+                    <span className="absolute -top-2 right-1.5 text-[10px] font-semibold text-textMuted select-none tabular-nums">
+                      {h.toString().padStart(2, '0')}:00
+                    </span>
+                  ) : (
+                    <span className="absolute top-1 right-1.5 text-[9px] font-bold text-textMuted/70 select-none tabular-nums">
+                      00:00
+                    </span>
+                  )}
                 </div>
               ))}
               {/* End of day / Midnight demarcation badge */}
-              <div className="text-right pr-1.5 -mt-2 select-none">
+              <div className="relative h-6 border-t border-gray-200/40 dark:border-darkBorder select-none">
                 <span 
-                  className="text-[9px] font-extrabold text-textMuted/90 bg-slate-100 dark:bg-darkCard px-1 py-0.5 rounded border border-gray-200/80 dark:border-darkBorder shadow-xs inline-block"
+                  className="absolute -top-2 right-1.5 text-[9px] font-extrabold text-textMuted/90 bg-slate-100 dark:bg-darkCard px-1 py-0.5 rounded border border-gray-200/80 dark:border-darkBorder shadow-xs inline-block"
                   title={lang === 'en' ? 'Midnight (End of day)' : 'Minuit (Fin de journée)'}
                 >
                   00:00
                 </span>
               </div>
+
+              {/* Current Time red chip in gutter */}
+              {weekOffset === 0 && visibleDays.some(d => d.isRealToday) && (
+                <div 
+                  style={{ top: `${currentTimeData.offset - 8}px` }} 
+                  className="absolute right-1 z-40 pointer-events-none"
+                >
+                  <span className="bg-red-600 text-white text-[9px] font-black px-1 py-0.5 rounded shadow-sm select-none tabular-nums flex items-center">
+                    {currentTimeData.timeStr}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Current Time Laser Indicator (Only if looking at today in visible days) */}
-            {currentTimeOffset !== null && weekOffset === 0 && visibleDays.some(d => d.isRealToday) && (
+            {weekOffset === 0 && visibleDays.some(d => d.isRealToday) && (
               <div 
-                style={{ top: `${currentTimeOffset}px` }} 
+                style={{ top: `${currentTimeData.offset}px` }} 
                 className={`absolute ${viewMode === '1day' ? 'left-[50px]' : viewMode === '3days' ? 'left-[42px]' : 'left-[44px]'} right-0 z-20 flex items-center pointer-events-none`}
               >
                 <div className="w-2.5 h-2.5 rounded-full bg-red-600 -ml-1 flex-shrink-0 animate-pulse shadow-sm" />
@@ -621,7 +645,8 @@ const DayView = ({
 
             {/* Visible Day Columns */}
             {visibleDays.filter(Boolean).map((d) => {
-              const dayBlocks = getDayBlocks ? getDayBlocks(d.isoDate) : (blocksByDay[d.index] || []);
+              const rawBlocks = getDayBlocks ? getDayBlocks(d.isoDate) : (blocksByDay[d.index] || []);
+              const dayBlocksWithLayout = layoutDayBlocks(rawBlocks, hourHeight);
               const isColumnHovered = dragPreview?.dayIndex === d.index;
 
               return (
@@ -642,14 +667,21 @@ const DayView = ({
                           : ''
                   }`}
                 >
-                  {/* Hour clickable slots */}
+                  {/* Hour clickable slots with subtle half-hour guide */}
                   {hours.map((h) => (
                     <div 
                       key={h} 
                       style={{ height: `${hourHeight}px` }} 
-                      className="border-b border-gray-100 dark:border-darkBorder/60 w-full active:bg-primary/[0.06] transition-colors"
-                      onClick={() => onNewTaskAtSlot && onNewTaskAtSlot(d.index, `${h.toString().padStart(2, '0')}:00`, d.isoDate)}
-                    />
+                      className="relative border-b border-gray-100 dark:border-darkBorder/60 w-full active:bg-primary/[0.06] transition-colors"
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const isBottomHalf = (e.clientY - rect.top) > (hourHeight / 2);
+                        const timeStr = `${h.toString().padStart(2, '0')}:${isBottomHalf ? '30' : '00'}`;
+                        if (onNewTaskAtSlot) onNewTaskAtSlot(d.index, timeStr, d.isoDate);
+                      }}
+                    >
+                      <div className="absolute top-1/2 left-0 right-0 border-b border-dashed border-gray-100/70 dark:border-darkBorder/30 pointer-events-none" />
+                    </div>
                   ))}
 
                   {/* Subtle End-of-Day (Midnight) boundary label under Hour 23 */}
@@ -682,8 +714,8 @@ const DayView = ({
                     </div>
                   )}
 
-                  {/* Time Blocks on this day */}
-                  {dayBlocks.map((block) => (
+                  {/* Time Blocks on this day — Rendered with Google Calendar layout styles */}
+                  {dayBlocksWithLayout.map(({ block, style }) => (
                     <TimeBlock 
                       key={block.id} 
                       block={block} 
@@ -695,10 +727,7 @@ const DayView = ({
                       onTouchDragEnd={handleTouchDragEnd}
                       onToggleCheck={onToggleCheck} 
                       onEditBlock={(b) => onEditBlock && onEditBlock(b, d.index, d.isoDate)}
-                      style={{ 
-                        top: `${timeToTop(block.start)}px`, 
-                        height: `${getDurationHeight(block.start, block.end)}px` 
-                      }} 
+                      style={style}
                       isMobile={true} 
                     />
                   ))}

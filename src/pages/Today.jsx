@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Check, Brain, Play, Calendar as CalendarIcon, Droplet, Plus } from 'lucide-react';
+import { Sparkles, Check, Brain, Play, Calendar as CalendarIcon, Droplet, Plus, Globe } from 'lucide-react';
 import ScoreCard from '../components/Dashboard/ScoreCard';
 import TasksCard from '../components/Dashboard/TasksCard';
 import StreakCard from '../components/Dashboard/StreakCard';
@@ -22,7 +22,7 @@ const Today = ({
   onOpenDailyBriefing,
   onOpenCoach
 }) => {
-  const { lang, t } = useLanguage();
+  const { lang, toggleLanguage, t } = useLanguage();
 
   const getCategoryBadge = (title = '') => {
     const lower = title.toLowerCase();
@@ -83,6 +83,18 @@ const Today = ({
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          {/* Desktop Language Switcher */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="hidden md:flex items-center gap-1.5 bg-background hover:bg-gray-100 dark:hover:bg-gray-800 text-textMain border border-gray-200/80 dark:border-darkBorder font-extrabold px-3 py-2.5 rounded-2xl text-xs transition-all active:scale-95 shadow-sm"
+            title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
+            aria-label="Changer de langue"
+          >
+            <Globe size={14} className="text-primary" />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+
           <button
             onClick={onOpenDailyBriefing}
             className="bg-background hover:bg-gray-100 dark:hover:bg-gray-800 text-textMain border border-gray-200/80 dark:border-darkBorder font-bold px-3.5 py-2.5 rounded-2xl flex items-center gap-2 text-xs transition-all active:scale-95 shadow-sm"

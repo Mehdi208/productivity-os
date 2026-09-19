@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Layers, Filter, Flag, CheckCircle2, Clock, RefreshCw, AlertTriangle, RotateCcw } from 'lucide-react';
+import { Plus, Layers, Filter, Flag, CheckCircle2, Clock, RefreshCw, AlertTriangle, RotateCcw, Globe } from 'lucide-react';
 import ProjectCard from '../components/Projects/ProjectCard';
 import EditProjectModal from '../components/Projects/EditProjectModal';
 import { PRIORITY_LEVELS, autoPriority } from '../data/priorityEngine';
@@ -14,7 +14,7 @@ const Projects = ({
   onSaveProject, 
   onDeleteProject 
 }) => {
-  const { lang, t } = useLanguage();
+  const { lang, toggleLanguage, t } = useLanguage();
   // Category 1: Priority / Importance Filter
   const [priorityFilter, setPriorityFilter] = useState('ALL'); // 'ALL' | 'urgent' | 'important' | 'normal' | 'low'
   
@@ -77,13 +77,27 @@ const Projects = ({
           </p>
         </div>
 
-        <button 
-          onClick={onNewProject} 
-          className="bg-primary hover:bg-primary/90 text-white font-bold px-4 sm:px-5 py-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-primary/25 transition-all active:scale-95 text-xs flex-shrink-0"
-        >
-          <Plus size={16} strokeWidth={2.5} />
-          <span>{lang === 'en' ? '+ New Project' : '+ Nouveau projet'}</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
+          {/* Desktop Language Switcher */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="hidden md:flex items-center gap-1.5 bg-background hover:bg-gray-100 dark:hover:bg-gray-800 text-textMain border border-gray-200/80 dark:border-darkBorder font-extrabold px-3 py-2.5 rounded-xl sm:rounded-2xl text-xs transition-all active:scale-95 shadow-sm"
+            title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
+            aria-label="Changer de langue"
+          >
+            <Globe size={14} className="text-primary" />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+
+          <button 
+            onClick={onNewProject} 
+            className="bg-primary hover:bg-primary/90 text-white font-bold px-4 sm:px-5 py-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-primary/25 transition-all active:scale-95 text-xs flex-shrink-0"
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            <span>{lang === 'en' ? '+ New Project' : '+ Nouveau projet'}</span>
+          </button>
+        </div>
       </div>
 
       {/* 2 Linked High-Contrast Filter Categories Bar */}

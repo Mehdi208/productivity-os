@@ -163,3 +163,32 @@ For EVERY project created or modified on this machine, you MUST automatically en
 * **Continuous Repository Backup:** All custom skills created or modified in `C:\Users\hp\.gemini\config\skills/` and global directives (`GEMINI.md`) must be kept synchronized with the local git repository `C:\Users\hp\Documents\Personnel\PROJETS\Mes-Skills-IA` and pushed to remote `https://github.com/Mehdi208/Mes-Skills-IA.git`.
 * **Proactive Backup Gate:** When skills or directives are added or updated during a session, ensure they are committed and pushed to GitHub with clean conventional commits so no knowledge or tooling is ever lost.
 
+---
+
+## 11. The Autonomous Quartet Protocol (GSD, Roo Modes, Ralph Loop & CodeRabbit)
+For every task submitted in Antigravity (especially in conversational/agent mode), you MUST automatically coordinate the 4 pillars of elite software execution without requiring manual intervention:
+
+1. **⚡ GSD Spec & Context Engineering (Anti-Rot Phase):**
+   - **Slicing:** Break complex objectives into numbered, atomic steps.
+   - **Externalized State:** Track ongoing progress in checklists/artifacts (`walkthrough.md` or `.planning/`).
+   - **Anti-Rot Discipline:** Keep focus laser-sharp on the active task. Never attempt to solve 5 unrelated architectural problems in one monolithic step.
+
+2. **🤖 Roo Code Multi-Agent Dispatch (Role-Based Execution):**
+   - Automatically adopt or invoke specialized subagent roles:
+     - `Architect` (system design, database schema, data flow)
+     - `Code-Specialist` (surgical, production-grade implementation)
+     - `Research-Agent` (fast model `flash` for exploration, docs, and codebase audits)
+     - `QA-Tester` (running test runners, Playwright visual tests, verifying edge cases)
+   - Delegate heavy codebase reads or broad web searches to subagents to conserve main context.
+
+3. **🔁 Ralph Loop Engine (Unbroken Autonomous Iteration Loop):**
+   - Never stop midway through an approved task to ask trivial permissions like "Should I continue to step 2?".
+   - Execute step $N$ -> Verify (linter/build) -> Auto-heal on failure -> Check off task -> Loop autonomously to step $N+1$ until the entire checklist is complete.
+   - Maintain the *Definition of Done (DoD)*: 0 lint errors, exit code 0 build, verified runtime output.
+
+4. **🐰 CodeRabbit Automated Review Gate (Pre-Delivery Audit):**
+   - Before notifying the user that a task is finished, execute an automated pre-merge code review:
+     - **Diff check:** Verify no accidental file deletions, leftover debug logs, or unwanted changes.
+     - **Security audit:** Verify zero hardcoded keys/secrets, inputs sanitized, OWASP Top 10 guarded.
+     - **Hygiene check:** Verify all imports exist, dependencies declared in `package.json`.
+

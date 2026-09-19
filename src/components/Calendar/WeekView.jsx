@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Calendar, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Calendar, Clock, Globe } from 'lucide-react';
 import TimeBlock from './TimeBlock';
 import { useLanguage } from '../../context/LanguageContext';
+import { layoutDayBlocks, getCalendarCurrentTime } from '../../utils/calendarLayout';
 
 const WeekView = ({ 
   blocksByDay = {}, 
@@ -15,11 +16,17 @@ const WeekView = ({
   onNewTaskAtSlot, 
   onNewTask 
 }) => {
-  const { lang, t } = useLanguage();
+  const { lang, toggleLanguage, t } = useLanguage();
   // Full 24-hour timeline from midnight 00:00 to 23:59
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const hourHeight = 64;
-  const [currentTimeOffset, setCurrentTimeOffset] = useState(null);
+  const [currentTimeData, setCurrentTimeData] = useState(() => {
+    const { h, m } = getCalendarCurrentTime();
+    return {
+      offset: (h + m / 60) * hourHeight,
+      timeStr: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+    };
+  });
   const scrollContainerRef = useRef(null);
   
   // Real today index (0 = Monday, 6 = Sunday)
@@ -203,10 +210,11 @@ const WeekView = ({
 
   useEffect(() => {
     const updateCurrentTime = () => {
-      const now = new Date();
-      const h = now.getHours();
-      const m = now.getMinutes();
-      setCurrentTimeOffset((h + m / 60) * hourHeight);
+      const { h, m } = getCalendarCurrentTime();
+      setCurrentTimeData({
+        offset: (h + m / 60) * hourHeight,
+        timeStr: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+      });
     };
     updateCurrentTime();
     const interval = setInterval(updateCurrentTime, 60000);
@@ -216,9 +224,8 @@ const WeekView = ({
   // Auto-scroll to current time on mount so user sees active hours immediately
   useEffect(() => {
     if (scrollContainerRef.current) {
-      const now = new Date();
-      const currentH = now.getHours();
-      const scrollPos = Math.max(0, (currentH - 1) * hourHeight);
+      const { h } = getCalendarCurrentTime();
+      const scrollPos = Math.max(0, (h - 1) * hourHeight);
       scrollContainerRef.current.scrollTop = scrollPos;
     }
   }, [hourHeight]);
@@ -497,6 +504,18 @@ const WeekView = ({
             </button>
           </div>
 
+          {/* Desktop Language Switcher */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="h-9 px-3 rounded-2xl border border-gray-200/80 dark:border-darkBorder bg-background hover:border-primary text-xs font-black text-textMain flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
+            title={lang === 'en' ? 'Passer en Français' : 'Switch to English'}
+            aria-label="Changer de langue"
+          >
+            <Globe size={14} className="text-primary" />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+
           <button
             onClick={onNewTask}
             className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 text-xs shadow-sm shadow-primary/25 transition-all active:scale-95"
@@ -605,46 +624,65 @@ const WeekView = ({
       <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto relative overscroll-contain">
         <div className={`grid ${getGridColsClass()} relative min-h-[1536px] pb-16`}>
           
-          {/* Time gutter */}
-          <div className="border-r border-gray-200/60 dark:border-darkBorder bg-card z-10 select-none">
+          {/* Time gutter with zero-drift Google Calendar alignment */}
+          <div className="border-r border-gray-200/60 dark:border-darkBorder bg-card z-10 select-none relative">
             {hours.map((h) => (
               <div 
                 key={h} 
                 style={{ height: `${hourHeight}px` }} 
-                className={`text-[11px] font-bold text-textMuted text-right pr-2.5 transition-colors ${
-                  h === 0 
-                    ? 'pt-2 text-textMain' 
-                    : '-mt-2.5'
-                }`}
+                className="relative border-b border-transparent"
               >
-                {h.toString().padStart(2, '0')}:00
+                {/* Google Calendar centers hour text on the divider line between hours */}
+                {h > 0 ? (
+                  <span className="absolute -top-2.5 right-2 text-[11px] font-semibold text-textMuted select-none tabular-nums">
+                    {h.toString().padStart(2, '0')}:00
+                  </span>
+                ) : (
+                  <span className="absolute top-1 right-2 text-[10px] font-bold text-textMuted/70 select-none tabular-nums">
+                    00:00
+                  </span>
+                )}
               </div>
             ))}
+            
             {/* End of day / Midnight demarcation badge */}
-            <div className="text-right pr-2.5 -mt-2.5 select-none">
+            <div className="relative h-6 border-t border-gray-200/40 dark:border-darkBorder select-none">
               <span 
-                className="text-[10px] font-extrabold text-textMuted/90 bg-slate-100 dark:bg-darkCard px-1.5 py-0.5 rounded border border-gray-200/80 dark:border-darkBorder shadow-xs inline-block"
+                className="absolute -top-2.5 right-2 text-[10px] font-extrabold text-textMuted/90 bg-slate-100 dark:bg-darkCard px-1.5 py-0.5 rounded border border-gray-200/80 dark:border-darkBorder shadow-xs"
                 title={lang === 'en' ? 'Midnight (End of day)' : 'Minuit (Fin de journée)'}
               >
                 00:00
               </span>
             </div>
+
+            {/* Current Time red chip in gutter (when today is visible in current week) */}
+            {weekOffset === 0 && visibleDays.some(d => d.isRealToday) && (
+              <div 
+                style={{ top: `${currentTimeData.offset - 9}px` }} 
+                className="absolute right-1.5 z-40 pointer-events-none"
+              >
+                <span className="bg-red-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-md shadow-md select-none tabular-nums flex items-center">
+                  {currentTimeData.timeStr}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Current Time Red Laser Line (Only when real today is in visible days) */}
-          {currentTimeOffset !== null && weekOffset === 0 && visibleDays.some(d => d.isRealToday) && (
+          {weekOffset === 0 && visibleDays.some(d => d.isRealToday) && (
             <div 
-              style={{ top: `${currentTimeOffset}px` }} 
+              style={{ top: `${currentTimeData.offset}px` }} 
               className="absolute left-[60px] right-0 z-30 flex items-center pointer-events-none"
             >
-              <div className="w-3 h-3 rounded-full bg-red-600 -ml-1.5 flex-shrink-0 shadow-sm animate-pulse" />
+              <div className="w-2.5 h-2.5 rounded-full bg-red-600 -ml-1.5 flex-shrink-0 shadow-sm animate-pulse" />
               <div className="h-[2px] w-full bg-red-600 shadow-sm" />
             </div>
           )}
 
           {/* Visible Day Columns */}
           {visibleDays.filter(Boolean).map((d) => {
-            const dayBlocks = getDayBlocks ? getDayBlocks(d.isoDate) : (blocksByDay[d.dayIndex] || []);
+            const rawBlocks = getDayBlocks ? getDayBlocks(d.isoDate) : (blocksByDay[d.dayIndex] || []);
+            const dayBlocksWithLayout = layoutDayBlocks(rawBlocks, hourHeight);
             const isColumnHovered = dragPreview?.dayIndex === d.dayIndex;
 
             return (
@@ -665,15 +703,23 @@ const WeekView = ({
                         : ''
                 }`}
               >
-                {/* Hour horizontal grid lines */}
+                {/* Hour horizontal grid lines with Google Calendar half-hour subtle dashed guide */}
                 {hours.map((h) => (
                   <div 
                     key={h} 
                     style={{ height: `${hourHeight}px` }} 
-                    className="border-b border-gray-100 dark:border-darkBorder/60 w-full hover:bg-primary/[0.06] cursor-pointer transition-colors"
-                    onClick={() => onNewTaskAtSlot && onNewTaskAtSlot(d.dayIndex, `${h.toString().padStart(2, '0')}:00`, d.isoDate)}
-                    title={lang === 'en' ? `Click to add a block at ${h}:00 on ${d.fullName}` : `Cliquer pour ajouter un bloc à ${h}:00 le ${d.fullName}`}
-                  />
+                    className="relative border-b border-gray-100 dark:border-darkBorder/60 w-full hover:bg-primary/[0.04] cursor-pointer transition-colors"
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const isBottomHalf = (e.clientY - rect.top) > (hourHeight / 2);
+                      const timeStr = `${h.toString().padStart(2, '0')}:${isBottomHalf ? '30' : '00'}`;
+                      if (onNewTaskAtSlot) onNewTaskAtSlot(d.dayIndex, timeStr, d.isoDate);
+                    }}
+                    title={lang === 'en' ? `Click to add a task at ${h}:00 on ${d.fullName}` : `Cliquer pour ajouter une tâche à ${h}:00 le ${d.fullName}`}
+                  >
+                    {/* Faint half-hour guideline (Google Calendar style) */}
+                    <div className="absolute top-1/2 left-0 right-0 border-b border-dashed border-gray-100/70 dark:border-darkBorder/30 pointer-events-none" />
+                  </div>
                 ))}
 
                 {/* Subtle End-of-Day (Midnight) boundary label under Hour 23 */}
@@ -706,8 +752,8 @@ const WeekView = ({
                   </div>
                 )}
 
-                {/* Time Blocks on this day */}
-                {dayBlocks.map((block) => (
+                {/* Time Blocks on this day — Rendered with Google Calendar layout styles */}
+                {dayBlocksWithLayout.map(({ block, style }) => (
                   <TimeBlock 
                     key={block.id} 
                     block={block} 
@@ -719,10 +765,7 @@ const WeekView = ({
                     onTouchDragEnd={handleTouchDragEnd}
                     onToggleCheck={onToggleCheck} 
                     onEditBlock={(b) => onEditBlock && onEditBlock(b, d.dayIndex, d.isoDate)}
-                    style={{ 
-                      top: `${timeToTop(block.start)}px`, 
-                      height: `${getDurationHeight(block.start, block.end)}px` 
-                    }} 
+                    style={style}
                   />
                 ))}
               </div>
