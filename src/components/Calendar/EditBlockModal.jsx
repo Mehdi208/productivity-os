@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Clock, Trash2, Edit3, Calendar, CheckSquare, AlertTriangle, Lock } from 'lucide-react';
+import { Clock, Trash2, Edit3, AlertTriangle, Lock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   checkSlotConflict, 
@@ -114,6 +114,20 @@ const EditBlockModal = ({
 
   if (!isOpen || !block) return null;
 
+  const handleDelete = () => {
+    const confirmMsg = form.isRoutine
+      ? (lang === 'en'
+          ? "Delete this permanent daily routine? It will be removed from all days."
+          : "Supprimer cette routine quotidienne ? Elle sera retirée de tous les jours.")
+      : (lang === 'en'
+          ? "Do you want to delete this block from your schedule?"
+          : "Voulez-vous supprimer ce créneau de votre emploi du temps ?");
+    if (window.confirm(confirmMsg)) {
+      onDeleteBlock(block.id, dayIndex, form.date, form.isRoutine);
+      onClose();
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.title.trim() || conflict.hasConflict) return;
@@ -124,29 +138,46 @@ const EditBlockModal = ({
     onClose();
   };
 
-  const daysNames = lang === 'en'
-    ? ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    : ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[85] flex items-center justify-center p-4">
-      <div className="bg-card rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors">
+    <div 
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div 
+        className="bg-card rounded-3xl w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors flex flex-col max-h-[88vh] max-h-[88dvh] my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-darkBorder">
-          <div className="flex items-center gap-2">
-            <Edit3 size={18} className="text-primary" />
-            <h3 className="text-lg font-bold text-textMain">
-              {lang === 'en' ? 'Edit Scheduled Block' : 'Modifier le Bloc Horaire'}
+        {/* Pinned Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100 dark:border-darkBorder flex-shrink-0 bg-card">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+              <Edit3 size={16} />
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-textMain">
+              {lang === 'en' ? 'Edit Scheduled Block' : 'Modifier le Créneau'}
             </h3>
           </div>
-          <button onClick={onClose} className="text-textMuted hover:text-textMain font-bold">✕</button>
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-textMuted hover:text-textMain hover:bg-gray-100 dark:hover:bg-darkCard transition-colors font-bold text-base cursor-pointer"
+            aria-label={lang === 'en' ? 'Close' : 'Fermer'}
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+        {/* Form Container with Separated Scrollable Body and Pinned Footer */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
           
-          {/* Permanent Daily Routine Switcher */}
-          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
+          {/* Scrollable Form Body */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 py-4 space-y-4">
+            
+            {/* Permanent Daily Routine Switcher */}
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
             <div className="flex items-center gap-2.5">
               <span className="text-lg">🔁</span>
               <div>
@@ -178,7 +209,7 @@ const EditBlockModal = ({
               required 
               value={form.title} 
               onChange={(e) => setForm({ ...form, title: e.target.value })} 
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
+              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
             />
           </div>
 
@@ -191,7 +222,7 @@ const EditBlockModal = ({
               value={form.subtitle} 
               placeholder={lang === 'en' ? 'e.g. Uninterrupted focus or workout' : 'ex: Focus sans interruption ou Entraînement'} 
               onChange={(e) => setForm({ ...form, subtitle: e.target.value })} 
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
+              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
             />
           </div>
 
@@ -205,7 +236,7 @@ const EditBlockModal = ({
                 required
                 value={form.date} 
                 onChange={(e) => setForm({ ...form, date: e.target.value })} 
-                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
+                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
               />
             </div>
           )}
@@ -220,7 +251,7 @@ const EditBlockModal = ({
                 required 
                 value={form.start} 
                 onChange={(e) => setForm({ ...form, start: e.target.value })} 
-                className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
+                className={`w-full bg-background border rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none transition-colors ${
                   conflict.hasConflict 
                     ? 'border-red-500 ring-1 ring-red-500/30' 
                     : 'border-gray-200 dark:border-darkBorder focus:border-primary'
@@ -236,7 +267,7 @@ const EditBlockModal = ({
                 required 
                 value={form.end} 
                 onChange={(e) => setForm({ ...form, end: e.target.value })} 
-                className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
+                className={`w-full bg-background border rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none transition-colors ${
                   conflict.hasConflict 
                     ? 'border-red-500 ring-1 ring-red-500/30' 
                     : 'border-gray-200 dark:border-darkBorder focus:border-primary'
@@ -378,44 +409,34 @@ const EditBlockModal = ({
             </label>
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-darkBorder">
+          </div>
+
+          {/* Pinned Footer Actions */}
+          <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-t border-gray-100 dark:border-darkBorder flex-shrink-0 bg-card/95 backdrop-blur-sm">
             <button 
               type="button" 
-              onClick={() => {
-                const confirmMsg = form.isRoutine
-                  ? (lang === 'en'
-                      ? "Delete this permanent daily routine? It will be removed from all days."
-                      : "Supprimer cette routine quotidienne ? Elle sera retirée de tous les jours.")
-                  : (lang === 'en'
-                      ? "Do you want to delete this block from your schedule?"
-                      : "Voulez-vous supprimer ce créneau de votre emploi du temps ?");
-                if (window.confirm(confirmMsg)) {
-                  onDeleteBlock(block.id, dayIndex, form.date, form.isRoutine);
-                  onClose();
-                }
-              }} 
-              className="text-danger hover:bg-danger/10 p-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+              onClick={handleDelete} 
+              className="text-danger hover:bg-danger/10 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95"
             >
-              <Trash2 size={15} />
+              <Trash2 size={14} />
               <span>{lang === 'en' ? 'Delete' : 'Supprimer'}</span>
             </button>
 
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button 
                 type="button" 
                 onClick={onClose} 
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 {lang === 'en' ? 'Cancel' : 'Annuler'}
               </button>
               <button 
                 type="submit" 
                 disabled={conflict.hasConflict}
-                className={`font-bold px-5 py-2 rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 ${
+                className={`font-bold px-4 sm:px-5 py-2 rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer ${
                   conflict.hasConflict
                     ? 'bg-red-500/20 text-red-500 border border-red-500/30 cursor-not-allowed opacity-80'
-                    : 'bg-primary hover:bg-primary/90 text-white active:scale-95'
+                    : 'bg-primary hover:bg-primary/90 text-white active:scale-95 shadow-primary/20'
                 }`}
               >
                 {conflict.hasConflict ? (

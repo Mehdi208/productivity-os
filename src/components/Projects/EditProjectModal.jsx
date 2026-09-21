@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Edit3, Trash2, Calendar, Flag } from 'lucide-react';
+import { Edit3, Trash2, Calendar, Flag } from 'lucide-react';
 import { PRIORITY_LEVELS } from '../../data/priorityEngine';
 import { useLanguage } from '../../context/LanguageContext';
 
 const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeleteProject }) => {
-  const { lang, t } = useLanguage();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     name: project?.name || '',
     subtitle: project?.subtitle || '',
@@ -59,28 +59,49 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
-      <div className="bg-card rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div 
+        className="bg-card rounded-3xl w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors flex flex-col max-h-[88vh] max-h-[88dvh] my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         
-        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-darkBorder">
-          <div className="flex items-center gap-2">
-            <Edit3 size={18} className="text-primary" />
-            <h3 className="text-lg font-bold text-textMain">{t('editProjectModalTitle')}</h3>
+        {/* Pinned Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100 dark:border-darkBorder flex-shrink-0 bg-card">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+              <Edit3 size={16} />
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-textMain">{t('editProjectModalTitle')}</h3>
           </div>
-          <button onClick={onClose} className="text-textMuted hover:text-textMain font-bold">✕</button>
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-textMuted hover:text-textMain hover:bg-gray-100 dark:hover:bg-darkCard transition-colors font-bold text-base cursor-pointer"
+            aria-label="Fermer"
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          <div>
-            <label className="text-xs font-semibold text-textMuted block mb-1">{t('projectNameLabel')}</label>
-            <input 
-              type="text" 
-              required 
-              value={form.name} 
-              onChange={(e) => setForm({ ...form, name: e.target.value })} 
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          
+          {/* Scrollable Form Body */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 py-4 space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-textMuted block mb-1">{t('projectNameLabel')}</label>
+              <input 
+                type="text" 
+                required 
+                value={form.name} 
+                onChange={(e) => setForm({ ...form, name: e.target.value })} 
+                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
+              />
+            </div>
 
           {/* Priority / Importance Selector */}
           <div>
@@ -117,7 +138,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
                 type="text" 
                 value={form.subtitle} 
                 onChange={(e) => setForm({ ...form, subtitle: e.target.value })} 
-                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
+                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
               />
             </div>
             <div>
@@ -130,7 +151,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
                 required
                 value={form.deadline} 
                 onChange={(e) => setForm({ ...form, deadline: e.target.value })} 
-                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
+                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
               />
             </div>
           </div>
@@ -154,7 +175,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
                   completedAt: val === 'Done' ? (form.completedAt || new Date().toISOString().split('T')[0]) : null
                 });
               }}
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer font-medium"
+              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer font-medium"
             >
               <option value="Not Started">⚪ {t('statusNotStarted')}</option>
               <option value="In Progress">⏳ {t('statusInProgress')}</option>
@@ -169,11 +190,14 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
               rows={2} 
               value={form.description} 
               onChange={(e) => setForm({ ...form, description: e.target.value })} 
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
+              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
             />
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-darkBorder">
+          </div>
+
+          {/* Pinned Footer Actions */}
+          <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-t border-gray-100 dark:border-darkBorder flex-shrink-0 bg-card/95 backdrop-blur-sm">
             {onDeleteProject ? (
               <button 
                 type="button" 
@@ -182,25 +206,25 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
                     onDeleteProject(project.id);
                     onClose();
                   }
-                }}
-                className="text-danger hover:bg-danger/10 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
+                }} 
+                className="text-danger hover:bg-danger/10 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
               >
                 <Trash2 size={14} />
                 <span>{t('delete')}</span>
               </button>
             ) : <div />}
 
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button 
                 type="button" 
                 onClick={onClose} 
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard transition-colors cursor-pointer"
               >
                 {t('cancel')}
               </button>
               <button 
                 type="submit" 
-                className="bg-primary hover:bg-primary/90 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-sm"
+                className="bg-primary hover:bg-primary/90 text-white font-bold px-4 sm:px-5 py-2 rounded-xl text-xs shadow-sm transition-all active:scale-95 shadow-primary/20 cursor-pointer"
               >
                 {t('saveProjectBtn')}
               </button>

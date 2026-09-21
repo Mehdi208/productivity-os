@@ -90,141 +90,154 @@ const NewTaskModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-card rounded-3xl p-6 w-full max-w-lg shadow-2xl border border-gray-100 dark:border-darkBorder transition-all max-h-[92vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div 
+        className="bg-card rounded-3xl w-full max-w-lg shadow-2xl border border-gray-100 dark:border-darkBorder transition-all flex flex-col max-h-[88vh] max-h-[88dvh] my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-darkBorder">
+        {/* Pinned Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100 dark:border-darkBorder flex-shrink-0 bg-card">
           <div className="flex items-center gap-2">
             <Sparkles size={18} className="text-primary" />
-            <h3 className="text-lg font-bold text-textMain">
+            <h3 className="text-base sm:text-lg font-bold text-textMain">
               {lang === 'en' ? '✨ New Scheduled Slot' : '✨ Nouveau Créneau'}
             </h3>
           </div>
           <button 
+            type="button"
             onClick={onClose} 
-            className="text-textMuted hover:text-textMain font-bold p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-textMuted hover:text-textMain hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-bold text-base cursor-pointer"
+            aria-label={lang === 'en' ? 'Close' : 'Fermer'}
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4 pt-4">
+        <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
           
-          {/* Title */}
-          <div>
-            <label className="text-xs font-semibold text-textMuted block mb-1">
-              {lang === 'en' ? 'Task / Slot Title' : 'Titre de la tâche / créneau'}
-            </label>
-            <input 
-              type="text" 
-              required 
-              placeholder={lang === 'en' ? 'e.g. Deep Work, Workout, or Client Call' : 'ex: Deep Work, Sport ou Réunion Projet'} 
-              value={form.title} 
-              onChange={(e) => setForm({ ...form, title: e.target.value })} 
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
-            />
-          </div>
-
-          {/* Subtitle / Notes */}
-          <div>
-            <label className="text-xs font-semibold text-textMuted block mb-1">
-              {lang === 'en' ? 'Notes / Subtitle' : 'Description / Sous-titre'}
-            </label>
-            <input 
-              type="text" 
-              placeholder={lang === 'en' ? 'e.g. Focused execution without distractions' : 'ex: Exécution focalisée sans distraction'} 
-              value={form.subtitle} 
-              onChange={(e) => setForm({ ...form, subtitle: e.target.value })} 
-              className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary" 
-            />
-          </div>
-
-          {/* Permanent Daily Routine Switcher */}
-          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
-            <div className="flex items-center gap-2.5">
-              <span className="text-lg">🔁</span>
-              <div>
-                <label htmlFor="chkNewRoutine" className="text-xs font-bold text-textMain block cursor-pointer">
-                  {t('permanentRoutine')}
-                </label>
-                <span className="text-[11px] text-textMuted">
-                  {form.isRoutine 
-                    ? t('permanentRoutineDesc')
-                    : t('singleDayTaskDesc')}
-                </span>
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              id="chkNewRoutine"
-              checked={form.isRoutine}
-              onChange={(e) => setForm({ ...form, isRoutine: e.target.checked })}
-              className="w-5 h-5 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-          </div>
-
-          {/* Specific Date */}
-          {!form.isRoutine && (
+          {/* Scrollable Form Body */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 py-4 space-y-4">
+          
+            {/* Title */}
             <div>
               <label className="text-xs font-semibold text-textMuted block mb-1">
-                {lang === 'en' ? 'Specific Date' : 'Date spécifique'}
+                {lang === 'en' ? 'Task / Slot Title' : 'Titre de la tâche / créneau'}
               </label>
               <input 
-                type="date" 
+                type="text" 
                 required 
-                value={form.date || new Date().toISOString().split('T')[0]} 
-                onChange={(e) => {
-                  const selectedDate = e.target.value;
-                  const d = new Date(selectedDate);
-                  const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
-                  setForm({ ...form, date: selectedDate, dayIndex: dayIdx });
-                }} 
-                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
+                placeholder={lang === 'en' ? 'e.g. Deep Work, Workout, or Client Call' : 'ex: Deep Work, Sport ou Réunion Projet'} 
+                value={form.title} 
+                onChange={(e) => setForm({ ...form, title: e.target.value })} 
+                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
               />
             </div>
-          )}
 
-          {/* Time Inputs (Start & End) */}
-          <div className="grid grid-cols-2 gap-3">
+            {/* Subtitle / Notes */}
             <div>
               <label className="text-xs font-semibold text-textMuted block mb-1">
-                {lang === 'en' ? 'Start Time' : 'Heure de début'}
+                {lang === 'en' ? 'Notes / Subtitle' : 'Description / Sous-titre'}
               </label>
-              <div className="relative">
-                <input 
-                  type="time" 
-                  required
-                  value={form.start} 
-                  onChange={(e) => setForm({ ...form, start: e.target.value })} 
-                  className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
-                    conflict.hasConflict 
-                      ? 'border-red-500 ring-1 ring-red-500/30' 
-                      : 'border-gray-200 dark:border-darkBorder focus:border-primary'
-                  }`} 
-                />
-              </div>
+              <input 
+                type="text" 
+                placeholder={lang === 'en' ? 'e.g. Focused execution without distractions' : 'ex: Exécution focalisée sans distraction'} 
+                value={form.subtitle} 
+                onChange={(e) => setForm({ ...form, subtitle: e.target.value })} 
+                className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary" 
+              />
             </div>
 
-            <div>
-              <label className="text-xs font-semibold text-textMuted block mb-1">
-                {lang === 'en' ? 'End Time' : 'Heure de fin'}
-              </label>
-              <div className="relative">
+            {/* Permanent Daily Routine Switcher */}
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between transition-colors">
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg">🔁</span>
+                <div>
+                  <label htmlFor="chkNewRoutine" className="text-xs font-bold text-textMain block cursor-pointer">
+                    {t('permanentRoutine')}
+                  </label>
+                  <span className="text-[11px] text-textMuted">
+                    {form.isRoutine 
+                      ? t('permanentRoutineDesc')
+                      : t('singleDayTaskDesc')}
+                  </span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                id="chkNewRoutine"
+                checked={form.isRoutine}
+                onChange={(e) => setForm({ ...form, isRoutine: e.target.checked })}
+                className="w-5 h-5 rounded text-primary focus:ring-primary cursor-pointer"
+              />
+            </div>
+
+            {/* Specific Date */}
+            {!form.isRoutine && (
+              <div>
+                <label className="text-xs font-semibold text-textMuted block mb-1">
+                  {lang === 'en' ? 'Specific Date' : 'Date spécifique'}
+                </label>
                 <input 
-                  type="time" 
-                  required
-                  value={form.end} 
-                  onChange={(e) => setForm({ ...form, end: e.target.value })} 
-                  className={`w-full bg-background border rounded-xl px-3 py-2 text-sm text-textMain focus:outline-none transition-colors ${
-                    conflict.hasConflict 
-                      ? 'border-red-500 ring-1 ring-red-500/30' 
-                      : 'border-gray-200 dark:border-darkBorder focus:border-primary'
-                  }`} 
+                  type="date" 
+                  required 
+                  value={form.date || new Date().toISOString().split('T')[0]} 
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    const d = new Date(selectedDate);
+                    const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+                    setForm({ ...form, date: selectedDate, dayIndex: dayIdx });
+                  }} 
+                  className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none focus:border-primary cursor-pointer" 
                 />
               </div>
+            )}
+
+            {/* Time Inputs (Start & End) */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-textMuted block mb-1">
+                  {lang === 'en' ? 'Start Time' : 'Heure de début'}
+                </label>
+                <div className="relative">
+                  <input 
+                    type="time" 
+                    required
+                    value={form.start} 
+                    onChange={(e) => setForm({ ...form, start: e.target.value })} 
+                    className={`w-full bg-background border rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none transition-colors ${
+                      conflict.hasConflict 
+                        ? 'border-red-500 ring-1 ring-red-500/30' 
+                        : 'border-gray-200 dark:border-darkBorder focus:border-primary'
+                    }`} 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-textMuted block mb-1">
+                  {lang === 'en' ? 'End Time' : 'Heure de fin'}
+                </label>
+                <div className="relative">
+                  <input 
+                    type="time" 
+                    required
+                    value={form.end} 
+                    onChange={(e) => setForm({ ...form, end: e.target.value })} 
+                    className={`w-full bg-background border rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none transition-colors ${
+                      conflict.hasConflict 
+                        ? 'border-red-500 ring-1 ring-red-500/30' 
+                        : 'border-gray-200 dark:border-darkBorder focus:border-primary'
+                    }`} 
+                  />
+                </div>
+              </div>
             </div>
-          </div>
 
           {/* REAL-TIME CONFLICT ALERT BANNER */}
           {conflict.hasConflict && (
@@ -345,36 +358,38 @@ const NewTaskModal = ({
             </div>
           </div>
 
-          {/* Checkable toggle */}
-          <div className="flex items-center gap-2 pt-1">
-            <input 
-              type="checkbox" 
-              id="chkCheckable" 
-              checked={form.checkable} 
-              onChange={(e) => setForm({ ...form, checkable: e.target.checked })} 
-              className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer" 
-            />
-            <label htmlFor="chkCheckable" className="text-xs font-medium text-textMain cursor-pointer">
-              {lang === 'en' ? 'Checkable task (counted in daily score)' : 'Tâche à cocher (comptée dans le score)'}
-            </label>
+            {/* Checkable toggle */}
+            <div className="flex items-center gap-2 pt-1 pb-1">
+              <input 
+                type="checkbox" 
+                id="chkCheckable" 
+                checked={form.checkable} 
+                onChange={(e) => setForm({ ...form, checkable: e.target.checked })} 
+                className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer" 
+              />
+              <label htmlFor="chkCheckable" className="text-xs font-medium text-textMain cursor-pointer select-none">
+                {lang === 'en' ? 'Checkable task (counted in daily score)' : 'Tâche à cocher (comptée dans le score)'}
+              </label>
+            </div>
+
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-darkBorder">
+          {/* Pinned Footer Actions */}
+          <div className="flex items-center justify-end gap-2 px-5 sm:px-6 py-3.5 border-t border-gray-100 dark:border-darkBorder flex-shrink-0 bg-card/95 backdrop-blur-sm">
             <button 
               type="button" 
               onClick={onClose} 
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard transition-colors cursor-pointer"
             >
               {lang === 'en' ? 'Cancel' : 'Annuler'}
             </button>
             <button 
               type="submit" 
               disabled={conflict.hasConflict}
-              className={`font-bold px-5 py-2 rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 ${
+              className={`font-bold px-4 sm:px-5 py-2 rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer ${
                 conflict.hasConflict
                   ? 'bg-red-500/20 text-red-500 border border-red-500/30 cursor-not-allowed opacity-80'
-                  : 'bg-primary hover:bg-primary/90 text-white active:scale-95'
+                  : 'bg-primary hover:bg-primary/90 text-white active:scale-95 shadow-primary/20'
               }`}
             >
               {conflict.hasConflict ? (
