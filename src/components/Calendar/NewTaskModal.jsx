@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import { AlertTriangle, Clock, Lock, Sparkles } from 'lucide-react';
+import { AlertTriangle, Clock, Lock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import SmartSlotSuggestions from './SmartSlotSuggestions';
 import { 
   checkSlotConflict, 
   getHourlyAvailability, 
@@ -301,19 +300,6 @@ const NewTaskModal = ({
             </div>
           </div>
 
-          {/* AI SMART SLOT SUGGESTIONS */}
-          <SmartSlotSuggestions
-            title={form.title}
-            subtitle={form.subtitle}
-            targetDate={form.date}
-            existingBlocks={targetBlocks}
-            ignoreBlockId={null}
-            dailyRoutines={dailyRoutines}
-            isRoutine={form.isRoutine}
-            currentStart={form.start}
-            currentEnd={form.end}
-            onSelectSlot={({ start, end }) => setForm(prev => ({ ...prev, start, end }))}
-          />
 
           {/* Color Selection */}
           <div>

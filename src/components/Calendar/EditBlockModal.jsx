@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Clock, Trash2, Edit3, AlertTriangle, Lock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import SmartSlotSuggestions from './SmartSlotSuggestions';
 import { 
   checkSlotConflict, 
   getHourlyAvailability, 
@@ -339,19 +338,6 @@ const EditBlockModal = ({
             </div>
           </div>
 
-          {/* AI SMART SLOT SUGGESTIONS */}
-          <SmartSlotSuggestions
-            title={form.title}
-            subtitle={form.subtitle}
-            targetDate={form.date}
-            existingBlocks={targetBlocks}
-            ignoreBlockId={block?.id}
-            dailyRoutines={dailyRoutines}
-            isRoutine={form.isRoutine}
-            currentStart={form.start}
-            currentEnd={form.end}
-            onSelectSlot={({ start, end }) => setForm(prev => ({ ...prev, start, end }))}
-          />
 
           <div>
             <label className="text-xs font-semibold text-textMuted block mb-1">
