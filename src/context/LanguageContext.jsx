@@ -281,6 +281,11 @@ export const translations = {
     slotInvalidDuration: 'End time must be after start time',
     btnSlotConflictDisabled: 'Slot unavailable (conflict)',
     chooseQuickSlot: 'Quick hour selection:',
+    aiSmartSchedulerTitle: 'AI Smart Slot Suggestions',
+    aiSmartSchedulerSubtitle: 'Intelligent slots adapted to task nature & biological energy peaks',
+    aiUpcomingOnly: 'Upcoming slots only (today)',
+    aiEstimatedDuration: (dur) => `Estimated duration: ~${dur}`,
+    aiNoSlotsToday: 'No suitable open slot found for this duration today. Consider scheduling tomorrow or picking a shorter duration.',
 
     // Modals generic
     cancel: 'Cancel',
@@ -602,6 +607,11 @@ export const translations = {
     slotInvalidDuration: 'L’heure de fin doit être après l’heure de début',
     btnSlotConflictDisabled: 'Créneau indisponible (conflit)',
     chooseQuickSlot: 'Choix rapide de l’heure :',
+    aiSmartSchedulerTitle: 'Suggestions Intelligentes de l’IA',
+    aiSmartSchedulerSubtitle: 'Créneaux intelligents adaptés à la tâche et aux pics d’énergie',
+    aiUpcomingOnly: 'Créneaux à venir uniquement (aujourd’hui)',
+    aiEstimatedDuration: (dur) => `Durée estimée : ~${dur}`,
+    aiNoSlotsToday: 'Aucun créneau libre adapté disponible pour cette durée aujourd’hui. Planifiez pour demain ou réduisez la durée.',
 
     // Modals generic
     cancel: 'Annuler',

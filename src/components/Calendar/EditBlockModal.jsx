@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Clock, Trash2, Edit3, AlertTriangle, Lock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import SmartSlotSuggestions from './SmartSlotSuggestions';
 import { 
   checkSlotConflict, 
   getHourlyAvailability, 
-  getAvailableDaySlots, 
   timeStrToMinutes, 
   minutesToTimeStr 
 } from '../../utils/calendarLayout';
@@ -74,12 +74,6 @@ const EditBlockModal = ({
     return getHourlyAvailability(targetBlocks, block?.id, 6, 22);
   }, [isOpen, targetBlocks, block?.id]);
 
-  // Free slots chips
-  const freeSlots = useMemo(() => {
-    if (!isOpen) return [];
-    return getAvailableDaySlots(targetBlocks, 30, '06:00', '23:00', block?.id);
-  }, [isOpen, targetBlocks, block?.id]);
-
   const handleAutoShift = () => {
     if (conflict?.suggestedStart && conflict?.suggestedEnd) {
       setForm(prev => ({
@@ -101,14 +95,6 @@ const EditBlockModal = ({
       ...prev,
       start: hItem.timeStr,
       end: minutesToTimeStr(endM)
-    }));
-  };
-
-  const handleApplySlot = (slot) => {
-    setForm(prev => ({
-      ...prev,
-      start: slot.start,
-      end: slot.end
     }));
   };
 
@@ -353,27 +339,19 @@ const EditBlockModal = ({
             </div>
           </div>
 
-          {/* RECOMMENDED FREE SLOTS CHIPS */}
-          {freeSlots.length > 0 && (
-            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-3 space-y-1.5">
-              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 block">
-                ✨ {t('availableSlotsTitle')} :
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {freeSlots.slice(0, 4).map((slot, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleApplySlot(slot)}
-                    className="bg-card hover:bg-emerald-500 hover:text-white border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold px-2.5 py-1 rounded-xl shadow-xs transition-colors flex items-center gap-1"
-                  >
-                    <Clock size={11} />
-                    <span>{lang === 'en' ? slot.labelEn : slot.labelFr}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* AI SMART SLOT SUGGESTIONS */}
+          <SmartSlotSuggestions
+            title={form.title}
+            subtitle={form.subtitle}
+            targetDate={form.date}
+            existingBlocks={targetBlocks}
+            ignoreBlockId={block?.id}
+            dailyRoutines={dailyRoutines}
+            isRoutine={form.isRoutine}
+            currentStart={form.start}
+            currentEnd={form.end}
+            onSelectSlot={({ start, end }) => setForm(prev => ({ ...prev, start, end }))}
+          />
 
           <div>
             <label className="text-xs font-semibold text-textMuted block mb-1">
