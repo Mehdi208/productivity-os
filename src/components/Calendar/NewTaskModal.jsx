@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AlertTriangle, Clock, Lock } from 'lucide-react';
+import { AlertTriangle, Clock, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   checkSlotConflict, 
