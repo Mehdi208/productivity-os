@@ -77,7 +77,15 @@ const TimeBlock = ({
     }
   };
 
-  const theme = getBackgroundColor(color);
+  const rdvTheme = {
+    bg: 'bg-emerald-50/95 dark:bg-emerald-950/90',
+    border: 'border-emerald-500 dark:border-emerald-400 shadow-md ring-1 ring-emerald-500/40',
+    text: 'text-emerald-950 dark:text-emerald-100 font-extrabold',
+    subText: 'text-emerald-800 dark:text-emerald-300 font-semibold',
+    accent: '#059669'
+  };
+
+  const theme = block.isChallengeRdv ? rdvTheme : getBackgroundColor(color);
   
   const handleCheckboxClick = (e) => { 
     e.stopPropagation(); 
@@ -230,8 +238,13 @@ const TimeBlock = ({
                 {checked && <Check size={10} strokeWidth={3} />}
               </button>
             )}
+            {block.isChallengeRdv && (
+              <span className="text-[9px] font-black uppercase px-1 py-0.2 rounded bg-emerald-600 text-white flex-shrink-0 leading-none">
+                🤝 RDV
+              </span>
+            )}
             <span className={`text-[11px] md:text-xs font-bold truncate leading-tight ${theme.text} ${checked ? 'line-through opacity-70' : ''}`}>
-              {title}
+              {block.isChallengeRdv && block.rdvDetails?.companyName ? block.rdvDetails.companyName : title}
             </span>
             <span className={`text-[10px] font-semibold opacity-75 whitespace-nowrap flex-shrink-0 leading-none ${theme.subText}`}>
               {start}-{end}
@@ -244,8 +257,8 @@ const TimeBlock = ({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onEditBlock(block); }}
-                className="opacity-0 group-hover:opacity-100 p-0.5 rounded bg-white/90 dark:bg-darkCard text-textMuted hover:text-primary transition-opacity"
-                title={t('editBlock')}
+                className={`${block.isChallengeRdv ? 'opacity-100 bg-emerald-600 text-white hover:bg-emerald-700' : 'opacity-0 group-hover:opacity-100 bg-white/90 dark:bg-darkCard text-textMuted hover:text-primary'} p-0.5 rounded transition-opacity`}
+                title={block.isChallengeRdv ? 'Détails du Rendez-vous' : t('editBlock')}
               >
                 <Edit3 size={11} />
               </button>
@@ -271,11 +284,23 @@ const TimeBlock = ({
               </button>
             )}
             <div className="min-w-0">
-              <h4 className={`text-xs md:text-sm truncate leading-tight ${theme.text} ${checked ? 'line-through opacity-70' : ''}`}>
-                {title}
+              {block.isChallengeRdv && (
+                <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white flex items-center gap-1 shadow-xs">
+                    🤝 RDV PROSPECT
+                  </span>
+                  {block.rdvDetails?.contactPerson && (
+                    <span className="text-[10px] text-emerald-800 dark:text-emerald-200 font-bold truncate max-w-[120px]">
+                      • {block.rdvDetails.contactPerson}
+                    </span>
+                  )}
+                </div>
+              )}
+              <h4 className={`text-xs md:text-sm font-extrabold truncate leading-tight ${theme.text} ${checked ? 'line-through opacity-70' : ''}`}>
+                {block.isChallengeRdv && block.rdvDetails?.companyName ? `🤝 ${block.rdvDetails.companyName}` : title}
               </h4>
-              <p className={`text-[10px] md:text-xs mt-0.5 ${theme.subText}`}>
-                {start} - {end} {subtitle ? `• ${subtitle}` : ''}
+              <p className={`text-[10px] md:text-xs mt-0.5 ${theme.subText} truncate`}>
+                {start} - {end} {block.isChallengeRdv && block.rdvDetails?.budget ? `• ${block.rdvDetails.budget}` : (subtitle ? `• ${subtitle}` : '')} {block.isChallengeRdv && block.rdvDetails?.location ? `• 📍 ${block.rdvDetails.location}` : ''}
               </p>
             </div>
           </div>
@@ -286,8 +311,8 @@ const TimeBlock = ({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onEditBlock(block); }}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg bg-white/90 dark:bg-darkCard text-textMuted hover:text-primary shadow-sm transition-opacity"
-                title={t('editBlock')}
+                className={`${block.isChallengeRdv ? 'opacity-100 bg-emerald-600 text-white hover:bg-emerald-700' : 'opacity-0 group-hover:opacity-100 bg-white/90 dark:bg-darkCard text-textMuted hover:text-primary'} p-1 rounded-lg shadow-sm transition-opacity`}
+                title={block.isChallengeRdv ? 'Détails du Rendez-vous' : t('editBlock')}
               >
                 <Edit3 size={12} />
               </button>

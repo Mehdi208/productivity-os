@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WeekView from '../components/Calendar/WeekView';
 import DayView from '../components/Calendar/DayView';
 import EditBlockModal from '../components/Calendar/EditBlockModal';
+import ChallengeRdvDetailsModal from '../components/Calendar/ChallengeRdvDetailsModal';
 
 const Week = ({ 
   blocksByDay = {}, 
@@ -13,9 +15,14 @@ const Week = ({
   onNewTask, 
   onSaveBlock, 
   onDeleteBlock,
-  onAddBlockToDay
+  onAddBlockToDay,
+  onUpdateRdvStatus,
+  onUpdateRdvDetails,
+  onDeleteRdv
 }) => {
+  const navigate = useNavigate();
   const [editingBlockData, setEditingBlockData] = useState(null); // { block, dayIndex, isoDate }
+  const [selectedRdvBlock, setSelectedRdvBlock] = useState(null);
   
   // Calendar view mode: '1day' | '3days' | 'week'
   const [viewMode, setViewMode] = useState(() => {
@@ -30,7 +37,11 @@ const Week = ({
   };
 
   const handleEditBlock = (block, dayIndex, isoDate) => {
-    setEditingBlockData({ block, dayIndex, isoDate: isoDate || block.date });
+    if (block?.isChallengeRdv) {
+      setSelectedRdvBlock(block);
+    } else {
+      setEditingBlockData({ block, dayIndex, isoDate: isoDate || block.date });
+    }
   };
 
   const handleNewTaskAtSlot = (dayIndex, startTime, isoDate) => {
@@ -85,6 +96,38 @@ const Week = ({
           onDeleteBlock={onDeleteBlock}
           getDayBlocks={getDayBlocks}
           dailyRoutines={dailyRoutines}
+        />
+      )}
+
+      {/* Challenge 30 Jours Dedicated RDV Modal */}
+      {selectedRdvBlock && (
+        <ChallengeRdvDetailsModal
+          isOpen={!!selectedRdvBlock}
+          onClose={() => setSelectedRdvBlock(null)}
+          block={selectedRdvBlock}
+          onUpdateRdvStatus={(blockId, newStatus) => {
+            if (onUpdateRdvStatus) {
+              onUpdateRdvStatus(blockId, newStatus);
+            }
+            setSelectedRdvBlock(prev => prev && prev.id === blockId ? {
+              ...prev,
+              checked: newStatus === 'completed',
+              rdvDetails: { ...prev.rdvDetails, status: newStatus }
+            } : prev);
+          }}
+          onUpdateRdvDetails={(blockId, details) => {
+            if (onUpdateRdvDetails) {
+              onUpdateRdvDetails(blockId, details);
+            }
+            setSelectedRdvBlock(null);
+          }}
+          onDeleteRdv={(blockId, date) => {
+            if (onDeleteRdv) {
+              onDeleteRdv(blockId, date);
+            }
+            setSelectedRdvBlock(null);
+          }}
+          onNavigateToChallenge={() => navigate('/challenge')}
         />
       )}
 

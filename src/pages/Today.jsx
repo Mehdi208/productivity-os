@@ -1,5 +1,6 @@
-import React from 'react';
-import { Sparkles, Check, Brain, Play, Calendar as CalendarIcon, Droplet, Plus, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Check, Brain, Play, Calendar as CalendarIcon, Droplet, Plus, Globe, Building, ArrowRight, Eye } from 'lucide-react';
 import ScoreCard from '../components/Dashboard/ScoreCard';
 import TasksCard from '../components/Dashboard/TasksCard';
 import StreakCard from '../components/Dashboard/StreakCard';
@@ -7,6 +8,7 @@ import HydrationCard from '../components/Dashboard/HydrationCard';
 import { recommendFocusTechnique } from '../data/focusTechniques';
 import { NotificationBannerPrompt } from '../components/ui/NotificationBannerPrompt';
 import { useLanguage } from '../context/LanguageContext';
+import ChallengeRdvDetailsModal from '../components/Calendar/ChallengeRdvDetailsModal';
 
 const Today = ({ 
   score = 0, 
@@ -20,8 +22,13 @@ const Today = ({
   weekBlocksByDay = {},
   onOpenFocusWithTask,
   onOpenDailyBriefing,
-  onOpenCoach
+  onOpenCoach,
+  onUpdateRdvStatus,
+  onUpdateRdvDetails,
+  onDeleteRdv
 }) => {
+  const navigate = useNavigate();
+  const [selectedRdvBlock, setSelectedRdvBlock] = useState(null);
   const { lang, toggleLanguage, t } = useLanguage();
 
   const getCategoryBadge = (title = '') => {
@@ -142,23 +149,35 @@ const Today = ({
               </div>
             ) : (
               todayBlocks.map((block) => {
-                const badge = getCategoryBadge(block.title);
+                const badge = block.isChallengeRdv 
+                  ? { label: '🤝 RDV PROSPECT', bg: 'bg-emerald-600 text-white font-extrabold shadow-sm' } 
+                  : getCategoryBadge(block.title);
                 const technique = recommendFocusTechnique(block.title);
 
                 return (
                   <div 
                     key={block.id} 
+                    onClick={() => {
+                      if (block.isChallengeRdv) {
+                        setSelectedRdvBlock(block);
+                      }
+                    }}
                     className={`bg-card rounded-2xl p-3.5 sm:p-4 shadow-sm border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                      block.checked 
-                        ? 'border-gray-200/60 dark:border-darkBorder bg-gray-50/50 dark:bg-darkCardElevated/50 opacity-75' 
-                        : 'border-gray-100 dark:border-darkBorder hover:border-primary/40 hover:shadow-md'
+                      block.isChallengeRdv
+                        ? 'border-2 border-emerald-500/50 bg-emerald-50/60 dark:bg-emerald-950/25 hover:border-emerald-500 hover:shadow-md cursor-pointer ring-1 ring-emerald-500/20'
+                        : block.checked 
+                          ? 'border-gray-200/60 dark:border-darkBorder bg-gray-50/50 dark:bg-darkCardElevated/50 opacity-75' 
+                          : 'border-gray-100 dark:border-darkBorder hover:border-primary/40 hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       {block.checkable ? (
                         <button
                           type="button"
-                          onClick={() => onToggleCheckBlock && onToggleCheckBlock(block.checkId || block.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onToggleCheckBlock) onToggleCheckBlock(block.checkId || block.id);
+                          }}
                           className={`w-7 h-7 sm:w-6 sm:h-6 rounded-xl border flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
                             block.checked 
                               ? 'bg-primary border-primary text-white shadow-sm' 
@@ -177,30 +196,45 @@ const Today = ({
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h4 className={`font-bold text-sm text-textMain truncate ${block.checked ? 'line-through text-textMuted' : ''}`}>
-                            {block.title}
+                            {block.isChallengeRdv && block.rdvDetails?.companyName ? `🤝 ${block.rdvDetails.companyName}` : block.title}
                           </h4>
                           <span className={`text-[10px] px-2 py-0.5 rounded-lg ${badge.bg}`}>
                             {badge.label}
                           </span>
                         </div>
                         <p className="text-xs text-textMuted font-medium mt-0.5">
-                          🕒 {block.start} - {block.end} {block.subtitle ? `• ${block.subtitle}` : ''}
+                          🕒 {block.start} - {block.end} {block.isChallengeRdv && block.rdvDetails?.budget ? `• ${block.rdvDetails.budget}` : (block.subtitle ? `• ${block.subtitle}` : '')} {block.isChallengeRdv && block.rdvDetails?.contactPerson ? `• 👤 ${block.rdvDetails.contactPerson}` : ''} {block.isChallengeRdv && block.rdvDetails?.location ? `• 📍 ${block.rdvDetails.location}` : ''}
                         </p>
                       </div>
                     </div>
 
-                    {/* Focus Action */}
+                    {/* Actions */}
                     <div className="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
-                      {block.checkable && !block.checked && (
+                      {block.isChallengeRdv ? (
                         <button
-                          onClick={() => onOpenFocusWithTask && onOpenFocusWithTask(block)}
-                          className="px-3 py-1.5 bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 text-primary text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
-                          title={`Launch in ${technique.name}`}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedRdvBlock(block);
+                          }}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                          title="Consulter les détails du rendez-vous"
                         >
-                          <Brain size={13} />
-                          <span>{t('startFocus')}</span>
-                          <Play size={10} className="fill-current" />
+                          <Eye size={13} />
+                          <span>Détails RDV</span>
                         </button>
+                      ) : (
+                        block.checkable && !block.checked && (
+                          <button
+                            onClick={() => onOpenFocusWithTask && onOpenFocusWithTask(block)}
+                            className="px-3 py-1.5 bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 text-primary text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+                            title={`Launch in ${technique.name}`}
+                          >
+                            <Brain size={13} />
+                            <span>{t('startFocus')}</span>
+                            <Play size={10} className="fill-current" />
+                          </button>
+                        )
                       )}
                     </div>
                   </div>
@@ -258,6 +292,38 @@ const Today = ({
         </section>
 
       </div>
+
+      {/* Challenge 30 Jours Dedicated RDV Modal */}
+      {selectedRdvBlock && (
+        <ChallengeRdvDetailsModal
+          isOpen={!!selectedRdvBlock}
+          onClose={() => setSelectedRdvBlock(null)}
+          block={selectedRdvBlock}
+          onUpdateRdvStatus={(blockId, newStatus) => {
+            if (onUpdateRdvStatus) {
+              onUpdateRdvStatus(blockId, newStatus);
+            }
+            setSelectedRdvBlock(prev => prev && prev.id === blockId ? {
+              ...prev,
+              checked: newStatus === 'completed',
+              rdvDetails: { ...prev.rdvDetails, status: newStatus }
+            } : prev);
+          }}
+          onUpdateRdvDetails={(blockId, details) => {
+            if (onUpdateRdvDetails) {
+              onUpdateRdvDetails(blockId, details);
+            }
+            setSelectedRdvBlock(null);
+          }}
+          onDeleteRdv={(blockId, date) => {
+            if (onDeleteRdv) {
+              onDeleteRdv(blockId, date);
+            }
+            setSelectedRdvBlock(null);
+          }}
+          onNavigateToChallenge={() => navigate('/challenge')}
+        />
+      )}
 
     </div>
   );

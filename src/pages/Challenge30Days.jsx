@@ -72,7 +72,8 @@ const DEFAULT_ROADMAP_WEEKS = [
 
 const Challenge30Days = ({ 
   challengeData = {}, 
-  onUpdateChallenge 
+  onUpdateChallenge,
+  onScheduleChallengeRdv
 }) => {
   // Current Date in Côte d'Ivoire (Abidjan)
   const todayAbidjanStr = getAbidjanDateStr();
@@ -121,14 +122,18 @@ const Challenge30Days = ({
   const [addingTaskWeekId, setAddingTaskWeekId] = useState(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
-  // Form for adding or editing an individual interaction
+  // Form for adding or editing an individual interaction / RDV
   const [showInteractionModal, setShowInteractionModal] = useState(false);
   const [editingInteractionId, setEditingInteractionId] = useState(null);
   const [interactionForm, setInteractionForm] = useState({
     companyName: '',
     contactPerson: '',
+    phone: '',
+    location: '',
     status: 'interested', // 'interested' | 'callback' | 'refused' | 'unreachable'
     appointmentDate: '',
+    appointmentStartTime: '10:00',
+    appointmentEndTime: '11:30',
     callbackDate: '',
     notes: '',
     pricingModel: 'monthly'
@@ -245,11 +250,34 @@ const Challenge30Days = ({
     setInteractionForm({
       companyName: '',
       contactPerson: '',
+      phone: '',
+      location: '',
       status: 'interested',
       appointmentDate: '',
+      appointmentStartTime: '10:00',
+      appointmentEndTime: '11:30',
       callbackDate: '',
       notes: '',
       pricingModel: 'monthly'
+    });
+    setShowInteractionModal(true);
+  };
+
+  // Open modal specifically to schedule an appointment
+  const handleOpenScheduleRdvModal = (initialData = {}) => {
+    setEditingInteractionId(null);
+    setInteractionForm({
+      companyName: initialData.companyName || initialData.name || '',
+      contactPerson: initialData.contactPerson || initialData.contact || '',
+      phone: initialData.phone || '',
+      location: initialData.location || '',
+      status: 'interested',
+      appointmentDate: initialData.appointmentDate || selectedDate,
+      appointmentStartTime: initialData.appointmentStartTime || '10:00',
+      appointmentEndTime: initialData.appointmentEndTime || '11:30',
+      callbackDate: '',
+      notes: initialData.notes || initialData.need || '',
+      pricingModel: initialData.pricingModel || 'monthly'
     });
     setShowInteractionModal(true);
   };
@@ -260,8 +288,12 @@ const Challenge30Days = ({
     setInteractionForm({
       companyName: int.companyName || '',
       contactPerson: int.contactPerson || '',
+      phone: int.phone || '',
+      location: int.location || '',
       status: int.status || 'interested',
       appointmentDate: int.appointmentDate || '',
+      appointmentStartTime: int.appointmentStartTime || '10:00',
+      appointmentEndTime: int.appointmentEndTime || '11:30',
       callbackDate: int.callbackDate || '',
       notes: int.notes || '',
       pricingModel: int.pricingModel || 'monthly'
@@ -361,6 +393,22 @@ const Challenge30Days = ({
 
     setDailyLogs(updatedLogs);
 
+    // Auto-schedule meeting in calendar if interested or appointmentDate provided
+    if (onScheduleChallengeRdv && (interactionForm.status === 'interested' || interactionForm.appointmentDate)) {
+      onScheduleChallengeRdv({
+        date: interactionForm.appointmentDate || selectedDate,
+        start: interactionForm.appointmentStartTime || '10:00',
+        end: interactionForm.appointmentEndTime || '11:30',
+        companyName: interactionForm.companyName.trim(),
+        contactPerson: interactionForm.contactPerson.trim() || 'Décideur',
+        phone: interactionForm.phone ? interactionForm.phone.trim() : '',
+        location: interactionForm.location ? interactionForm.location.trim() : '',
+        pricingModel: interactionForm.pricingModel,
+        budget: interactionForm.pricingModel === 'yearly' ? '300 000 FCFA / an' : '30 000 FCFA / mois',
+        objective: interactionForm.notes || 'Présentation et démo du dashboard de gestion métier'
+      });
+    }
+
     // Auto-add to Pipeline CRM if interested or callback (for new interactions)
     let updatedProspects = prospects;
     if (!editingInteractionId && (interactionForm.status === 'interested' || interactionForm.status === 'callback')) {
@@ -369,12 +417,14 @@ const Challenge30Days = ({
         id: `p_${Date.now()}`,
         name: interactionForm.companyName,
         contact: interactionForm.contactPerson || 'Gérant',
+        phone: interactionForm.phone || '',
+        location: interactionForm.location || '',
         channel: 'Prospection directe Abidjan',
         need: interactionForm.notes || 'Dashboard de gestion métier',
         status: interactionForm.status === 'interested' ? 'meeting' : 'contacted',
         pricingModel: interactionForm.pricingModel,
         budget: budgetText,
-        appointmentDate: interactionForm.appointmentDate || '',
+        appointmentDate: interactionForm.appointmentDate ? `${interactionForm.appointmentDate} (${interactionForm.appointmentStartTime || '10:00'})` : '',
         notes: interactionForm.notes
       };
       updatedProspects = [newProspect, ...prospects];
@@ -388,8 +438,12 @@ const Challenge30Days = ({
     setInteractionForm({
       companyName: '',
       contactPerson: '',
+      phone: '',
+      location: '',
       status: 'interested',
       appointmentDate: '',
+      appointmentStartTime: '10:00',
+      appointmentEndTime: '11:30',
       callbackDate: '',
       notes: '',
       pricingModel: 'monthly'
@@ -647,16 +701,26 @@ const Challenge30Days = ({
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={handleOpenNewInteraction}
-                className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
-              >
-                <Plus size={16} />
-                <span>+ Ajouter une entreprise</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenScheduleRdvModal()}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-2xl text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Planifier un rendez-vous prospect dans l'agenda"
+                >
+                  <Calendar size={14} />
+                  <span>🤝 Fixer un RDV Agenda</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenNewInteraction}
+                  className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95 cursor-pointer"
+                >
+                  <Plus size={16} />
+                  <span>+ Ajouter une entreprise</span>
+                </button>
+              </div>
             </div>
-          </div>
 
           {/* Today's Scorecard Banner */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -765,11 +829,29 @@ const Challenge30Days = ({
                       </div>
 
                       {/* Dates details */}
-                      <div className="flex flex-wrap items-center gap-4 text-xs">
+                      <div className="flex flex-wrap items-center gap-3 text-xs">
                         {int.appointmentDate && (
-                          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/20">
-                            <CalendarDays size={13} />
-                            <span>RDV fixé au : {int.appointmentDate.replace('T', ' à ')}</span>
+                          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-extrabold bg-emerald-500/15 px-3 py-1.5 rounded-xl border border-emerald-500/30">
+                            <CalendarDays size={13} className="text-emerald-600 dark:text-emerald-400" />
+                            <span>RDV fixé : {int.appointmentDate} {int.appointmentStartTime ? `de ${int.appointmentStartTime} à ${int.appointmentEndTime || ''}` : ''}</span>
+                          </div>
+                        )}
+
+                        {int.phone && (
+                          <a
+                            href={`tel:${int.phone.replace(/[^0-9+]/g, '')}`}
+                            className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold bg-blue-500/10 px-2.5 py-1 rounded-xl border border-blue-500/20 hover:underline"
+                            title="Appeler directement"
+                          >
+                            <PhoneCall size={12} />
+                            <span>{int.phone}</span>
+                          </a>
+                        )}
+
+                        {int.location && (
+                          <div className="flex items-center gap-1 text-textMuted font-medium bg-background px-2.5 py-1 rounded-xl border border-gray-200 dark:border-darkBorder">
+                            <MapPin size={12} className="text-orange-500" />
+                            <span>{int.location}</span>
                           </div>
                         )}
 
@@ -1022,10 +1104,26 @@ const Challenge30Days = ({
                           </div>
                           
                           {p.contact && <div className="text-[11px] text-textMuted flex items-center gap-1 font-medium"><Users size={11} /> {p.contact}</div>}
-                          {p.appointmentDate && (
-                            <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                              <CalendarDays size={10} /> {p.appointmentDate}
+                          {p.appointmentDate ? (
+                            <div className="text-[10px] text-emerald-700 dark:text-emerald-300 font-extrabold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-md border border-emerald-500/25">
+                              <CalendarDays size={10} /> <span>{p.appointmentDate}</span>
                             </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenScheduleRdvModal({
+                                companyName: p.name,
+                                contactPerson: p.contact,
+                                phone: p.phone,
+                                location: p.location,
+                                notes: p.need,
+                                pricingModel: p.pricingModel
+                              })}
+                              className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-2 py-1 rounded-lg flex items-center gap-1 w-full justify-center border border-emerald-500/20 transition-colors cursor-pointer"
+                            >
+                              <Calendar size={10} />
+                              <span>📅 Planifier dans l'Agenda</span>
+                            </button>
                           )}
                           {p.need && <p className="text-[11px] text-textMain line-clamp-2 bg-card p-1.5 rounded-xl border border-gray-100 dark:border-darkBorder">{p.need}</p>}
                           
@@ -1366,6 +1464,29 @@ const Challenge30Days = ({
                 />
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="text-xs font-semibold text-textMuted block mb-1">Téléphone (Appel / WhatsApp)</label>
+                  <input
+                    type="tel"
+                    placeholder="ex: +225 07 00 00 00"
+                    value={interactionForm.phone}
+                    onChange={(e) => setInteractionForm({ ...interactionForm, phone: e.target.value })}
+                    className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-xs text-textMain focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-textMuted block mb-1">Lieu ou Lien Visio</label>
+                  <input
+                    type="text"
+                    placeholder="ex: Cocody, Google Meet"
+                    value={interactionForm.location}
+                    onChange={(e) => setInteractionForm({ ...interactionForm, location: e.target.value })}
+                    className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-xs text-textMain focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="text-xs font-semibold text-textMuted block mb-1">Résultat de l'échange</label>
                 <select
@@ -1373,25 +1494,57 @@ const Challenge30Days = ({
                   onChange={(e) => setInteractionForm({ ...interactionForm, status: e.target.value })}
                   className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-xs font-bold text-textMain focus:outline-none focus:border-primary cursor-pointer"
                 >
-                  <option value="interested">🤝 Accepté / Intéressé (Fixer un RDV)</option>
+                  <option value="interested">🤝 Accepté / Intéressé (Fixer un RDV dans l'Agenda)</option>
                   <option value="callback">⏳ En réflexion / À rappeler (Fixer une date de relance)</option>
                   <option value="refused">❌ Refus / Pas intéressé</option>
                   <option value="unreachable">📵 Injoignable</option>
                 </select>
               </div>
 
-              {/* Conditional Date Pickers */}
+              {/* Conditional RDV Date & Time Pickers for Agenda Blocking */}
               {interactionForm.status === 'interested' && (
-                <div>
-                  <label className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 block mb-1">
-                    📅 Date & Heure du Rendez-vous / Démo :
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={interactionForm.appointmentDate}
-                    onChange={(e) => setInteractionForm({ ...interactionForm, appointmentDate: e.target.value })}
-                    className="w-full bg-background border border-emerald-500/40 rounded-xl px-3 py-2 text-xs font-bold text-textMain focus:outline-none cursor-pointer"
-                  />
+                <div className="bg-emerald-50/70 dark:bg-emerald-950/30 p-3.5 rounded-2xl border border-emerald-500/40 space-y-2.5">
+                  <div className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
+                    <Calendar size={14} className="text-emerald-600 dark:text-emerald-400" />
+                    <span>Créneau du Rendez-vous (Bloque l'Agenda)</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-textMuted uppercase block mb-0.5">Date</label>
+                      <input
+                        type="date"
+                        required
+                        value={interactionForm.appointmentDate || selectedDate}
+                        onChange={(e) => setInteractionForm({ ...interactionForm, appointmentDate: e.target.value })}
+                        className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-2.5 py-1.5 text-xs font-bold text-textMain focus:outline-none focus:border-emerald-500 cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-textMuted uppercase block mb-0.5">Heure Début</label>
+                      <input
+                        type="time"
+                        required
+                        value={interactionForm.appointmentStartTime}
+                        onChange={(e) => setInteractionForm({ ...interactionForm, appointmentStartTime: e.target.value })}
+                        className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-2.5 py-1.5 text-xs font-bold text-textMain focus:outline-none focus:border-emerald-500 cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-textMuted uppercase block mb-0.5">Heure Fin</label>
+                      <input
+                        type="time"
+                        required
+                        value={interactionForm.appointmentEndTime}
+                        onChange={(e) => setInteractionForm({ ...interactionForm, appointmentEndTime: e.target.value })}
+                        className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-2.5 py-1.5 text-xs font-bold text-textMain focus:outline-none focus:border-emerald-500 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-emerald-700 dark:text-emerald-300 font-medium">
+                    ✨ Ce créneau sera automatiquement synchronisé dans vos vues <strong>Aujourd'hui</strong> et <strong>Semaine</strong> avec badge 🤝 RDV PROSPECT et accès direct aux détails.
+                  </p>
                 </div>
               )}
 
@@ -1422,10 +1575,10 @@ const Challenge30Days = ({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-textMuted block mb-1">Détails de la conversation & besoins</label>
+                <label className="text-xs font-semibold text-textMuted block mb-1">Détails de la conversation & objectifs du RDV</label>
                 <textarea
                   rows={3}
-                  placeholder="Ce qui a été dit, besoins en gestion de stock/caisse, objections soulevées..."
+                  placeholder="Ce qui a été dit, besoins du prospect, objections soulevées, démo à préparer..."
                   value={interactionForm.notes}
                   onChange={(e) => setInteractionForm({ ...interactionForm, notes: e.target.value })}
                   className="w-full bg-background border border-gray-200 dark:border-darkBorder rounded-xl px-3 py-2 text-xs text-textMain focus:outline-none focus:border-primary"
@@ -1439,15 +1592,17 @@ const Challenge30Days = ({
                     setShowInteractionModal(false);
                     setEditingInteractionId(null);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-textMuted hover:bg-gray-100 dark:hover:bg-darkCard cursor-pointer"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="bg-primary hover:bg-primary/90 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-sm"
+                  className="bg-primary hover:bg-primary/90 text-white font-bold px-5 py-2 rounded-xl text-xs shadow-sm cursor-pointer"
                 >
-                  {editingInteractionId ? "Enregistrer les modifications" : "Enregistrer l'échange"}
+                  {editingInteractionId 
+                    ? "Enregistrer les modifications" 
+                    : (interactionForm.status === 'interested' ? "🤝 Bloquer le RDV dans l'Agenda" : "Enregistrer l'échange")}
                 </button>
               </div>
             </form>

@@ -212,6 +212,28 @@ const AppContent = () => {
     }];
   });
 
+  // Challenge 30 Days State (Synchronized with localStorage & Firestore)
+  const [challengeData, setChallengeData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey('challenge_30_days'));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch {}
+    return {
+      dailyLogs: [],
+      prospects: [],
+      weeksData: null
+    };
+  });
+
+  const handleUpdateChallenge = (newChallengeData) => {
+    setChallengeData(newChallengeData);
+    localStorage.setItem(storageKey('challenge_30_days'), JSON.stringify(newChallengeData));
+    pushMutationToCloud({ challengeData: newChallengeData });
+  };
+
   // Modal states
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
@@ -364,6 +386,11 @@ const AppContent = () => {
             localStorage.setItem(storageKey('custom_blocks_by_date'), JSON.stringify(data.customBlocksByDate));
           }
 
+          if (data.challengeData && typeof data.challengeData === 'object') {
+            setChallengeData(data.challengeData);
+            localStorage.setItem(storageKey('challenge_30_days'), JSON.stringify(data.challengeData));
+          }
+
           if (data.hydrationMl !== undefined && data.hydrationDate) {
             const todayStr = getAbidjanDateStr();
             if (data.hydrationDate === todayStr) {
@@ -456,6 +483,10 @@ const AppContent = () => {
           setCustomBlocksByDate(data.customBlocksByDate);
           localStorage.setItem(storageKey('custom_blocks_by_date'), JSON.stringify(data.customBlocksByDate));
         }
+        if (data.challengeData && typeof data.challengeData === 'object') {
+          setChallengeData(data.challengeData);
+          localStorage.setItem(storageKey('challenge_30_days'), JSON.stringify(data.challengeData));
+        }
       } else {
         await setDoc(doc(db, "productivity_user", "mehdi_data"), {
           checkedBlockIds,
@@ -463,6 +494,7 @@ const AppContent = () => {
           projects,
           dailyRoutines,
           customBlocksByDate,
+          challengeData,
           streak,
           score: Math.round(score),
           lastSync: new Date().toISOString()
@@ -665,6 +697,179 @@ const AppContent = () => {
         return next;
       });
     }
+  };
+
+  // Schedule a Challenge 30 Days meeting into the calendar
+  const handleScheduleChallengeRdv = (rdvData) => {
+    const { 
+      date, 
+      start = '10:00', 
+      end = '11:30', 
+      companyName, 
+      contactPerson = 'Décideur',
+      phone = '', 
+      location = '', 
+      pricingModel = 'monthly',
+      budget,
+      objective = 'Présentation et démo du dashboard de gestion métier',
+      prospectId = null
+    } = rdvData;
+
+    const rdvDate = date || getAbidjanDateStr();
+    const formattedBudget = budget || (pricingModel === 'yearly' ? '300 000 FCFA / an' : '30 000 FCFA / mois');
+    const blockId = rdvData.id || `rdv_challenge_${Date.now()}`;
+
+    const newRdvBlock = {
+      id: blockId,
+      title: `🤝 RDV : ${companyName}`,
+      subtitle: `${contactPerson} • ${formattedBudget}${location ? ' • ' + location : ''}`,
+      start,
+      end,
+      color: '#00D4AA', // Distinctive emerald/teal
+      checkable: true,
+      isRoutine: false,
+      isChallengeRdv: true,
+      date: rdvDate,
+      rdvDetails: {
+        id: blockId,
+        challengeProspectId: prospectId,
+        companyName,
+        contactPerson,
+        phone,
+        location,
+        pricingModel,
+        budget: formattedBudget,
+        objective,
+        status: rdvData.status || 'scheduled'
+      }
+    };
+
+    setCustomBlocksByDate(prev => {
+      const currentObj = (prev && typeof prev === 'object' && !Array.isArray(prev)) ? prev : {};
+      const currentList = Array.isArray(currentObj[rdvDate]) ? currentObj[rdvDate] : [];
+      // Remove any block with same id if updating
+      const filtered = currentList.filter(b => b && b.id !== blockId);
+      const updated = [...filtered, newRdvBlock].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+      const next = { ...currentObj, [rdvDate]: updated };
+      localStorage.setItem(storageKey('custom_blocks_by_date'), JSON.stringify(next));
+      pushMutationToCloud({ customBlocksByDate: next });
+      return next;
+    });
+
+    return newRdvBlock;
+  };
+
+  // Update meeting status (completed vs scheduled)
+  const handleUpdateChallengeRdvStatus = (blockId, newStatus) => {
+    setCustomBlocksByDate(prev => {
+      const next = (prev && typeof prev === 'object' && !Array.isArray(prev)) ? { ...prev } : {};
+      let changed = false;
+      Object.keys(next).forEach(dKey => {
+        if (Array.isArray(next[dKey])) {
+          const idx = next[dKey].findIndex(b => b && b.id === blockId);
+          if (idx >= 0) {
+            const targetBlock = next[dKey][idx];
+            const updatedBlock = {
+              ...targetBlock,
+              checked: newStatus === 'completed',
+              rdvDetails: {
+                ...(targetBlock.rdvDetails || {}),
+                status: newStatus
+              }
+            };
+            next[dKey] = [
+              ...next[dKey].slice(0, idx),
+              updatedBlock,
+              ...next[dKey].slice(idx + 1)
+            ];
+            changed = true;
+          }
+        }
+      });
+      if (changed) {
+        localStorage.setItem(storageKey('custom_blocks_by_date'), JSON.stringify(next));
+        pushMutationToCloud({ customBlocksByDate: next });
+        return next;
+      }
+      return prev;
+    });
+
+    // Also update checkedBlockIds
+    setCheckedBlockIds(prev => {
+      const list = Array.isArray(prev) ? prev : [];
+      const next = newStatus === 'completed' 
+        ? (list.includes(blockId) ? list : [...list, blockId])
+        : list.filter(id => id !== blockId);
+      localStorage.setItem(storageKey('checked_blocks'), JSON.stringify(next));
+      pushMutationToCloud({ checkedBlockIds: next });
+      return next;
+    });
+  };
+
+  // Update meeting details (reschedule time/date, update notes/contact)
+  const handleUpdateChallengeRdvDetails = (blockId, details) => {
+    const { date, start, end, companyName, contactPerson, phone, location, pricingModel, budget, objective } = details;
+    const targetDate = date || getAbidjanDateStr();
+
+    setCustomBlocksByDate(prev => {
+      const next = (prev && typeof prev === 'object' && !Array.isArray(prev)) ? { ...prev } : {};
+      let oldBlock = null;
+
+      // Find and remove old block from whichever date it was in
+      Object.keys(next).forEach(dKey => {
+        if (Array.isArray(next[dKey])) {
+          const found = next[dKey].find(b => b && b.id === blockId);
+          if (found) {
+            oldBlock = found;
+            next[dKey] = next[dKey].filter(b => b && b.id !== blockId);
+          }
+        }
+      });
+
+      const updatedBlock = {
+        ...(oldBlock || {}),
+        id: blockId,
+        title: `🤝 RDV : ${companyName || oldBlock?.title?.replace('🤝 RDV : ', '') || 'Entreprise'}`,
+        subtitle: `${contactPerson || 'Décideur'} • ${budget || '30 000 FCFA / mois'}${location ? ' • ' + location : ''}`,
+        start: start || oldBlock?.start || '10:00',
+        end: end || oldBlock?.end || '11:30',
+        color: '#00D4AA',
+        checkable: true,
+        isRoutine: false,
+        isChallengeRdv: true,
+        date: targetDate,
+        rdvDetails: {
+          ...(oldBlock?.rdvDetails || {}),
+          companyName,
+          contactPerson,
+          phone,
+          location,
+          pricingModel,
+          budget,
+          objective,
+          status: oldBlock?.rdvDetails?.status || 'scheduled'
+        }
+      };
+
+      const targetList = Array.isArray(next[targetDate]) ? next[targetDate] : [];
+      next[targetDate] = [...targetList, updatedBlock].sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+
+      localStorage.setItem(storageKey('custom_blocks_by_date'), JSON.stringify(next));
+      pushMutationToCloud({ customBlocksByDate: next });
+      return next;
+    });
+  };
+
+  // Delete meeting from calendar
+  const handleDeleteChallengeRdv = (blockId, blockDate) => {
+    handleDeleteBlock(blockId, null, blockDate, false);
+    setCheckedBlockIds(prev => {
+      const list = Array.isArray(prev) ? prev : [];
+      const next = list.filter(id => id !== blockId);
+      localStorage.setItem(storageKey('checked_blocks'), JSON.stringify(next));
+      pushMutationToCloud({ checkedBlockIds: next });
+      return next;
+    });
   };
 
   const handleAddBlockToDay = (dayIndex, startTime = '09:00', isoDate = null) => {
@@ -1008,6 +1213,9 @@ const AppContent = () => {
                   onOpenFocusWithTask={handleOpenFocus}
                   onOpenDailyBriefing={() => setShowDailyBriefing(true)}
                   onOpenCoach={() => setIsCopilotOpen(true)}
+                  onUpdateRdvStatus={handleUpdateChallengeRdvStatus}
+                  onUpdateRdvDetails={handleUpdateChallengeRdvDetails}
+                  onDeleteRdv={handleDeleteChallengeRdv}
                 />
               } 
             />
@@ -1038,6 +1246,9 @@ const AppContent = () => {
                   onSaveBlock={handleSaveBlock}
                   onDeleteBlock={handleDeleteBlock}
                   onAddBlockToDay={handleAddBlockToDay}
+                  onUpdateRdvStatus={handleUpdateChallengeRdvStatus}
+                  onUpdateRdvDetails={handleUpdateChallengeRdvDetails}
+                  onDeleteRdv={handleDeleteChallengeRdv}
                 />
               } 
             />
@@ -1056,7 +1267,16 @@ const AppContent = () => {
                 } 
               />
               <Route path="/stats" element={<Stats hydrationMl={hydrationMl} />} />
-              <Route path="/challenge" element={<Challenge30Days />} />
+              <Route 
+                path="/challenge" 
+                element={
+                  <Challenge30Days 
+                    challengeData={challengeData}
+                    onUpdateChallenge={handleUpdateChallenge}
+                    onScheduleChallengeRdv={handleScheduleChallengeRdv}
+                  />
+                } 
+              />
               <Route 
                 path="/monthly-review" 
                 element={
