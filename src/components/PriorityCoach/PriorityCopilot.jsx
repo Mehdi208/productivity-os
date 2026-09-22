@@ -15,9 +15,7 @@ const PriorityCopilot = ({
   hydrationMl = 0, 
   hydrationTarget = 1925, 
   onScheduleTask, 
-  onOpenFocusWithTask,
-  proactiveSuggestion = null,
-  onDismissProactive
+  onOpenFocusWithTask
 }) => {
   const { lang, t } = useLanguage();
   const [activeTab, setActiveTab] = useState('suggestions');
@@ -27,41 +25,6 @@ const PriorityCopilot = ({
 
   return (
     <>
-      {/* Proactive Suggestion Banner/Toast when a task was just added */}
-      {proactiveSuggestion && !isOpen && (
-        <div className="fixed bottom-24 right-5 sm:right-8 z-50 max-w-sm w-[90vw] bg-card rounded-2xl p-4 shadow-2xl border-2 border-primary/40 animate-in slide-in-from-bottom-5 duration-300 transition-colors">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5 animate-pulse">
-              <Sparkles size={18} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                  {t('coachProactiveTitle')}
-                </span>
-                <button onClick={onDismissProactive} className="text-textMuted hover:text-textMain"><X size={14} /></button>
-              </div>
-              <p className="text-xs font-bold text-textMain mt-1 leading-snug">
-                {proactiveSuggestion.message}
-              </p>
-              {proactiveSuggestion.slot && (
-                <div className="bg-background rounded-xl p-2 mt-2 border border-gray-100 dark:border-darkBorder text-[11px] text-textMuted flex items-center justify-between">
-                  <span>{t('coachFreeSlot')} <strong className="text-primary">{proactiveSuggestion.slot.start} - {proactiveSuggestion.slot.end}</strong></span>
-                  <button 
-                    onClick={() => {
-                      onScheduleTask(proactiveSuggestion.task, proactiveSuggestion.slot);
-                      onDismissProactive();
-                    }}
-                    className="bg-primary text-white text-[10px] font-bold px-2.5 py-1 rounded-lg hover:bg-primary/90 transition-colors"
-                  >
-                    {t('coachApply')}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Floating Copilot Trigger Button (Desktop Bottom Right) */}
       <button

@@ -11,7 +11,6 @@ import {
   getLastNDaysScores, 
   checkAndResetDailyHydration
 } from './data/scoreHistory';
-import { PRIORITY_LEVELS, autoPriority, getFreeSlots } from './data/priorityEngine';
 
 import Sidebar from './components/Layout/Sidebar';
 import BottomNav from './components/Layout/BottomNav';
@@ -231,9 +230,8 @@ const AppContent = () => {
     return !localStorage.getItem(storageKey('tour_seen'));
   });
 
-  // Copilot drawer state & Proactive suggestion toast
+  // Copilot drawer state
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
-  const [proactiveSuggestion, setProactiveSuggestion] = useState(null);
 
   // Action to completely clear schedule to a clean pristine state
   const handleClearSchedule = () => {
@@ -550,18 +548,6 @@ const AppContent = () => {
         localStorage.setItem(storageKey('custom_blocks_by_date'), JSON.stringify(next));
         pushMutationToCloud({ customBlocksByDate: next });
         return next;
-      });
-
-      const priority = autoPriority(newBlock);
-      const slots = getFreeSlots(todayBlocks);
-      
-      setProactiveSuggestion({
-        task: newBlock,
-        priority,
-        slot: slots.length > 0 ? slots[0] : null,
-        message: lang === 'en' 
-          ? `Task created classified '${priority.label}'. The coach suggests an optimal slot.`
-          : `Tâche créée classée '${priority.label}'. L'agent vous propose de la caler sur un créneau optimal.`
       });
     }
 
@@ -1134,8 +1120,6 @@ const AppContent = () => {
           hydrationTarget={1925}
           onScheduleTask={handleScheduleTask}
           onOpenFocusWithTask={handleOpenFocus}
-          proactiveSuggestion={proactiveSuggestion}
-          onDismissProactive={() => setProactiveSuggestion(null)}
         />
 
         {/* Daily Briefing Popup (Shows once/day on load or on click) */}

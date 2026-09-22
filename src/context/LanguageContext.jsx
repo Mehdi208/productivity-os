@@ -140,7 +140,6 @@ export const translations = {
     // Priority Coach
     coachTitle: 'AI Priority Coach',
     coachSubtitle: 'Smart Scheduling & Free Slot Optimization',
-    coachProactiveTitle: 'Proactive AI Analysis',
     coachFreeSlot: 'Free slot:',
     coachApply: 'Apply',
     coachTabSuggestions: '⚡ Suggestions',
@@ -461,7 +460,6 @@ export const translations = {
     // Priority Coach
     coachTitle: 'Coach de Priorités IA',
     coachSubtitle: 'Ordonnancement & Créneaux Intelligents',
-    coachProactiveTitle: 'Analyse IA Proactive',
     coachFreeSlot: 'Créneau libre :',
     coachApply: 'Appliquer',
     coachTabSuggestions: '⚡ Suggestions',
