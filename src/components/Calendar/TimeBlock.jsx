@@ -346,7 +346,7 @@ const TimeBlock = ({
       {onResizeBlockStart && (
         <div
           data-resize-handle="true"
-          className="absolute bottom-0 inset-x-0 h-3 cursor-ns-resize z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity"
+          className="absolute bottom-0 inset-x-0 h-4.5 md:h-3.5 cursor-ns-resize z-30 flex items-center justify-center opacity-70 md:opacity-0 md:group-hover:opacity-100 hover:opacity-100 active:opacity-100 transition-all touch-none select-none"
           onMouseDown={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -356,6 +356,9 @@ const TimeBlock = ({
           }}
           onTouchStart={(e) => {
             e.stopPropagation();
+            if (typeof window !== 'undefined' && window.navigator?.vibrate) {
+              try { window.navigator.vibrate(30); } catch (_) {}
+            }
             resizeJustEndedRef.current = true;
             setTimeout(() => { resizeJustEndedRef.current = false; }, 400);
             if (e.touches?.[0]) {
@@ -364,7 +367,7 @@ const TimeBlock = ({
           }}
           title={lang === 'en' ? 'Drag up or down to adjust end time' : "Glisser pour modifier l'heure de fin"}
         >
-          <div className="w-8 h-1 rounded-full bg-slate-400 dark:bg-slate-300 shadow-sm" />
+          <div className="w-10 md:w-8 h-1 md:h-0.5 rounded-full bg-slate-500/80 dark:bg-slate-300/80 shadow-xs" />
         </div>
       )}
     </div>

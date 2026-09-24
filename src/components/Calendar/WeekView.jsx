@@ -161,8 +161,21 @@ const WeekView = ({
     resizePreviewRef.current = initialPreview;
 
     const onPointerMove = (e) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       const curY = e.clientY !== undefined ? e.clientY : (e.touches?.[0]?.clientY ?? 0);
       const curX = e.clientX !== undefined ? e.clientX : (e.touches?.[0]?.clientX ?? 0);
+
+      // Auto-scroll container if pointer is near top or bottom
+      if (scrollContainerRef.current) {
+        const containerRect = scrollContainerRef.current.getBoundingClientRect();
+        if (curY < containerRect.top + 60) {
+          scrollContainerRef.current.scrollTop -= 8;
+        } else if (curY > containerRect.bottom - 60) {
+          scrollContainerRef.current.scrollTop += 8;
+        }
+      }
 
       const columnEl = document.querySelector(`[data-day-index="${dayIndex}"]`);
       if (!columnEl) return;
@@ -904,7 +917,7 @@ const WeekView = ({
                       onToggleCheck={onToggleCheck} 
                       onEditBlock={(b) => {
                         if (Date.now() - lastResizeEndTimeRef.current < 500) return;
-                        onEditBlock && onEditBlock(b, d.dayIndex, d.isoDate);
+                        if (onEditBlock) onEditBlock(b, d.dayIndex, d.isoDate);
                       }}
                       onResizeBlockStart={handleResizeBlockStart}
                       isResizing={isCurrentResizing}
