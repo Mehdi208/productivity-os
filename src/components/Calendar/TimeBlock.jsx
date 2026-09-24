@@ -13,10 +13,14 @@ const TimeBlock = ({
   onDragBlockEnd,
   onTouchDragMove,
   onTouchDragEnd,
-  isDragging = false
+  isDragging = false,
+  onResizeBlockStart,
+  isResizing = false,
+  resizingEndStr = null
 }) => {
   const { lang, t } = useLanguage();
   const { id, title, start, end, color = '#6C63FF', checkable, checked, subtitle, hasVideo } = block;
+  const displayedEnd = (isResizing && resizingEndStr) ? resizingEndStr : end;
 
   const touchTimerRef = useRef(null);
   const touchStartPosRef = useRef({ x: 0, y: 0 });
@@ -189,9 +193,9 @@ const TimeBlock = ({
   return (
     <div 
       style={style} 
-      draggable={true}
+      draggable={!isResizing}
       onDragStart={(e) => {
-        if (e.target.closest('button')) {
+        if (e.target.closest('button') || e.target.closest('[data-resize-handle="true"]')) {
           e.preventDefault();
           return;
         }
@@ -215,8 +219,8 @@ const TimeBlock = ({
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
       onClick={handleCardClick} 
-      className={`absolute ${style?.left ? '' : 'inset-x-1'} rounded-xl ${isCompact ? 'py-1 px-1.5 md:px-2 flex items-center' : 'p-2 md:p-2.5 flex flex-col justify-between'} border-2 transition-all duration-150 overflow-hidden select-none cursor-grab active:cursor-grabbing group hover:z-30 ${theme.bg} ${theme.border} ${checked ? 'opacity-40 grayscale' : isTouchDragging ? 'touch-none scale-[1.03] shadow-2xl z-40 ring-2 ring-primary ring-offset-2 opacity-95 border-primary' : isDragging ? 'opacity-25 scale-95 border-dashed' : 'hover:shadow-lg hover:scale-[1.01] z-10'}`}
-      title={`${title} (${start} - ${end})${subtitle ? ' • ' + subtitle : ''} — ${lang === 'en' ? 'Hold & drag to reschedule' : 'Maintenir pour déplacer'}`}
+      className={`absolute ${style?.left ? '' : 'inset-x-1'} rounded-xl ${isCompact ? 'py-1 px-1.5 md:px-2 flex items-center' : 'p-2 md:p-2.5 flex flex-col justify-between'} border-2 transition-all duration-150 overflow-hidden select-none cursor-grab active:cursor-grabbing group hover:z-30 ${theme.bg} ${theme.border} ${checked ? 'opacity-40 grayscale' : isTouchDragging ? 'touch-none scale-[1.03] shadow-2xl z-40 ring-2 ring-primary ring-offset-2 opacity-95 border-primary' : isDragging ? 'opacity-25 scale-95 border-dashed' : isResizing ? 'ring-2 ring-primary ring-offset-1 border-primary shadow-2xl z-40 scale-[1.01]' : 'hover:shadow-lg hover:scale-[1.01] z-10'}`}
+      title={`${title} (${start} - ${displayedEnd})${subtitle ? ' • ' + subtitle : ''} — ${lang === 'en' ? 'Hold & drag to reschedule' : 'Maintenir pour déplacer'}`}
     >
       <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl" style={{ backgroundColor: theme.accent }} />
       
@@ -247,7 +251,7 @@ const TimeBlock = ({
               {block.isChallengeRdv && block.rdvDetails?.companyName ? block.rdvDetails.companyName : title}
             </span>
             <span className={`text-[10px] font-semibold opacity-75 whitespace-nowrap flex-shrink-0 leading-none ${theme.subText}`}>
-              {start}-{end}
+              {start}-{displayedEnd}
             </span>
           </div>
 
@@ -300,7 +304,7 @@ const TimeBlock = ({
                 {block.isChallengeRdv && block.rdvDetails?.companyName ? `🤝 ${block.rdvDetails.companyName}` : title}
               </h4>
               <p className={`text-[10px] md:text-xs mt-0.5 ${theme.subText} truncate`}>
-                {start} - {end} {block.isChallengeRdv && block.rdvDetails?.budget ? `• ${block.rdvDetails.budget}` : (subtitle ? `• ${subtitle}` : '')} {block.isChallengeRdv && block.rdvDetails?.location ? `• 📍 ${block.rdvDetails.location}` : ''}
+                {start} - {displayedEnd} {block.isChallengeRdv && block.rdvDetails?.budget ? `• ${block.rdvDetails.budget}` : (subtitle ? `• ${subtitle}` : '')} {block.isChallengeRdv && block.rdvDetails?.location ? `• 📍 ${block.rdvDetails.location}` : ''}
               </p>
             </div>
           </div>
@@ -318,6 +322,28 @@ const TimeBlock = ({
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Google Calendar Style Bottom Resize Handle */}
+      {onResizeBlockStart && (
+        <div
+          data-resize-handle="true"
+          className="absolute bottom-0 inset-x-0 h-3 cursor-ns-resize z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 transition-opacity"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onResizeBlockStart(block, dayIndex, e);
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            if (e.touches?.[0]) {
+              onResizeBlockStart(block, dayIndex, e.touches[0]);
+            }
+          }}
+          title={lang === 'en' ? 'Drag up or down to adjust end time' : "Glisser pour modifier l'heure de fin"}
+        >
+          <div className="w-8 h-1 rounded-full bg-slate-400 dark:bg-slate-300 shadow-sm" />
         </div>
       )}
     </div>

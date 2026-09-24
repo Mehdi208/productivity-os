@@ -128,6 +128,102 @@ const WeekView = ({
     handleDragBlockEnd();
   };
 
+  // Interactive bottom-handle resizing state (Google Calendar style)
+  const [activeResizingBlock, setActiveResizingBlock] = useState(null);
+  const [resizePreview, setResizePreview] = useState(null);
+  const resizePreviewRef = useRef(null);
+
+  const handleResizeBlockStart = (block, dayIndex, clientYOrEvent) => {
+    const startMin = timeStrToMinutes(block.start);
+    let endMin = timeStrToMinutes(block.end);
+    if (endMin === 0 && startMin > 0) endMin = 1440;
+    const initialDuration = Math.max(15, endMin - startMin);
+
+    const clientY = clientYOrEvent.clientY !== undefined ? clientYOrEvent.clientY : (clientYOrEvent.touches?.[0]?.clientY ?? 0);
+    const clientX = clientYOrEvent.clientX !== undefined ? clientYOrEvent.clientX : (clientYOrEvent.touches?.[0]?.clientX ?? 0);
+
+    const initialPreview = {
+      blockId: block.id,
+      dayIndex,
+      startMin,
+      initialEndMin: endMin,
+      startTimeStr: block.start,
+      endTimeStr: block.end,
+      durationMinutes: initialDuration,
+      mouseX: clientX,
+      mouseY: clientY,
+      newHeight: Math.max(26, (initialDuration / 60) * hourHeight)
+    };
+
+    setActiveResizingBlock(block);
+    setResizePreview(initialPreview);
+    resizePreviewRef.current = initialPreview;
+
+    const onPointerMove = (e) => {
+      const curY = e.clientY !== undefined ? e.clientY : (e.touches?.[0]?.clientY ?? 0);
+      const curX = e.clientX !== undefined ? e.clientX : (e.touches?.[0]?.clientX ?? 0);
+
+      const columnEl = document.querySelector(`[data-day-index="${dayIndex}"]`);
+      if (!columnEl) return;
+
+      const columnRect = columnEl.getBoundingClientRect();
+      const offsetY = Math.max(0, curY - columnRect.top);
+      const rawMinutes = (offsetY / hourHeight) * 60;
+
+      // Snap end time to 15-minute intervals
+      let snappedEndMin = Math.round(rawMinutes / 15) * 15;
+      // Minimum duration: at least 15 minutes after start, and cannot exceed 1440 (midnight)
+      snappedEndMin = Math.max(startMin + 15, Math.min(1440, snappedEndMin));
+      const durationMinutes = snappedEndMin - startMin;
+      const newHeight = Math.max(26, (durationMinutes / 60) * hourHeight);
+      const endTimeStr = minutesToTimeStr(snappedEndMin);
+
+      const nextPreview = {
+        blockId: block.id,
+        dayIndex,
+        startMin,
+        initialEndMin: endMin,
+        startTimeStr: block.start,
+        endTimeStr,
+        durationMinutes,
+        mouseX: curX,
+        mouseY: curY,
+        newHeight
+      };
+
+      setResizePreview(nextPreview);
+      resizePreviewRef.current = nextPreview;
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('mouseup', onPointerUp);
+      window.removeEventListener('touchmove', onPointerMove);
+      window.removeEventListener('touchend', onPointerUp);
+
+      const finalPreview = resizePreviewRef.current;
+      if (finalPreview && finalPreview.endTimeStr && finalPreview.endTimeStr !== block.end) {
+        if (onSaveBlock) {
+          const finalDate = block.date;
+          const updatedBlock = {
+            ...block,
+            end: finalPreview.endTimeStr
+          };
+          onSaveBlock(updatedBlock, dayIndex, finalDate);
+        }
+      }
+
+      setActiveResizingBlock(null);
+      setResizePreview(null);
+      resizePreviewRef.current = null;
+    };
+
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove, { passive: false });
+    window.addEventListener('touchend', onPointerUp);
+  };
+
   const handleTouchDragMove = (clientX, clientY) => {
     if (!activeDraggedBlock) return;
 
@@ -774,27 +870,59 @@ const WeekView = ({
                 )}
 
                 {/* Time Blocks on this day — Rendered with Google Calendar layout styles */}
-                {dayBlocksWithLayout.map(({ block, style }) => (
-                  <TimeBlock 
-                    key={block.id} 
-                    block={block} 
-                    dayIndex={d.dayIndex}
-                    isDragging={activeDraggedBlock?.block?.id === block.id}
-                    onDragBlockStart={(b, idx, grabY) => handleDragBlockStart(b, idx, grabY, d.isoDate)}
-                    onDragBlockEnd={handleDragBlockEnd}
-                    onTouchDragMove={handleTouchDragMove}
-                    onTouchDragEnd={handleTouchDragEnd}
-                    onToggleCheck={onToggleCheck} 
-                    onEditBlock={(b) => onEditBlock && onEditBlock(b, d.dayIndex, d.isoDate)}
-                    style={style}
-                  />
-                ))}
+                {dayBlocksWithLayout.map(({ block, style }) => {
+                  const isCurrentResizing = activeResizingBlock?.id === block.id;
+                  const effectiveStyle = isCurrentResizing && resizePreview?.newHeight
+                    ? { ...style, height: `${resizePreview.newHeight}px`, zIndex: 40 }
+                    : style;
+
+                  return (
+                    <TimeBlock 
+                      key={block.id} 
+                      block={block} 
+                      dayIndex={d.dayIndex}
+                      isDragging={activeDraggedBlock?.block?.id === block.id}
+                      onDragBlockStart={(b, idx, grabY) => handleDragBlockStart(b, idx, grabY, d.isoDate)}
+                      onDragBlockEnd={handleDragBlockEnd}
+                      onTouchDragMove={handleTouchDragMove}
+                      onTouchDragEnd={handleTouchDragEnd}
+                      onToggleCheck={onToggleCheck} 
+                      onEditBlock={(b) => onEditBlock && onEditBlock(b, d.dayIndex, d.isoDate)}
+                      onResizeBlockStart={handleResizeBlockStart}
+                      isResizing={isCurrentResizing}
+                      resizingEndStr={isCurrentResizing ? resizePreview?.endTimeStr : null}
+                      style={effectiveStyle}
+                    />
+                  );
+                })}
               </div>
             );
           })}
 
         </div>
       </div>
+
+      {/* Floating Resize Live Badge (Google Calendar Style) */}
+      {activeResizingBlock && resizePreview && (
+        <div 
+          style={{ 
+            position: 'fixed', 
+            top: `${resizePreview.mouseY + 16}px`, 
+            left: `${resizePreview.mouseX + 16}px`,
+            zIndex: 100
+          }}
+          className="pointer-events-none bg-slate-900/95 dark:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-2xl border border-white/10 flex items-center gap-2 animate-in fade-in zoom-in-95 duration-75 select-none"
+        >
+          <Clock size={13} className="text-primary flex-shrink-0" />
+          <span className="font-extrabold truncate max-w-[150px]">{activeResizingBlock.title}</span>
+          <span className="text-primary font-black ml-1 tabular-nums whitespace-nowrap">
+            {resizePreview.startTimeStr} – {resizePreview.endTimeStr}
+          </span>
+          <span className="text-[10px] text-slate-300 font-medium ml-0.5 whitespace-nowrap bg-white/10 px-1.5 py-0.5 rounded">
+            {Math.floor(resizePreview.durationMinutes / 60)}h{resizePreview.durationMinutes % 60 > 0 ? (resizePreview.durationMinutes % 60).toString().padStart(2, '0') : '00'}
+          </span>
+        </div>
+      )}
 
     </div>
   );
