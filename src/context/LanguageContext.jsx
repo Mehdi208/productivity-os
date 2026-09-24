@@ -321,7 +321,29 @@ export const translations = {
     tourNext: 'Next',
     tourPrev: 'Back',
     tourFinish: "Let's Get Started 🚀",
-    tourSkip: 'Skip Tour'
+    tourSkip: 'Skip Tour',
+
+    // Projects & Statuses
+    statusNotStarted: 'Not Started',
+    statusInProgress: 'In Progress',
+    statusOverdue: 'Overdue',
+    statusDone: 'Done',
+    priorityUrgent: 'Urgent',
+    priorityImportant: 'Important',
+    priorityNormal: 'Normal',
+    priorityLow: 'Secondary',
+    projectPriorityLabel: 'Project Importance / Priority',
+    categoryLabel: 'Category or Client',
+    deadlineLabel: 'Deadline',
+    initialStatusLabel: 'Initial Status',
+    newProjectModalTitle: '📁 New Strategic Project',
+    editProjectModalTitle: 'Edit Project',
+    projectNameLabel: 'Project Name',
+    projectNamePlaceholder: 'e.g. Patient Portal, Brand Launch...',
+    projectDescLabel: 'Short Description & Objectives',
+    projectDescPlaceholder: 'Project details...',
+    createProjectBtn: 'Create Project',
+    filterByPriority: 'Filter by Priority'
   },
   fr: {
     // Brand & Greeting
@@ -641,7 +663,29 @@ export const translations = {
     tourNext: 'Suivant',
     tourPrev: 'Précédent',
     tourFinish: 'C’est parti ! 🚀',
-    tourSkip: 'Passer le tour'
+    tourSkip: 'Passer le tour',
+
+    // Projets & Statuts
+    statusNotStarted: 'Non démarré',
+    statusInProgress: 'En cours',
+    statusOverdue: 'En retard',
+    statusDone: 'Terminé',
+    priorityUrgent: 'Urgent',
+    priorityImportant: 'Important',
+    priorityNormal: 'Normal',
+    priorityLow: 'Secondaire',
+    projectPriorityLabel: 'Importance / Priorité du projet',
+    categoryLabel: 'Catégorie ou Client',
+    deadlineLabel: "Date d’échéance (Deadline)",
+    initialStatusLabel: 'Statut initial',
+    newProjectModalTitle: '📁 Nouveau Projet Stratégique',
+    editProjectModalTitle: 'Modifier le projet',
+    projectNameLabel: 'Nom du projet',
+    projectNamePlaceholder: 'ex: Portail Patient, Lancement Marque...',
+    projectDescLabel: 'Description courte & Objectifs',
+    projectDescPlaceholder: 'Détails du projet...',
+    createProjectBtn: 'Créer le projet',
+    filterByPriority: 'Filtrer par Priorité'
   }
 };
 

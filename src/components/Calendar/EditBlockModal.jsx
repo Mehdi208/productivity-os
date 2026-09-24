@@ -7,6 +7,7 @@ import {
   timeStrToMinutes, 
   minutesToTimeStr 
 } from '../../utils/calendarLayout';
+import TimeInputSelect from './TimeInputSelect';
 
 const EditBlockModal = ({ 
   isOpen, 
@@ -125,7 +126,7 @@ const EditBlockModal = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[85] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/60 z-[85] flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -228,35 +229,33 @@ const EditBlockModal = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-textMuted block mb-1">
-                {lang === 'en' ? 'Start Time' : 'Heure de début'}
-              </label>
-              <input 
-                type="time" 
-                required 
-                value={form.start} 
-                onChange={(e) => setForm({ ...form, start: e.target.value })} 
-                className={`w-full bg-background border rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none transition-colors ${
-                  conflict.hasConflict 
-                    ? 'border-red-500 ring-1 ring-red-500/30' 
-                    : 'border-gray-200 dark:border-darkBorder focus:border-primary'
-                }`} 
+              <TimeInputSelect
+                label={lang === 'en' ? 'Start Time' : 'Heure de début'}
+                value={form.start}
+                hasConflict={conflict.hasConflict}
+                onChange={(newStart) => {
+                  const startM = timeStrToMinutes(newStart);
+                  const endM = timeStrToMinutes(form.end);
+                  let nextEnd = form.end;
+                  if (endM <= startM) {
+                    nextEnd = minutesToTimeStr(Math.min(1439, startM + 60));
+                  }
+                  setForm(prev => ({ ...prev, start: newStart, end: nextEnd }));
+                }}
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-textMuted block mb-1">
-                {lang === 'en' ? 'End Time' : 'Heure de fin'}
-              </label>
-              <input 
-                type="time" 
-                required 
-                value={form.end} 
-                onChange={(e) => setForm({ ...form, end: e.target.value })} 
-                className={`w-full bg-background border rounded-xl px-3 py-2 text-base sm:text-sm text-textMain focus:outline-none transition-colors ${
-                  conflict.hasConflict 
-                    ? 'border-red-500 ring-1 ring-red-500/30' 
-                    : 'border-gray-200 dark:border-darkBorder focus:border-primary'
-                }`} 
+              <TimeInputSelect
+                label={lang === 'en' ? 'End Time' : 'Heure de fin'}
+                value={form.end}
+                hasConflict={conflict.hasConflict}
+                quickDurations={true}
+                onAddDuration={(additionalMins) => {
+                  const startM = timeStrToMinutes(form.start);
+                  const newEndM = Math.min(1439, startM + additionalMins);
+                  setForm(prev => ({ ...prev, end: minutesToTimeStr(newEndM) }));
+                }}
+                onChange={(newEnd) => setForm(prev => ({ ...prev, end: newEnd }))}
               />
             </div>
           </div>

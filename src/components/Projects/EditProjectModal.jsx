@@ -34,10 +34,10 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
   if (!isOpen || !project) return null;
 
   const priorityOptions = [
-    { key: 'urgent', label: t('priorityUrgent'), ...PRIORITY_LEVELS.URGENT },
-    { key: 'important', label: t('priorityImportant'), ...PRIORITY_LEVELS.IMPORTANT },
+    { key: 'low', label: t('priorityLow'), ...PRIORITY_LEVELS.LOW },
     { key: 'normal', label: t('priorityNormal'), ...PRIORITY_LEVELS.NORMAL },
-    { key: 'low', label: t('priorityLow'), ...PRIORITY_LEVELS.LOW }
+    { key: 'important', label: t('priorityImportant'), ...PRIORITY_LEVELS.IMPORTANT },
+    { key: 'urgent', label: t('priorityUrgent'), ...PRIORITY_LEVELS.URGENT }
   ];
 
   const handleSubmit = (e) => {
@@ -60,7 +60,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSaveProject, onDeletePro
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/60 z-[80] flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

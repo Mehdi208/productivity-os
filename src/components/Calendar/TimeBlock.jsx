@@ -323,4 +323,4 @@ const TimeBlock = ({
     </div>
   );
 };
-export default TimeBlock;
+export default React.memo(TimeBlock);

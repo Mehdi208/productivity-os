@@ -1384,7 +1384,7 @@ const AppContent = () => {
 
         {/* New Project Modal with Importance Selector, Status Selector & Calendar Date Picker */}
         {showNewProjectModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
             <div className="bg-card rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-darkBorder transition-colors max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-darkBorder">
                 <h3 className="text-lg font-bold text-textMain">{t('newProjectModalTitle')}</h3>
@@ -1403,10 +1403,10 @@ const AppContent = () => {
                   </label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { key: 'urgent', label: t('priorityUrgent'), ...PRIORITY_LEVELS.URGENT },
-                      { key: 'important', label: t('priorityImportant'), ...PRIORITY_LEVELS.IMPORTANT },
+                      { key: 'low', label: t('priorityLow'), ...PRIORITY_LEVELS.LOW },
                       { key: 'normal', label: t('priorityNormal'), ...PRIORITY_LEVELS.NORMAL },
-                      { key: 'low', label: t('priorityLow'), ...PRIORITY_LEVELS.LOW }
+                      { key: 'important', label: t('priorityImportant'), ...PRIORITY_LEVELS.IMPORTANT },
+                      { key: 'urgent', label: t('priorityUrgent'), ...PRIORITY_LEVELS.URGENT }
                     ].map((opt) => {
                       const isSelected = (newProjectForm.priorityKey || 'normal') === opt.key;
                       return (

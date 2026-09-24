@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Calendar, Clock, Globe } from 'lucide-react';
 import TimeBlock from './TimeBlock';
 import { useLanguage } from '../../context/LanguageContext';
 import { layoutDayBlocks, getCalendarCurrentTime } from '../../utils/calendarLayout';
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 const WeekView = ({ 
   blocksByDay = {}, 
@@ -16,9 +18,8 @@ const WeekView = ({
   onNewTaskAtSlot, 
   onNewTask 
 }) => {
-  const { lang, toggleLanguage, t } = useLanguage();
-  // Full 24-hour timeline from midnight 00:00 to 23:59
-  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const { lang, t } = useLanguage();
+  const hours = HOURS;
   const hourHeight = 64;
   const [currentTimeData, setCurrentTimeData] = useState(() => {
     const { h, m } = getCalendarCurrentTime();
@@ -350,6 +351,33 @@ const WeekView = ({
 
   const visibleDays = getVisibleDays();
 
+  // High performance pre-calculated layout and hour occupancy map
+  const daysLayoutData = useMemo(() => {
+    return visibleDays.filter(Boolean).map((d) => {
+      const rawBlocks = getDayBlocks ? getDayBlocks(d.isoDate) : (blocksByDay[d.dayIndex] || []);
+      const dayBlocksWithLayout = layoutDayBlocks(rawBlocks, hourHeight);
+      const occupiedByHour = new Map();
+      hours.forEach((h) => {
+        const slotHourStart = h * 60;
+        const slotHourEnd = (h + 1) * 60;
+        const occ = rawBlocks.find((b) => {
+          if (!b || !b.start || !b.end) return false;
+          const bs = timeStrToMinutes(b.start);
+          let be = timeStrToMinutes(b.end);
+          if (be === 0 && bs > 0) be = 1440;
+          return Math.max(slotHourStart, bs) < Math.min(slotHourEnd, be);
+        });
+        if (occ) occupiedByHour.set(h, occ);
+      });
+      return {
+        ...d,
+        rawBlocks,
+        dayBlocksWithLayout,
+        occupiedByHour
+      };
+    });
+  }, [visibleDays, getDayBlocks, blocksByDay, hourHeight]);
+
   // Determine grid column template
   const getGridColsClass = () => {
     if (viewMode === '1day') return 'grid-cols-[60px_1fr]';
@@ -668,9 +696,8 @@ const WeekView = ({
           )}
 
           {/* Visible Day Columns */}
-          {visibleDays.filter(Boolean).map((d) => {
-            const rawBlocks = getDayBlocks ? getDayBlocks(d.isoDate) : (blocksByDay[d.dayIndex] || []);
-            const dayBlocksWithLayout = layoutDayBlocks(rawBlocks, hourHeight);
+          {daysLayoutData.map((d) => {
+            const { dayBlocksWithLayout, occupiedByHour } = d;
             const isColumnHovered = dragPreview?.dayIndex === d.dayIndex;
 
             return (
@@ -693,15 +720,7 @@ const WeekView = ({
               >
                 {/* Hour horizontal grid lines with Google Calendar half-hour subtle dashed guide */}
                 {hours.map((h) => {
-                  const slotHourStart = h * 60;
-                  const slotHourEnd = (h + 1) * 60;
-                  const occupiedBlock = rawBlocks.find(b => {
-                    if (!b || !b.start || !b.end) return false;
-                    const bs = timeStrToMinutes(b.start);
-                    let be = timeStrToMinutes(b.end);
-                    if (be === 0 && bs > 0) be = 1440;
-                    return Math.max(slotHourStart, bs) < Math.min(slotHourEnd, be);
-                  });
+                  const occupiedBlock = occupiedByHour.get(h);
 
                   return (
                     <div 
