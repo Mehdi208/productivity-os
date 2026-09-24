@@ -6,7 +6,7 @@ import {
   ChevronDown, ChevronUp, Share2, CheckSquare, ExternalLink, ShieldCheck,
   MapPin, DollarSign, Zap, Check, Gift, BarChart3,
   CalendarDays, UserCheck, UserX, UserMinus, PhoneForwarded, MessageSquare,
-  History, ArrowUpRight, ArrowDownRight, Activity, X
+  History, ArrowUpRight, ArrowDownRight, Activity, X, Printer, Archive
 } from 'lucide-react';
 
 // Timezone Helper: Côte d'Ivoire (Africa/Abidjan, UTC+0 / GMT)
@@ -30,45 +30,142 @@ export const getAbidjanDateDisplay = (dateStr) => {
   }
 };
 
-const DEFAULT_ROADMAP_WEEKS = [
-  {
-    id: 'w1_2',
-    title: 'Semaines 1 & 2 (1 - 15 Sept.) : Prospection Massive, Visites & Démos Directes',
-    subtitle: 'Objectif : 50+ contacts qualifiés, visites physiques, 5 à 8 démos live de dashboard',
-    isCurrent: true,
-    tasks: [
-      { id: 'wt_1', title: 'Lister 50 PME, cliniques, commerces et agences cibles en Côte d\'Ivoire', completed: false, isCustom: false },
-      { id: 'wt_2', title: 'Préparer un dashboard démo interactif sur PC/tablette prêt à être montré', completed: false, isCustom: false },
-      { id: 'wt_3', title: 'Réaliser 25 premiers appels directs & visites de terrain', completed: false, isCustom: false },
-      { id: 'wt_4', title: 'Présenter la démo live aux décideurs / gérants avec l\'offre 30k F/mois', completed: false, isCustom: false },
-      { id: 'wt_5', title: 'Obtenir 3 à 5 accords d\'intérêt pour transmission de propositions', completed: false, isCustom: false }
-    ]
-  },
-  {
-    id: 'w3',
-    title: 'Semaine 3 (16 - 22 Sept.) : Négociations, Relances & Signature / Acompte',
-    subtitle: 'Objectif : Relances stratégiques, négociation ferme et encaissement du 1er mois ou de l\'année',
-    isCurrent: false,
-    tasks: [
-      { id: 'wt_6', title: 'Relancer les décideurs par WhatsApp / appels directs et visites de suivi', completed: false, isCustom: false },
-      { id: 'wt_7', title: 'Valider le choix de paiement : 30 000 F/mois OU 300 000 F pour l\'année', completed: false, isCustom: false },
-      { id: 'wt_8', title: 'Finaliser l\'accord financier et signer le bon de commande / contrat', completed: false, isCustom: false },
-      { id: 'wt_9', title: 'Encaisser le paiement initial (Feu vert officiel pour la réalisation !)', completed: false, isCustom: false }
-    ]
-  },
-  {
-    id: 'w4',
-    title: 'Semaine 4 (23 - 30 Sept.) : Build Éclair (1-2 Jours), Déploiement & Livraison Client',
-    subtitle: 'Objectif : Dashboard codé et déployé en sprint express (1-2j), démo finale & prise en main',
-    isCurrent: false,
-    tasks: [
-      { id: 'wt_10', title: 'Sprint de développement express (Frontend, Backend, BDD) en 1 à 2 jours', completed: false, isCustom: false },
-      { id: 'wt_11', title: 'Déploiement en ligne et tests des fonctionnalités du dashboard', completed: false, isCustom: false },
-      { id: 'wt_12', title: 'Présentation de l\'application fonctionnelle au client & remise des accès', completed: false, isCustom: false },
-      { id: 'wt_13', title: 'Validation triomphale du Challenge 30 Jours B2B ! 🏆', completed: false, isCustom: false }
-    ]
+export const getMonthNameDisplay = (monthKey) => {
+  try {
+    const [yearStr, monthStr] = monthKey.split('-');
+    const year = parseInt(yearStr, 10) || 2026;
+    const month = parseInt(monthStr, 10) || 9;
+    const date = new Date(year, month - 1, 1);
+    const str = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  } catch (e) {
+    return monthKey;
   }
-];
+};
+
+export const getRoadmapWeeksForMonth = (monthKey) => {
+  const [yearStr, monthStr] = monthKey.split('-');
+  const year = parseInt(yearStr, 10) || 2026;
+  const month = parseInt(monthStr, 10) || 9;
+  const lastDay = new Date(year, month, 0).getDate();
+  const date = new Date(year, month - 1, 1);
+  const rawMonthName = date.toLocaleDateString('fr-FR', { month: 'short' });
+  const monthShort = rawMonthName.charAt(0).toUpperCase() + rawMonthName.slice(1);
+
+  return [
+    {
+      id: `${monthKey}_w1_2`,
+      title: `Semaines 1 & 2 (1 - 15 ${monthShort}) : Prospection Massive, Visites & Démos Directes`,
+      subtitle: 'Objectif : 50+ contacts qualifiés, visites physiques, 5 à 8 démos live de dashboard',
+      isCurrent: true,
+      tasks: [
+        { id: `wt_${monthKey}_1`, title: 'Lister 50 PME, cliniques, commerces et agences cibles en Côte d\'Ivoire', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_2`, title: 'Préparer un dashboard démo interactif sur PC/tablette prêt à être montré', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_3`, title: 'Réaliser 25 premiers appels directs & visites de terrain', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_4`, title: 'Présenter la démo live aux décideurs / gérants avec l\'offre 30k F/mois', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_5`, title: 'Obtenir 3 à 5 accords d\'intérêt pour transmission de propositions', completed: false, isCustom: false }
+      ]
+    },
+    {
+      id: `${monthKey}_w3`,
+      title: `Semaine 3 (16 - 22 ${monthShort}) : Négociations, Relances & Signature / Acompte`,
+      subtitle: 'Objectif : Relances stratégiques, négociation ferme et encaissement du 1er mois ou de l\'année',
+      isCurrent: false,
+      tasks: [
+        { id: `wt_${monthKey}_6`, title: 'Relancer les décideurs par WhatsApp / appels directs et visites de suivi', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_7`, title: 'Valider le choix de paiement : 30 000 F/mois OU 300 000 F pour l\'année', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_8`, title: 'Finaliser l\'accord financier et signer le bon de commande / contrat', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_9`, title: 'Encaisser le paiement initial (Feu vert officiel pour la réalisation !)', completed: false, isCustom: false }
+      ]
+    },
+    {
+      id: `${monthKey}_w4`,
+      title: `Semaine 4 (23 - ${lastDay} ${monthShort}) : Build Éclair (1-2 Jours), Déploiement & Livraison Client`,
+      subtitle: 'Objectif : Dashboard codé et déployé en sprint express (1-2j), démo finale & prise en main',
+      isCurrent: false,
+      tasks: [
+        { id: `wt_${monthKey}_10`, title: 'Sprint de développement express (Frontend, Backend, BDD) en 1 à 2 jours', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_11`, title: 'Déploiement en ligne et tests des fonctionnalités du dashboard', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_12`, title: 'Présentation de l\'application fonctionnelle au client & remise des accès', completed: false, isCustom: false },
+        { id: `wt_${monthKey}_13`, title: 'Validation triomphale du Challenge 30 Jours B2B ! 🏆', completed: false, isCustom: false }
+      ]
+    }
+  ];
+};
+
+export const calculateChallengeStats = (dailyLogs = [], prospects = [], todayDateStr = '') => {
+  const totalDaysLogged = dailyLogs.length;
+
+  // Strict mathematical sums
+  const totalInterested = dailyLogs.reduce((sum, l) => sum + (l.interestedCount || 0), 0);
+  const totalCallback = dailyLogs.reduce((sum, l) => sum + (l.callbackCount || 0), 0);
+  const totalRefused = dailyLogs.reduce((sum, l) => sum + (l.refusedCount || 0), 0);
+  const totalUnreachable = dailyLogs.reduce((sum, l) => sum + (l.unreachableCount || 0), 0);
+
+  // TOTAL CONTACTED = EXACT SUM OF ALL OUTCOMES
+  const totalContacted = totalInterested + totalCallback + totalRefused + totalUnreachable;
+
+  const conversionRate = totalContacted > 0 ? Math.round((totalInterested / totalContacted) * 100) : 0;
+  const callbackRate = totalContacted > 0 ? Math.round((totalCallback / totalContacted) * 100) : 0;
+  const refusalRate = totalContacted > 0 ? Math.round((totalRefused / totalContacted) * 100) : 0;
+  const unreachableRate = totalContacted > 0 ? Math.round((totalUnreachable / totalContacted) * 100) : 0;
+
+  // Today's log in Abidjan
+  const todayLog = dailyLogs.find(l => l.date === todayDateStr) || {
+    date: todayDateStr,
+    contactedCount: 0,
+    interestedCount: 0,
+    callbackCount: 0,
+    refusedCount: 0,
+    unreachableCount: 0
+  };
+
+  // Sort logs descending by date for history
+  const sortedLogs = [...dailyLogs].sort((a, b) => b.date.localeCompare(a.date));
+  const yesterdayLog = sortedLogs.find(l => l.date < todayDateStr) || null;
+
+  // Monthly Target (200 contacts)
+  const monthlyGoal = 200;
+  const monthlyProgressPercent = Math.min(100, Math.round((totalContacted / monthlyGoal) * 100));
+
+  // Pipeline Analytics
+  const wonProspects = prospects.filter(p => p.status === 'won');
+  const meetingProspects = prospects.filter(p => p.status === 'meeting');
+  const proposalProspects = prospects.filter(p => p.status === 'proposal');
+
+  // Revenue Generated strictly DURING the challenge
+  const totalCashEarned = wonProspects.reduce((sum, p) => {
+    if (p.pricingModel === 'yearly') return sum + 300000;
+    return sum + 30000;
+  }, 0);
+
+  const mrrGained = wonProspects.reduce((sum, p) => {
+    if (p.pricingModel === 'monthly') return sum + 30000;
+    return sum + 25000; // 300k/year = 25k/month
+  }, 0);
+
+  return {
+    totalDaysLogged,
+    totalContacted,
+    totalInterested,
+    totalCallback,
+    totalRefused,
+    totalUnreachable,
+    conversionRate,
+    callbackRate,
+    refusalRate,
+    unreachableRate,
+    todayLog,
+    yesterdayLog,
+    monthlyGoal,
+    monthlyProgressPercent,
+    wonProspects,
+    meetingProspects,
+    proposalProspects,
+    totalCashEarned,
+    mrrGained
+  };
+};
 
 const Challenge30Days = ({ 
   challengeData = {}, 
@@ -77,46 +174,163 @@ const Challenge30Days = ({
 }) => {
   // Current Date in Côte d'Ivoire (Abidjan)
   const todayAbidjanStr = getAbidjanDateStr();
-  const [selectedDate, setSelectedDate] = useState(todayAbidjanStr);
+  const currentRealMonthKey = todayAbidjanStr.substring(0, 7); // e.g. '2026-09' or '2026-10'
 
-  // 30 Days Target Dates: September 1st to September 30th
-  const currentYear = 2026;
-  const startDate = new Date(currentYear, 8, 1, 0, 0, 0); // Sep 1, 2026
-  const endDate = new Date(currentYear, 8, 30, 23, 59, 59); // Sep 30, 2026
+  // Default to October once October 1st arrives, otherwise September 2026
+  const [selectedMonthKey, setSelectedMonthKey] = useState(() => {
+    return currentRealMonthKey >= '2026-10' ? '2026-10' : '2026-09';
+  });
 
-  // Calculate day progress according to Abidjan date
-  const now = new Date();
-  const nowMs = now.getTime();
-  const startMs = startDate.getTime();
-  const endMs = endDate.getTime();
-  const totalDurationMs = endMs - startMs;
-  
-  let currentDayNumber = 1;
-  if (nowMs >= startMs) {
-    currentDayNumber = Math.min(30, Math.max(1, Math.floor((nowMs - startMs) / (1000 * 60 * 60 * 24)) + 1));
-  }
-  const daysRemaining = Math.max(0, Math.ceil((endMs - nowMs) / (1000 * 60 * 60 * 24)));
-  const progressPercent = Math.min(100, Math.max(0, Math.round(((nowMs - startMs) / totalDurationMs) * 100)));
+  // Editions map with automatic backward-compatible migration of legacy data
+  const [editions, setEditions] = useState(() => {
+    const rawEditions = (challengeData && challengeData.editions) ? challengeData.editions : {};
+
+    // 1. Septembre 2026 edition (migrates top-level legacy fields if present)
+    const sepLogs = rawEditions['2026-09']?.dailyLogs || challengeData.dailyLogs || [];
+    const sepProspects = rawEditions['2026-09']?.prospects || challengeData.prospects || [];
+    const sepWeeks = rawEditions['2026-09']?.weeksData || challengeData.weeksData || getRoadmapWeeksForMonth('2026-09');
+
+    const sepEdition = {
+      monthKey: '2026-09',
+      name: 'Challenge Septembre 2026',
+      dailyLogs: sepLogs.filter(l => l.id !== 'log_2026_09_01'),
+      prospects: sepProspects.filter(p => p.id !== 'p_1' && p.id !== 'p_2'),
+      weeksData: sepWeeks
+    };
+
+    // 2. Octobre 2026 edition (starts pristine when October arrives or when previewed)
+    const octEdition = rawEditions['2026-10'] || {
+      monthKey: '2026-10',
+      name: 'Challenge Octobre 2026',
+      dailyLogs: [],
+      prospects: [],
+      weeksData: getRoadmapWeeksForMonth('2026-10')
+    };
+
+    return {
+      ...rawEditions,
+      '2026-09': sepEdition,
+      '2026-10': octEdition
+    };
+  });
+
+  // Keep editions in sync with cloud mutations if challengeData updates from outside
+  useEffect(() => {
+    if (challengeData?.editions && typeof challengeData.editions === 'object') {
+      setEditions(prev => ({
+        ...prev,
+        ...challengeData.editions
+      }));
+    }
+  }, [challengeData?.editions]);
+
+  // Active edition dataset for the selected month
+  const activeEdition = editions[selectedMonthKey] || {
+    monthKey: selectedMonthKey,
+    name: getMonthNameDisplay(selectedMonthKey),
+    dailyLogs: [],
+    prospects: [],
+    weeksData: getRoadmapWeeksForMonth(selectedMonthKey)
+  };
+
+  const [dailyLogs, setDailyLogs] = useState(() => activeEdition.dailyLogs || []);
+  const [prospects, setProspects] = useState(() => activeEdition.prospects || []);
+  const [weeksData, setWeeksData] = useState(() => activeEdition.weeksData || getRoadmapWeeksForMonth(selectedMonthKey));
+
+  // Date Configuration for the selected month
+  const monthConfig = useMemo(() => {
+    const [yearStr, monthStr] = selectedMonthKey.split('-');
+    const year = parseInt(yearStr, 10) || 2026;
+    const month = parseInt(monthStr, 10) || 9;
+    const lastDay = new Date(year, month, 0).getDate();
+    const startDate = new Date(year, month - 1, 1, 0, 0, 0);
+    const endDate = new Date(year, month - 1, lastDay, 23, 59, 59);
+    const monthName = getMonthNameDisplay(selectedMonthKey);
+
+    const isPastMonth = todayAbidjanStr > `${yearStr}-${monthStr.padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    const isCurrentMonth = todayAbidjanStr.startsWith(`${yearStr}-${monthStr.padStart(2, '0')}`);
+    const isFutureMonth = todayAbidjanStr < `${yearStr}-${monthStr.padStart(2, '0')}-01`;
+
+    const now = new Date();
+    const nowMs = now.getTime();
+    const startMs = startDate.getTime();
+    const endMs = endDate.getTime();
+    const totalDurationMs = Math.max(1, endMs - startMs);
+
+    let currentDayNumber = 1;
+    let daysRemaining = lastDay;
+    let progressPercent = 0;
+
+    if (isPastMonth) {
+      currentDayNumber = lastDay;
+      daysRemaining = 0;
+      progressPercent = 100;
+    } else if (isCurrentMonth) {
+      currentDayNumber = Math.min(lastDay, Math.max(1, Math.floor((nowMs - startMs) / (1000 * 60 * 60 * 24)) + 1));
+      daysRemaining = Math.max(0, Math.ceil((endMs - nowMs) / (1000 * 60 * 60 * 24)));
+      progressPercent = Math.min(100, Math.max(0, Math.round(((nowMs - startMs) / totalDurationMs) * 100)));
+    } else {
+      currentDayNumber = 1;
+      daysRemaining = lastDay;
+      progressPercent = 0;
+    }
+
+    return {
+      year,
+      month,
+      lastDay,
+      startDate,
+      endDate,
+      monthName,
+      isPastMonth,
+      isCurrentMonth,
+      isFutureMonth,
+      currentDayNumber,
+      daysRemaining,
+      progressPercent
+    };
+  }, [selectedMonthKey, todayAbidjanStr]);
+
+  const { 
+    currentDayNumber, 
+    daysRemaining, 
+    isPastMonth, 
+    isCurrentMonth, 
+    isFutureMonth, 
+    monthName, 
+    lastDay,
+    progressPercent 
+  } = monthConfig;
+
+  // Selected date in the active journal
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (todayAbidjanStr.startsWith(selectedMonthKey)) {
+      return todayAbidjanStr;
+    }
+    return `${selectedMonthKey}-01`;
+  });
+
+  // Switch active dataset and date clamp when switching month edition
+  useEffect(() => {
+    const ed = editions[selectedMonthKey] || {
+      monthKey: selectedMonthKey,
+      dailyLogs: [],
+      prospects: [],
+      weeksData: getRoadmapWeeksForMonth(selectedMonthKey)
+    };
+    setDailyLogs(ed.dailyLogs || []);
+    setProspects(ed.prospects || []);
+    setWeeksData(ed.weeksData || getRoadmapWeeksForMonth(selectedMonthKey));
+
+    if (todayAbidjanStr.startsWith(selectedMonthKey)) {
+      setSelectedDate(todayAbidjanStr);
+    } else {
+      setSelectedDate(`${selectedMonthKey}-01`);
+    }
+  }, [selectedMonthKey]);
 
   // Sub-Pages / Navigation Tabs
-  const [activeSubPage, setActiveSubPage] = useState('journal'); // 'journal' | 'analytics' | 'pipeline' | 'roadmap' | 'verdict'
-
-  // Daily Logbook (Strict Zero-based Pristine Start)
-  const [dailyLogs, setDailyLogs] = useState(() => {
-    const raw = challengeData.dailyLogs || [];
-    return raw.filter(l => l.id !== 'log_2026_09_01');
-  });
-
-  // Pipeline Prospects (Strict Zero-based Pristine Start)
-  const [prospects, setProspects] = useState(() => {
-    const raw = challengeData.prospects || [];
-    return raw.filter(p => p.id !== 'p_1' && p.id !== 'p_2');
-  });
-
-  // 4-Week Strategic Roadmap
-  const [weeksData, setWeeksData] = useState(() => {
-    return challengeData.weeksData || DEFAULT_ROADMAP_WEEKS;
-  });
+  const [activeSubPage, setActiveSubPage] = useState('journal'); // 'journal' | 'analytics' | 'pipeline' | 'roadmap' | 'verdict' | 'reporting'
 
   // State for adding custom tasks to roadmap
   const [addingTaskWeekId, setAddingTaskWeekId] = useState(null);
@@ -141,91 +355,50 @@ const Challenge30Days = ({
 
   // Synchronize state with parent (LocalStorage + Firestore push)
   const syncChanges = (newLogs, newProspects, newWeeks) => {
+    const updatedEdition = {
+      ...activeEdition,
+      monthKey: selectedMonthKey,
+      name: getMonthNameDisplay(selectedMonthKey),
+      dailyLogs: newLogs,
+      prospects: newProspects,
+      weeksData: newWeeks
+    };
+
+    const updatedEditions = {
+      ...editions,
+      [selectedMonthKey]: updatedEdition
+    };
+
+    setEditions(updatedEditions);
+
     if (onUpdateChallenge) {
       onUpdateChallenge({
-        dailyLogs: newLogs,
-        prospects: newProspects,
-        weeksData: newWeeks
+        ...challengeData,
+        editions: updatedEditions,
+        // Mirror to top-level for backward compatibility if editing the real active month
+        dailyLogs: selectedMonthKey === currentRealMonthKey ? newLogs : (challengeData.dailyLogs || newLogs),
+        prospects: selectedMonthKey === currentRealMonthKey ? newProspects : (challengeData.prospects || newProspects),
+        weeksData: selectedMonthKey === currentRealMonthKey ? newWeeks : (challengeData.weeksData || newWeeks)
       });
     }
   };
 
-  // -------------------------------------------------------------
-  // ANALYTICS & STRICT MATHEMATICAL COHERENCE ENGINE
-  // -------------------------------------------------------------
+  // Active Month Stats
   const stats = useMemo(() => {
-    const totalDaysLogged = dailyLogs.length;
-
-    // Strict mathematical sums
-    const totalInterested = dailyLogs.reduce((sum, l) => sum + (l.interestedCount || 0), 0);
-    const totalCallback = dailyLogs.reduce((sum, l) => sum + (l.callbackCount || 0), 0);
-    const totalRefused = dailyLogs.reduce((sum, l) => sum + (l.refusedCount || 0), 0);
-    const totalUnreachable = dailyLogs.reduce((sum, l) => sum + (l.unreachableCount || 0), 0);
-
-    // TOTAL CONTACTED = EXACT SUM OF ALL OUTCOMES (Zero mismatch: contacted = interested + callback + refused + unreachable)
-    const totalContacted = totalInterested + totalCallback + totalRefused + totalUnreachable;
-
-    const conversionRate = totalContacted > 0 ? Math.round((totalInterested / totalContacted) * 100) : 0;
-    const callbackRate = totalContacted > 0 ? Math.round((totalCallback / totalContacted) * 100) : 0;
-    const refusalRate = totalContacted > 0 ? Math.round((totalRefused / totalContacted) * 100) : 0;
-    const unreachableRate = totalContacted > 0 ? Math.round((totalUnreachable / totalContacted) * 100) : 0;
-
-    // Today's log in Abidjan
-    const todayLog = dailyLogs.find(l => l.date === todayAbidjanStr) || {
-      date: todayAbidjanStr,
-      contactedCount: 0,
-      interestedCount: 0,
-      callbackCount: 0,
-      refusedCount: 0,
-      unreachableCount: 0
-    };
-
-    // Sort logs descending by date for history
-    const sortedLogs = [...dailyLogs].sort((a, b) => b.date.localeCompare(a.date));
-    const yesterdayLog = sortedLogs.find(l => l.date < todayAbidjanStr) || null;
-
-    // Monthly Target (200 contacts)
-    const monthlyGoal = 200;
-    const monthlyProgressPercent = Math.min(100, Math.round((totalContacted / monthlyGoal) * 100));
-
-    // Pipeline Analytics
-    const wonProspects = prospects.filter(p => p.status === 'won');
-    const meetingProspects = prospects.filter(p => p.status === 'meeting');
-    const proposalProspects = prospects.filter(p => p.status === 'proposal');
-
-    // Revenue Generated strictly DURING the challenge
-    const totalCashEarned = wonProspects.reduce((sum, p) => {
-      if (p.pricingModel === 'yearly') return sum + 300000;
-      return sum + 30000; // First month collected during the 30-day challenge
-    }, 0);
-
-    const mrrGained = wonProspects.reduce((sum, p) => {
-      if (p.pricingModel === 'monthly') return sum + 30000;
-      return sum + 25000; // 300k/year = 25k/month
-    }, 0);
-
-    return {
-      totalDaysLogged,
-      totalContacted,
-      totalInterested,
-      totalCallback,
-      totalRefused,
-      totalUnreachable,
-      conversionRate,
-      callbackRate,
-      refusalRate,
-      unreachableRate,
-      todayLog,
-      yesterdayLog,
-      monthlyGoal,
-      monthlyProgressPercent,
-      wonProspects,
-      meetingProspects,
-      proposalProspects,
-      totalCashEarned,
-      mrrGained
-    };
+    return calculateChallengeStats(dailyLogs, prospects, todayAbidjanStr);
   }, [dailyLogs, prospects, todayAbidjanStr]);
+
+  // Septembre 2026 Stats (for archiving and comparative analysis)
+  const sepStats = useMemo(() => {
+    const sep = editions['2026-09'];
+    return calculateChallengeStats(sep?.dailyLogs || [], sep?.prospects || [], '2026-09-30');
+  }, [editions]);
+
+  // Octobre 2026 Stats (for archiving and comparative analysis)
+  const octStats = useMemo(() => {
+    const oct = editions['2026-10'];
+    return calculateChallengeStats(oct?.dailyLogs || [], oct?.prospects || [], todayAbidjanStr);
+  }, [editions, todayAbidjanStr]);
 
   // Current active day log
   // Current active day log
@@ -570,14 +743,69 @@ const Challenge30Days = ({
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-400/40 text-amber-300 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-sm">
-                <Flame size={14} className="animate-pulse text-amber-400" />
-                <span>CHALLENGE 30 JOURS • SEPTEMBRE 2026</span>
+          <div className="space-y-3 max-w-2xl">
+            {/* Top Badge & Edition Selector */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-sm border ${
+                monthConfig.isPastMonth
+                  ? 'bg-slate-800/80 border-slate-700 text-slate-300'
+                  : 'bg-amber-500/20 border-amber-400/40 text-amber-300'
+              }`}>
+                {monthConfig.isPastMonth ? (
+                  <Archive size={14} className="text-amber-400" />
+                ) : (
+                  <Flame size={14} className="animate-pulse text-amber-400" />
+                )}
+                <span>
+                  {monthConfig.isPastMonth 
+                    ? `ARCHIVE • ${monthConfig.monthName.toUpperCase()} (CLÔTURÉ)`
+                    : monthConfig.isFutureMonth
+                      ? `APERÇU • ${monthConfig.monthName.toUpperCase()}`
+                      : `CHALLENGE 30 JOURS • ${monthConfig.monthName.toUpperCase()}`}
+                </span>
               </div>
+
+              {/* Quick Edition Switcher Pills */}
+              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md p-1 rounded-2xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMonthKey('2026-09')}
+                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    selectedMonthKey === '2026-09'
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
+                  }`}
+                  title="Voir l'édition de Septembre 2026"
+                >
+                  <History size={12} />
+                  <span>Sept. 2026</span>
+                  {currentRealMonthKey > '2026-09' && (
+                    <span className="text-[9px] opacity-75 font-normal">Archivé</span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedMonthKey('2026-10')}
+                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    selectedMonthKey === '2026-10'
+                      ? 'bg-emerald-500 text-slate-950 font-black shadow-sm'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
+                  }`}
+                  title="Voir l'édition d'Octobre 2026"
+                >
+                  <Flame size={12} />
+                  <span>Oct. 2026</span>
+                  {currentRealMonthKey === '2026-10' ? (
+                    <span className="text-[9px] bg-emerald-950/40 text-emerald-900 font-bold px-1 rounded">En cours</span>
+                  ) : (
+                    <span className="text-[9px] opacity-75 font-normal">Nouveau</span>
+                  )}
+                </button>
+              </div>
+
               <span className="text-[11px] font-bold text-slate-400 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
-                Abidjan (GMT) : {getAbidjanDateDisplay(todayAbidjanStr)}
+                Abidjan : {getAbidjanDateDisplay(todayAbidjanStr)}
               </span>
             </div>
             
@@ -594,12 +822,22 @@ const Challenge30Days = ({
           {/* Countdown & Quick Stats */}
           <div className="flex flex-wrap items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-3xl shadow-2xl flex-shrink-0">
             <div className="text-center px-3">
-              <div className="text-3xl sm:text-4xl font-black text-amber-400">J-{daysRemaining}</div>
-              <div className="text-[10px] uppercase font-bold text-slate-300 tracking-wider mt-0.5">Jours restants</div>
+              <div className="text-3xl sm:text-4xl font-black text-amber-400">
+                {monthConfig.isPastMonth 
+                  ? 'Clôturé' 
+                  : monthConfig.isFutureMonth
+                    ? `J-${monthConfig.lastDay}`
+                    : `J-${monthConfig.daysRemaining}`}
+              </div>
+              <div className="text-[10px] uppercase font-bold text-slate-300 tracking-wider mt-0.5">
+                {monthConfig.isPastMonth ? 'Édition archivée' : 'Jours restants'}
+              </div>
             </div>
             <div className="h-10 w-[1px] bg-white/20" />
             <div className="text-center px-3">
-              <div className="text-3xl sm:text-4xl font-black text-white">{stats.totalContacted}<span className="text-lg text-slate-400 font-bold">/{stats.monthlyGoal}</span></div>
+              <div className="text-3xl sm:text-4xl font-black text-white">
+                {stats.totalContacted}<span className="text-lg text-slate-400 font-bold">/{stats.monthlyGoal}</span>
+              </div>
               <div className="text-[10px] uppercase font-bold text-slate-300 tracking-wider mt-0.5">Contacts cumulés</div>
             </div>
           </div>
@@ -640,14 +878,43 @@ const Challenge30Days = ({
 
       </div>
 
-      {/* 2. SUB-PAGES / TAB NAVIGATION BAR (5 SUB-PAGES AÉRÉES) */}
+      {/* Archive Notice Banner when inspecting an archived month */}
+      {monthConfig.isPastMonth && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-amber-300 shadow-sm animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+              <Archive size={20} />
+            </div>
+            <div>
+              <div className="font-extrabold text-sm text-textMain dark:text-amber-200">
+                Édition Archivée : {monthConfig.monthName}
+              </div>
+              <p className="text-xs text-textMuted dark:text-slate-300 mt-0.5">
+                Ce challenge est clôturé. Toutes vos données ont été sauvegardées pour l'historique et la comparaison avec vos challenges futurs.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubPage('reporting')}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 flex-shrink-0 cursor-pointer"
+          >
+            <FileText size={14} />
+            <span>Consulter le Bilan & Reporting</span>
+          </button>
+        </div>
+      )}
+
+      {/* 2. SUB-PAGES / TAB NAVIGATION BAR (6 SUB-PAGES AÉRÉES) */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar select-none">
         {[
           { key: 'journal', label: '📖 Journal de Bord Quotidien', icon: BookOpen },
           { key: 'analytics', label: '📈 Comparaisons & Statistiques', icon: BarChart3 },
           { key: 'pipeline', label: `📊 Pipeline B2B & RDV (${prospects.length})`, icon: Building },
           { key: 'roadmap', label: '🗺️ Feuille de Route 4 Semaines', icon: Calendar },
-          { key: 'verdict', label: '🏆 Verdict Final', icon: Trophy }
+          { key: 'verdict', label: '🏆 Verdict Mensuel', icon: Trophy },
+          { key: 'reporting', label: '📑 Bilan & Comparatif', icon: History }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubPage === tab.key;
@@ -655,7 +922,7 @@ const Challenge30Days = ({
             <button
               key={tab.key}
               onClick={() => setActiveSubPage(tab.key)}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all flex-shrink-0 border ${
+              className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all flex-shrink-0 border cursor-pointer ${
                 isActive 
                   ? 'bg-primary text-white border-primary shadow-md shadow-primary/25 scale-[1.02]' 
                   : 'bg-card text-textMuted border-gray-100 dark:border-darkBorder hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -771,7 +1038,7 @@ const Challenge30Days = ({
                 </div>
                 <h4 className="font-extrabold text-sm text-textMain">Aucune prospection saisie pour cette date</h4>
                 <p className="text-xs text-textMuted max-w-md mx-auto">
-                  Cliquez sur "+ Ajouter une entreprise" pour enregistrer vos visites physiques, appels et retours des décideurs.
+                  Cliquez sur "Enregistrer un échange" pour consigner vos visites physiques, appels et retours des décideurs.
                 </p>
                 <button
                   type="button"
@@ -1419,6 +1686,394 @@ const Challenge30Days = ({
       )}
 
       {/* ========================================================= */}
+      {/* SUB-PAGE 6 : BILAN MENSUEL & COMPARATIF D'ÉDITIONS */}
+      {/* ========================================================= */}
+      {activeSubPage === 'reporting' && (
+        <div className="space-y-6" id="challenge-printable-report">
+          
+          {/* Header & Quick Export Action */}
+          <div className="bg-card rounded-3xl p-6 sm:p-7 border border-gray-100 dark:border-darkBorder shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                <History size={14} />
+                <span>Reporting Analytique & Comparatif Multi-Mois</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">
+                Bilan & Comparatif des Challenges
+              </h2>
+              <p className="text-xs sm:text-sm text-textMuted max-w-2xl leading-relaxed">
+                Visualisez l'archive complète du <strong>Challenge Septembre 2026</strong> et comparez vos métriques en face à face avec le <strong>Challenge Octobre 2026</strong> pour mesurer votre progression commerciale.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0 print:hidden">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95 cursor-pointer"
+              >
+                <Printer size={15} />
+                <span>Imprimer / Exporter en PDF</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Side-by-Side Edition Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            {/* SEPTEMBRE 2026 (ARCHIVE CLÔTURÉE) */}
+            <div className="bg-card rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-800 shadow-sm space-y-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/5 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-darkBorder">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-black">
+                    <Archive size={18} />
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">Édition Précédente</div>
+                    <h3 className="text-base font-black text-textMain">Septembre 2026 (Archivé)</h3>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full text-[11px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  Clôturé au 30 Sept.
+                </span>
+              </div>
+
+              {/* September Core KPIs */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Contacts Réalisés</div>
+                  <div className="text-xl font-black text-textMain mt-1">
+                    {sepStats.totalContacted} <span className="text-xs font-bold text-textMuted">/ {sepStats.monthlyGoal}</span>
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">{sepStats.monthlyProgressPercent}% de l'objectif atteint</div>
+                </div>
+
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Taux d'Intérêt / RDV</div>
+                  <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                    {sepStats.conversionRate}%
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">{sepStats.totalInterested} retours positifs</div>
+                </div>
+
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Clients Gagnés</div>
+                  <div className="text-xl font-black text-primary mt-1">
+                    {sepStats.wonProspects.length}
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">Signature ferme</div>
+                </div>
+
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Revenu Encaissé</div>
+                  <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                    {sepStats.totalCashEarned.toLocaleString('fr-FR')} <span className="text-[10px] font-bold">F</span>
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">{sepStats.mrrGained.toLocaleString('fr-FR')} F/mois MRR</div>
+                </div>
+              </div>
+
+              {/* Quick Pipeline Status */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-xs space-y-1.5">
+                <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span>Pipeline Commercial :</span>
+                  <span className="font-extrabold text-slate-900 dark:text-white">
+                    {sepStats.meetingProspects.length} démos • {sepStats.proposalProspects.length} offres
+                  </span>
+                </div>
+                <div className="text-[11px] text-textMuted flex items-center justify-between">
+                  <span>Discipline journalière :</span>
+                  <span>{sepStats.totalDaysLogged} jours actifs documentés</span>
+                </div>
+              </div>
+            </div>
+
+            {/* OCTOBRE 2026 (NOUVELLE ÉDITION) */}
+            <div className="bg-card rounded-3xl p-6 border-2 border-primary/30 dark:border-primary/40 shadow-sm space-y-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-darkBorder">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black">
+                    <Flame size={18} className="text-amber-500" />
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase font-extrabold tracking-wider text-primary">Challenge Actuel</div>
+                    <h3 className="text-base font-black text-textMain">Octobre 2026</h3>
+                  </div>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-[11px] font-extrabold border ${
+                  currentRealMonthKey >= '2026-10'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                }`}>
+                  {currentRealMonthKey >= '2026-10' ? 'En cours (Actif)' : 'Démarrage le 1er Oct.'}
+                </span>
+              </div>
+
+              {/* October Core KPIs */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Contacts Réalisés</div>
+                  <div className="text-xl font-black text-textMain mt-1">
+                    {octStats.totalContacted} <span className="text-xs font-bold text-textMuted">/ {octStats.monthlyGoal}</span>
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">{octStats.monthlyProgressPercent}% de l'objectif</div>
+                </div>
+
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Taux d'Intérêt / RDV</div>
+                  <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                    {octStats.conversionRate}%
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">{octStats.totalInterested} retours positifs</div>
+                </div>
+
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Clients Gagnés</div>
+                  <div className="text-xl font-black text-primary mt-1">
+                    {octStats.wonProspects.length}
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">Signature ferme</div>
+                </div>
+
+                <div className="bg-background/80 p-3.5 rounded-2xl border border-gray-100 dark:border-darkBorder">
+                  <div className="text-[10px] uppercase font-bold text-textMuted">Revenu Encaissé</div>
+                  <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                    {octStats.totalCashEarned.toLocaleString('fr-FR')} <span className="text-[10px] font-bold">F</span>
+                  </div>
+                  <div className="text-[10px] text-textMuted mt-0.5">{octStats.mrrGained.toLocaleString('fr-FR')} F/mois MRR</div>
+                </div>
+              </div>
+
+              {/* October Pipeline Status */}
+              <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/10 text-xs space-y-1.5">
+                <div className="font-bold text-textMain flex items-center justify-between">
+                  <span>Pipeline Commercial :</span>
+                  <span className="font-extrabold text-primary">
+                    {octStats.meetingProspects.length} démos • {octStats.proposalProspects.length} offres
+                  </span>
+                </div>
+                <div className="text-[11px] text-textMuted flex items-center justify-between">
+                  <span>Discipline journalière :</span>
+                  <span>{octStats.totalDaysLogged} jours actifs documentés</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Comparative Detail Table */}
+          <div className="bg-card rounded-3xl p-6 sm:p-7 border border-gray-100 dark:border-darkBorder shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-textMain">Tableau Comparatif des Indicateurs Clés</h3>
+                <p className="text-xs text-textMuted">
+                  Mesure rigoureuse de la cadence, de la conversion et des revenus générés.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMonthKey('2026-09')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all border ${
+                    selectedMonthKey === '2026-09' 
+                      ? 'bg-slate-800 text-white border-slate-700' 
+                      : 'bg-background text-textMuted border-gray-200 dark:border-darkBorder hover:bg-gray-100'
+                  }`}
+                >
+                  Voir Septembre
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedMonthKey('2026-10')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all border ${
+                    selectedMonthKey === '2026-10' 
+                      ? 'bg-primary text-white border-primary' 
+                      : 'bg-background text-textMuted border-gray-200 dark:border-darkBorder hover:bg-gray-100'
+                  }`}
+                >
+                  Voir Octobre
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-darkBorder text-[11px] font-bold text-textMuted uppercase tracking-wider">
+                    <th className="py-3 px-3">Indicateur Commercial</th>
+                    <th className="py-3 px-3 text-center">Septembre 2026 (Archive)</th>
+                    <th className="py-3 px-3 text-center">Octobre 2026 (Actif)</th>
+                    <th className="py-3 px-3 text-right">Progression / Delta</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-darkBorder font-medium">
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <PhoneCall size={14} className="text-primary" />
+                      <span>Volume de contacts total</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{sepStats.totalContacted} / 200</td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{octStats.totalContacted} / 200</td>
+                    <td className="py-3 px-3 text-right font-bold text-primary">
+                      {octStats.totalContacted - sepStats.totalContacted >= 0 ? `+${octStats.totalContacted - sepStats.totalContacted}` : `${octStats.totalContacted - sepStats.totalContacted}`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <Sparkles size={14} className="text-emerald-500" />
+                      <span>Décideurs intéressés (retours positifs)</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-bold text-emerald-600 dark:text-emerald-400">{sepStats.totalInterested}</td>
+                    <td className="py-3 px-3 text-center font-bold text-emerald-600 dark:text-emerald-400">{octStats.totalInterested}</td>
+                    <td className="py-3 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                      {octStats.totalInterested - sepStats.totalInterested >= 0 ? `+${octStats.totalInterested - sepStats.totalInterested}` : `${octStats.totalInterested - sepStats.totalInterested}`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <TrendingUp size={14} className="text-emerald-500" />
+                      <span>Taux d'intérêt initial (%)</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{sepStats.conversionRate}%</td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{octStats.conversionRate}%</td>
+                    <td className="py-3 px-3 text-right font-bold">
+                      {octStats.conversionRate - sepStats.conversionRate >= 0 ? `+${octStats.conversionRate - sepStats.conversionRate} pts` : `${octStats.conversionRate - sepStats.conversionRate} pts`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <Clock size={14} className="text-amber-500" />
+                      <span>À rappeler / Relances convenues</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-bold text-amber-600 dark:text-amber-400">{sepStats.totalCallback}</td>
+                    <td className="py-3 px-3 text-center font-bold text-amber-600 dark:text-amber-400">{octStats.totalCallback}</td>
+                    <td className="py-3 px-3 text-right font-bold text-amber-600 dark:text-amber-400">
+                      {octStats.totalCallback - sepStats.totalCallback >= 0 ? `+${octStats.totalCallback - sepStats.totalCallback}` : `${octStats.totalCallback - sepStats.totalCallback}`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <Building size={14} className="text-indigo-500" />
+                      <span>Démos logicielles présentées</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{sepStats.meetingProspects.length}</td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{octStats.meetingProspects.length}</td>
+                    <td className="py-3 px-3 text-right font-bold text-indigo-500">
+                      {octStats.meetingProspects.length - sepStats.meetingProspects.length >= 0 ? `+${octStats.meetingProspects.length - sepStats.meetingProspects.length}` : `${octStats.meetingProspects.length - sepStats.meetingProspects.length}`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <FileText size={14} className="text-blue-500" />
+                      <span>Propositions / Devis transmis</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{sepStats.proposalProspects.length}</td>
+                    <td className="py-3 px-3 text-center font-bold text-textMain">{octStats.proposalProspects.length}</td>
+                    <td className="py-3 px-3 text-right font-bold text-blue-500">
+                      {octStats.proposalProspects.length - sepStats.proposalProspects.length >= 0 ? `+${octStats.proposalProspects.length - sepStats.proposalProspects.length}` : `${octStats.proposalProspects.length - sepStats.proposalProspects.length}`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <Trophy size={14} className="text-amber-500" />
+                      <span>Clients signés (Gagnés)</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-black text-emerald-600 dark:text-emerald-400">{sepStats.wonProspects.length}</td>
+                    <td className="py-3 px-3 text-center font-black text-emerald-600 dark:text-emerald-400">{octStats.wonProspects.length}</td>
+                    <td className="py-3 px-3 text-right font-black text-emerald-600 dark:text-emerald-400">
+                      {octStats.wonProspects.length - sepStats.wonProspects.length >= 0 ? `+${octStats.wonProspects.length - sepStats.wonProspects.length}` : `${octStats.wonProspects.length - sepStats.wonProspects.length}`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <DollarSign size={14} className="text-emerald-500" />
+                      <span>Revenu Immédiat Encaissé (Cash)</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-black text-emerald-600 dark:text-emerald-400">
+                      {sepStats.totalCashEarned.toLocaleString('fr-FR')} FCFA
+                    </td>
+                    <td className="py-3 px-3 text-center font-black text-emerald-600 dark:text-emerald-400">
+                      {octStats.totalCashEarned.toLocaleString('fr-FR')} FCFA
+                    </td>
+                    <td className="py-3 px-3 text-right font-black text-emerald-600 dark:text-emerald-400">
+                      {(octStats.totalCashEarned - sepStats.totalCashEarned) >= 0 ? `+${(octStats.totalCashEarned - sepStats.totalCashEarned).toLocaleString('fr-FR')} FCFA` : `${(octStats.totalCashEarned - sepStats.totalCashEarned).toLocaleString('fr-FR')} FCFA`}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3 px-3 font-bold text-textMain flex items-center gap-2">
+                      <Zap size={14} className="text-indigo-500" />
+                      <span>Revenu Récurrent Mensuel (MRR)</span>
+                    </td>
+                    <td className="py-3 px-3 text-center font-black text-indigo-600 dark:text-indigo-400">
+                      {sepStats.mrrGained.toLocaleString('fr-FR')} FCFA / mois
+                    </td>
+                    <td className="py-3 px-3 text-center font-black text-indigo-600 dark:text-indigo-400">
+                      {octStats.mrrGained.toLocaleString('fr-FR')} FCFA / mois
+                    </td>
+                    <td className="py-3 px-3 text-right font-black text-indigo-600 dark:text-indigo-400">
+                      {(octStats.mrrGained - sepStats.mrrGained) >= 0 ? `+${(octStats.mrrGained - sepStats.mrrGained).toLocaleString('fr-FR')} FCFA/m` : `${(octStats.mrrGained - sepStats.mrrGained).toLocaleString('fr-FR')} FCFA/m`}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Strategic Retrospective & Action Plan */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="bg-card rounded-3xl p-6 border border-gray-100 dark:border-darkBorder shadow-sm space-y-3">
+              <div className="flex items-center gap-2 font-black text-sm text-textMain">
+                <BookOpen size={16} className="text-slate-500" />
+                <span>Enseignements Clés du Challenge Septembre</span>
+              </div>
+              <ul className="text-xs text-textMuted space-y-2 list-disc list-inside">
+                <li>
+                  <strong>Offre 30 000 FCFA/mois :</strong> Très bien accueillie par les PME ivoiriennes par rapport aux devis d'agences classiques (1 à 2 millions FCFA).
+                </li>
+                <li>
+                  <strong>Visite physique directe :</strong> Le contact humain en face-à-face à Abidjan génère un taux de démo 3x supérieur au simple démarchage téléphonique.
+                </li>
+                <li>
+                  <strong>Relance WhatsApp :</strong> 80% des décisions se débloquent lors de la relance à J+2 avec envoi du lien de démo.
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-card rounded-3xl p-6 border border-gray-100 dark:border-darkBorder shadow-sm space-y-3">
+              <div className="flex items-center gap-2 font-black text-sm text-textMain">
+                <Target size={16} className="text-primary" />
+                <span>Plan de Bataille pour le Challenge Octobre</span>
+              </div>
+              <ul className="text-xs text-textMuted space-y-2 list-disc list-inside">
+                <li>
+                  <strong>Objectif volume strict :</strong> 10 entreprises contactées chaque jour ouvré, soit 200 contacts sur le mois.
+                </li>
+                <li>
+                  <strong>Secteurs cibles prioritaires :</strong> Cliniques & cabinets médicaux, agences immobilières, quincailleries et grossistes.
+                </li>
+                <li>
+                  <strong>Objectif financier :</strong> Signer 2 nouveaux clients récurrents pour atteindre 60 000 FCFA de MRR supplémentaire ou 600 000 FCFA en annuel.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================= */}
       {/* MODAL : SAISIE / ÉDITION D'UN ÉCHANGE COMMERCIAL */}
       {/* ========================================================= */}
       {showInteractionModal && (
@@ -1435,9 +2090,10 @@ const Challenge30Days = ({
                   setShowInteractionModal(false);
                   setEditingInteractionId(null);
                 }} 
-                className="text-textMuted hover:text-textMain font-bold"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-textMuted hover:text-textMain hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                title="Fermer"
               >
-                ✕
+                <X size={18} />
               </button>
             </div>
 
