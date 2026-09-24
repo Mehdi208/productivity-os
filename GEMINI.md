@@ -192,3 +192,39 @@ For every task submitted in Antigravity (especially in conversational/agent mode
      - **Security audit:** Verify zero hardcoded keys/secrets, inputs sanitized, OWASP Top 10 guarded.
      - **Hygiene check:** Verify all imports exist, dependencies declared in `package.json`.
 
+---
+
+## 12. Mandatory Post-Task QA Loop — project-qa-loop (Zero-Defect Delivery Gate)
+
+**THIS IS MANDATORY. NO EXCEPTIONS. Read `C:\Users\hp\.gemini\config\skills\project-qa-loop\SKILL.md` and execute it fully.**
+
+After EVERY code change, bug fix, or feature implementation on this project (Productivity OS), you MUST automatically run the `project-qa-loop` skill **before** reporting the task as done. Do NOT wait for the user to ask. Do NOT skip it when the change "seems small".
+
+### The 5 Mandatory Gates (run in sequence, self-heal on failure):
+
+1. **🔨 Gate 1 — Build Verification**: `npm run build` must exit 0. Self-heal on failure until clean.
+2. **🔍 Gate 2 — Diff Audit**: Check all modified files for: duplicate icons/labels, phantom props, dead imports, hardcoded strings, emoji + icon combos.
+3. **📱 Gate 3 — Mobile/Desktop Parity**: Simulate on 375px mobile AND 1280px desktop. Same data? Same features? No hidden gaps?
+4. **🎨 Gate 4 — UI Consistency**: Button styles, icon sizes consistent, `useLanguage()` for all strings, dark mode variants present.
+5. **🧑‍💻 Gate 5 — Simulated User Flow**: Walk the changed feature as a real user. Entry → happy path → edge cases → cancel → feedback.
+
+### Zero-Tolerance Violations (auto-block delivery until resolved):
+- Icon `<Plus/>` + literal `'+ text'` in same button = double symbol ❌
+- Icon AND emoji expressing same thing in same element ❌
+- Static icon that ignores state (e.g. `<Plus/>` with label "Fermer") ❌
+- Props passed to components that don't declare them ❌
+- Mobile FAB overlapping BottomNav bar ❌
+- Mobile card showing opposite metric from desktop equivalent ❌
+- `npm run build` exits non-zero ❌
+- Hardcoded API key, secret, or credential anywhere ❌
+
+### QA Trigger Rules:
+| When | Gates to run |
+|---|---|
+| Any JSX/TSX file edited | Gates 1, 2, 4 |
+| New feature added | All 5 gates |
+| Bug fix applied | Gates 1, 2, 5 |
+| Before `firebase deploy` | All 5 gates + security scan |
+| Session start on this project | Gate 4 (full UI spot check) |
+
+
