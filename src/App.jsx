@@ -1294,7 +1294,7 @@ const AppContent = () => {
         </div>
 
         {/* Mobile Navigation Bar with integrated Coach IA button */}
-        <BottomNav onOpenCoach={() => setIsCopilotOpen(true)} isDark={isDark} onToggleTheme={handleToggleTheme} />
+        <BottomNav onOpenCoach={() => setIsCopilotOpen(true)} />
 
         {/* Mobile Slide-in Drawer */}
         <MobileDrawer

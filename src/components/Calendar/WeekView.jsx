@@ -660,7 +660,7 @@ const WeekView = ({
             onClick={onNewTask}
             className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 text-xs shadow-sm shadow-primary/25 transition-all active:scale-95"
           >
-            <Plus size={16} strokeWidth={2.5} />
+            <Plus size={16} />
             <span>{t('addSlot')}</span>
           </button>
         </div>

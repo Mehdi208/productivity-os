@@ -338,7 +338,7 @@ const Projects = ({
       {/* Mobile Floating Action Button */}
       <button 
         onClick={onNewProject} 
-        className="md:hidden fixed bottom-24 right-5 w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 z-40 active:scale-95 transition-transform"
+        className="md:hidden fixed bottom-28 right-5 w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 z-40 active:scale-95 transition-transform"
         aria-label="Nouveau projet"
       >
         <Plus size={26} strokeWidth={2.5} />

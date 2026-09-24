@@ -413,7 +413,7 @@ const ChallengeRdvDetailsModal = ({
                     }`}
                   >
                     <CheckCircle2 size={14} />
-                    <span>{status === 'completed' ? 'Marquer Non Réalisé' : '✅ Démo Réalisée'}</span>
+                    <span>{status === 'completed' ? 'Marquer Non Réalisé' : 'Démo Réalisée'}</span>
                   </button>
 
                   <button

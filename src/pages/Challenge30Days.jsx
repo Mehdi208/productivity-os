@@ -6,7 +6,7 @@ import {
   ChevronDown, ChevronUp, Share2, CheckSquare, ExternalLink, ShieldCheck,
   MapPin, DollarSign, Zap, Check, Gift, BarChart3,
   CalendarDays, UserCheck, UserX, UserMinus, PhoneForwarded, MessageSquare,
-  History, ArrowUpRight, ArrowDownRight, Activity
+  History, ArrowUpRight, ArrowDownRight, Activity, X
 } from 'lucide-react';
 
 // Timezone Helper: Côte d'Ivoire (Africa/Abidjan, UTC+0 / GMT)
@@ -717,7 +717,7 @@ const Challenge30Days = ({
                   className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2.5 rounded-2xl text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95 cursor-pointer"
                 >
                   <Plus size={16} />
-                  <span>+ Ajouter une entreprise</span>
+                  <span>Ajouter une entreprise</span>
                 </button>
               </div>
             </div>
@@ -776,9 +776,10 @@ const Challenge30Days = ({
                 <button
                   type="button"
                   onClick={handleOpenNewInteraction}
-                  className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm"
+                  className="bg-primary hover:bg-primary/90 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"
                 >
-                  + Enregistrer un échange
+                  <Plus size={14} />
+                  Enregistrer un échange
                 </button>
               </div>
             ) : (
@@ -1070,7 +1071,7 @@ const Challenge30Days = ({
               className="bg-primary hover:bg-primary/90 text-white font-bold px-5 py-2.5 rounded-2xl text-xs flex items-center gap-2 shadow-sm transition-all"
             >
               <Plus size={16} />
-              <span>+ Ajouter une entreprise ciblée</span>
+              <span>Ajouter une entreprise ciblée</span>
             </button>
           </div>
 
@@ -1122,7 +1123,7 @@ const Challenge30Days = ({
                               className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-2 py-1 rounded-lg flex items-center gap-1 w-full justify-center border border-emerald-500/20 transition-colors cursor-pointer"
                             >
                               <Calendar size={10} />
-                              <span>📅 Planifier dans l'Agenda</span>
+                              <span>Planifier dans l'Agenda</span>
                             </button>
                           )}
                           {p.need && <p className="text-[11px] text-textMain line-clamp-2 bg-card p-1.5 rounded-xl border border-gray-100 dark:border-darkBorder">{p.need}</p>}
@@ -1219,7 +1220,7 @@ const Challenge30Days = ({
                         }}
                         className="bg-background border border-gray-200 dark:border-darkBorder hover:border-primary/50 text-textMain text-xs font-bold px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm transition-all"
                       >
-                        <Plus size={13} />
+                        {isAdding ? <X size={13} /> : <Plus size={13} />}
                         <span>{isAdding ? 'Fermer' : 'Ajouter une tâche'}</span>
                       </button>
                     </div>
