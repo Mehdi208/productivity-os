@@ -132,6 +132,7 @@ const WeekView = ({
   const [activeResizingBlock, setActiveResizingBlock] = useState(null);
   const [resizePreview, setResizePreview] = useState(null);
   const resizePreviewRef = useRef(null);
+  const lastResizeEndTimeRef = useRef(0);
 
   const handleResizeBlockStart = (block, dayIndex, clientYOrEvent) => {
     const startMin = timeStrToMinutes(block.start);
@@ -200,6 +201,20 @@ const WeekView = ({
       window.removeEventListener('mouseup', onPointerUp);
       window.removeEventListener('touchmove', onPointerMove);
       window.removeEventListener('touchend', onPointerUp);
+
+      lastResizeEndTimeRef.current = Date.now();
+
+      // Intercept and swallow any trailing synthetic click event triggered on mouseup
+      const blockClickOnce = (clickEvent) => {
+        clickEvent.stopPropagation();
+        clickEvent.stopImmediatePropagation();
+        clickEvent.preventDefault();
+        window.removeEventListener('click', blockClickOnce, true);
+      };
+      window.addEventListener('click', blockClickOnce, true);
+      setTimeout(() => {
+        window.removeEventListener('click', blockClickOnce, true);
+      }, 400);
 
       const finalPreview = resizePreviewRef.current;
       if (finalPreview && finalPreview.endTimeStr && finalPreview.endTimeStr !== block.end) {
@@ -887,7 +902,10 @@ const WeekView = ({
                       onTouchDragMove={handleTouchDragMove}
                       onTouchDragEnd={handleTouchDragEnd}
                       onToggleCheck={onToggleCheck} 
-                      onEditBlock={(b) => onEditBlock && onEditBlock(b, d.dayIndex, d.isoDate)}
+                      onEditBlock={(b) => {
+                        if (Date.now() - lastResizeEndTimeRef.current < 500) return;
+                        onEditBlock && onEditBlock(b, d.dayIndex, d.isoDate);
+                      }}
                       onResizeBlockStart={handleResizeBlockStart}
                       isResizing={isCurrentResizing}
                       resizingEndStr={isCurrentResizing ? resizePreview?.endTimeStr : null}

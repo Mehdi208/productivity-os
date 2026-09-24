@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Check, Video, Edit3, GripVertical } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -26,7 +26,20 @@ const TimeBlock = ({
   const touchStartPosRef = useRef({ x: 0, y: 0 });
   const grabOffsetRef = useRef(0);
   const dragJustEndedRef = useRef(false);
+  const resizeJustEndedRef = useRef(false);
+  const prevIsResizingRef = useRef(isResizing);
   const [isTouchDragging, setIsTouchDragging] = useState(false);
+
+  useEffect(() => {
+    if (prevIsResizingRef.current && !isResizing) {
+      resizeJustEndedRef.current = true;
+      const timer = setTimeout(() => {
+        resizeJustEndedRef.current = false;
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    prevIsResizingRef.current = isResizing;
+  }, [isResizing]);
 
   const getBackgroundColor = (hex) => {
     switch (hex) {
@@ -100,6 +113,10 @@ const TimeBlock = ({
     e.stopPropagation();
     if (dragJustEndedRef.current) {
       dragJustEndedRef.current = false;
+      return;
+    }
+    if (resizeJustEndedRef.current || isResizing) {
+      resizeJustEndedRef.current = false;
       return;
     }
     if (isTouchDragging) return;
@@ -333,10 +350,14 @@ const TimeBlock = ({
           onMouseDown={(e) => {
             e.stopPropagation();
             e.preventDefault();
+            resizeJustEndedRef.current = true;
+            setTimeout(() => { resizeJustEndedRef.current = false; }, 400);
             onResizeBlockStart(block, dayIndex, e);
           }}
           onTouchStart={(e) => {
             e.stopPropagation();
+            resizeJustEndedRef.current = true;
+            setTimeout(() => { resizeJustEndedRef.current = false; }, 400);
             if (e.touches?.[0]) {
               onResizeBlockStart(block, dayIndex, e.touches[0]);
             }
