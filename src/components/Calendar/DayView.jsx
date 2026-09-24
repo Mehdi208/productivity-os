@@ -494,7 +494,7 @@ const DayView = ({
             className="bg-primary hover:bg-primary/90 text-white font-bold px-3 py-1 rounded-xl flex items-center gap-1.5 text-xs shadow-sm shadow-primary/25 active:scale-95 transition-all"
           >
             <Plus size={14} strokeWidth={2.5} />
-            <span>{lang === 'en' ? '+ Add' : '+ Ajouter'}</span>
+            <span>{lang === 'en' ? 'Add' : 'Ajouter'}</span>
           </button>
         </div>
 
