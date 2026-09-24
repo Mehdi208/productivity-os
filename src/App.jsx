@@ -11,6 +11,7 @@ import {
   getLastNDaysScores, 
   checkAndResetDailyHydration
 } from './data/scoreHistory';
+import { PRIORITY_LEVELS } from './data/priorityEngine';
 
 import Sidebar from './components/Layout/Sidebar';
 import BottomNav from './components/Layout/BottomNav';
