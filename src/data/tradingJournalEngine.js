@@ -123,8 +123,15 @@ export const saveTradingData = async (data) => {
   // Sync to Firestore if online
   if (db) {
     try {
-      const docRef = doc(db, 'trading_journal', 'daily_overview');
-      await setDoc(docRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
+      const docRef = doc(db, 'productivity_user', 'trading_journal');
+      await setDoc(docRef, { 
+        ...data, 
+        totalCapital: data.account?.totalCapital,
+        forexBalance: data.account?.forexBalance,
+        futuresBalance: data.account?.futuresBalance,
+        lastSyncTime: data.account?.lastSyncTime,
+        updatedAt: new Date().toISOString() 
+      }, { merge: true });
     } catch (fsErr) {
       console.warn('Firestore offline sync notice:', fsErr);
     }
@@ -135,11 +142,26 @@ export const saveTradingData = async (data) => {
 export const subscribeTradingUpdates = (onUpdate) => {
   if (!db) return () => {};
   try {
-    const docRef = doc(db, 'trading_journal', 'daily_overview');
+    const docRef = doc(db, 'productivity_user', 'trading_journal');
     return onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
         const cloudData = snapshot.data();
-        const merged = { ...loadTradingData(), ...cloudData };
+        const prev = loadTradingData();
+        const mergedAccount = {
+          ...prev.account,
+          ...(cloudData.account || {}),
+          totalCapital: cloudData.totalCapital ?? cloudData.account?.totalCapital ?? prev.account.totalCapital,
+          forexBalance: cloudData.forexBalance ?? cloudData.account?.forexBalance ?? prev.account.forexBalance,
+          futuresBalance: cloudData.futuresBalance ?? cloudData.account?.futuresBalance ?? prev.account.futuresBalance,
+          lastSyncTime: cloudData.lastSyncTime ?? prev.account.lastSyncTime,
+        };
+        const merged = { 
+          ...prev, 
+          ...cloudData,
+          account: mergedAccount,
+          trades: (cloudData.trades && cloudData.trades.length > 0) ? cloudData.trades : prev.trades,
+          dailyNotes: { ...prev.dailyNotes, ...(cloudData.dailyNotes || {}) }
+        };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         onUpdate(merged);
       }
