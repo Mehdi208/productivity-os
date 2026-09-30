@@ -1,7 +1,7 @@
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-const STORAGE_KEY = 'pos_trading_journal_v2';
+const STORAGE_KEY = 'pos_trading_journal_v3';
 
 // Initial realistic seed data matching Méhdi's live MoonX account
 export const INITIAL_TRADING_DATA = {
@@ -34,8 +34,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": 1.53,
       "status": "TP Validé",
       "source": "Scan SMC Jarvis",
-      "setup": "Futures BTC (Levier 35x - isolated)",
-      "notes": "Marge allouée: 9.0 $. Clôturé à 14:18 UTC."
+      "setup": "Scan SMC Jarvis AI (Exécution Intraday)",
+      "notes": "Trade clôturé par Jarvis Sentinel AI. Zéro swap."
     },
     {
       "id": "6abbd7578d88154de8c10c8f",
@@ -51,8 +51,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": 1.19,
       "status": "TP Validé",
       "source": "Scan SMC Jarvis",
-      "setup": "Futures ETH (Levier 35x - isolated)",
-      "notes": "Marge allouée: 9.0 $. Clôturé à 13:36 UTC."
+      "setup": "Scan SMC Jarvis AI (Exécution Intraday)",
+      "notes": "Trade clôturé par Jarvis Sentinel AI. Zéro swap."
     },
     {
       "id": "6abc75148d88154de8c2ebf7",
@@ -68,8 +68,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": 7.88,
       "status": "TP Validé",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 02:59 UTC. Pips: +393.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc6c378d88154de8c2bb1c",
@@ -85,8 +85,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -0.27,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 02:31 UTC. Pips: -13.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc67f58d88154de8c2aaa3",
@@ -102,8 +102,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -5.41,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 01:38 UTC. Pips: -270.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc64208d88154de8c297c0",
@@ -119,8 +119,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -8.39,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 01:23 UTC. Pips: -418.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc60378d88154de8c28719",
@@ -136,8 +136,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -9.29,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 01:06 UTC. Pips: -463.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc5b438d88154de8c27642",
@@ -153,8 +153,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -7.77,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 00:49 UTC. Pips: -387.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc42e58d88154de8c1edbc",
@@ -170,8 +170,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -0.19,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 00:36 UTC. Pips: -3.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc43318d88154de8c2133d",
@@ -187,8 +187,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -0.06,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 00:17 UTC. Pips: -7.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc432e8d88154de8c2061a",
@@ -204,8 +204,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -0.07,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 00:17 UTC. Pips: -7.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc2e258d88154de8c1d81f",
@@ -220,9 +220,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.1,
       "pnl": -8.74,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 23:45 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba95058d88154de8bdcfe4",
@@ -238,8 +238,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -0.02,
       "status": "BE (Neutre)",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 22:58 UTC. Pips: -27.9. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abc063c8d88154de8c199fb",
@@ -254,9 +254,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 0.01,
       "pnl": 0.35,
       "status": "TP Validé",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 21:26 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abbd8de8d88154de8c12ba8",
@@ -271,9 +271,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 0.05,
       "pnl": 4.6,
       "status": "TP Validé",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 18:36 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abac1d48d88154de8bed6f5",
@@ -288,9 +288,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 12.92,
       "pnl": 3.05,
       "status": "TP Validé",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures ETH (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 15:19 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abb116b8d88154de8bfd2b3",
@@ -305,9 +305,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 528.93,
       "pnl": 4.02,
       "status": "TP Validé",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures BTC (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 15:07 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abac0f78d88154de8beb7c6",
@@ -322,9 +322,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.79,
       "pnl": -9.49,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 01:20 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba7ece8d88154de8bd6ae6",
@@ -339,9 +339,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -88.81,
       "pnl": -0.67,
       "status": "SL Exécuté",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures BTC (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 01:13 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abad2c88d88154de8bf68ca",
@@ -357,8 +357,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": 2.66,
       "status": "TP Validé",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 00:17 UTC. Pips: +410.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abac95e8d88154de8bf3952",
@@ -374,8 +374,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -3.11,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 20:43 UTC. Pips: -481.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abab3a98d88154de8be51fd",
@@ -390,9 +390,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.59,
       "pnl": -11.28,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures HYPE (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 20:02 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abac5598d88154de8bf0872",
@@ -408,8 +408,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -4.27,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 20:00 UTC. Pips: -635.5. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abac1b38d88154de8bec710",
@@ -425,8 +425,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -2.89,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 19:39 UTC. Pips: -431.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba7ed78d88154de8bd7f09",
@@ -441,9 +441,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 12.42,
       "pnl": 2.93,
       "status": "TP Validé",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures ETH (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 19:33 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6abaa0ea8d88154de8be0133",
@@ -458,9 +458,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.83,
       "pnl": -9.56,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 19:31 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ababe0d8d88154de8be80d7",
@@ -476,8 +476,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -0.32,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 19:21 UTC. Pips: -193.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba7c228d88154de8bd2dd1",
@@ -492,9 +492,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 0.37,
       "pnl": 2.7,
       "status": "TP Validé",
-      "source": "Manuel / Crypto",
-      "setup": "Futures HYPE (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 18:32 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba7c1c8d88154de8bd1aad",
@@ -509,9 +509,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.09,
       "pnl": -0.47,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 17:04 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba93bf8d88154de8bdbd50",
@@ -527,8 +527,8 @@ export const INITIAL_TRADING_DATA = {
       "pnl": -2.26,
       "status": "SL Exécuté",
       "source": "Copy Trading (Passé)",
-      "setup": "Copy Trade Forex (nikosgeorgo.pro@gmail.com)",
-      "notes": "Levier 500x. Clôturé à 16:25 UTC. Pips: -91.0. Zéro swap."
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9c92d8d88154de8bb2cf2",
@@ -543,9 +543,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 4.87,
       "pnl": 1.15,
       "status": "TP Validé",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures ETH (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 14:49 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9fcf48d88154de8bc0f62",
@@ -560,9 +560,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 40.47,
       "pnl": 0.31,
       "status": "TP Validé",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures BTC (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 14:46 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba2e088d88154de8bc8ae3",
@@ -577,9 +577,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 0.77,
       "pnl": 4.12,
       "status": "TP Validé",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 14:30 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba69b78d88154de8bce4ce",
@@ -594,9 +594,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.25,
       "pnl": -8.73,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures HYPE (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 14:18 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9e81c8d88154de8bb8d92",
@@ -611,9 +611,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.09,
       "pnl": -0.63,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures HYPE (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 13:07 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9e8138d88154de8bb7983",
@@ -628,9 +628,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.77,
       "pnl": -9.32,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 09:06 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba19138d88154de8bc5353",
@@ -645,9 +645,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.08,
       "pnl": -6.53,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 09:03 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6aba098f8d88154de8bc3177",
@@ -662,9 +662,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.09,
       "pnl": -7.91,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 07:35 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9fbb18d88154de8bbe5a7",
@@ -679,9 +679,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.11,
       "pnl": -8.92,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 06:29 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab99b868d88154de8ba8bf9",
@@ -696,9 +696,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1356.59,
       "pnl": -5.8,
       "status": "SL Exécuté",
-      "source": "Scan SMC Jarvis",
-      "setup": "Futures BTC (Levier 20x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 05:36 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9f6f78d88154de8bbc2b0",
@@ -713,9 +713,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.1,
       "pnl": -7.99,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 05:19 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9e8258d88154de8bb9faf",
@@ -730,9 +730,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.03,
       "pnl": -2.49,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 05:08 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9b7bb8d88154de8bac621",
@@ -747,9 +747,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.07,
       "pnl": -5.17,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 04:07 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9c72f8d88154de8bb04d6",
@@ -764,9 +764,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.9,
       "pnl": -9.89,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 04:05 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab9b7c78d88154de8bada04",
@@ -781,9 +781,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -1.39,
       "pnl": -9.69,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures HYPE (Levier 35x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 04:02 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab99aa68d88154de8ba62f2",
@@ -798,9 +798,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": 0.05,
       "pnl": 0.15,
       "status": "TP Validé",
-      "source": "Manuel / Crypto",
-      "setup": "Futures SOL (Levier 20x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 01:43 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab995038d88154de8ba3cdd",
@@ -815,9 +815,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.01,
       "pnl": -0.53,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 20x - isolated)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 00:41 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     },
     {
       "id": "6ab970298d88154de8ba125b",
@@ -832,9 +832,9 @@ export const INITIAL_TRADING_DATA = {
       "pips": -0.11,
       "pnl": -8.9,
       "status": "SL Exécuté",
-      "source": "Manuel / Crypto",
-      "setup": "Futures INJ (Levier 35x - cross)",
-      "notes": "Marge allouée: 18.0 $. Clôturé à 22:12 UTC."
+      "source": "Copy Trading (Passé)",
+      "setup": "Position passée issue du Copy Trading",
+      "notes": "Trade clôturé avant l'activation de Jarvis. Historique initial Copy Trading."
     }
   ],
   "dailyNotes": {

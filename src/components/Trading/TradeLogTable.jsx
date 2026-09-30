@@ -167,12 +167,20 @@ const TradeLogTable = ({ trades = [], onNewTrade, onSelectTrade }) => {
                     </td>
 
                     {/* Source & Setup */}
-                    <td className="py-3 px-3.5 max-w-xs truncate">
+                    <td className="py-3 px-3.5 max-w-xs">
                       <div className="flex items-center gap-1.5 font-bold text-textMain text-[11px]">
-                        <span>{trade.source === 'Analyse du H' ? '👑' : '🧠'}</span>
-                        <span className="truncate">{trade.source}</span>
+                        <span>{trade.source === 'Analyse du H' ? '👑' : (trade.source === 'Scan SMC Jarvis' ? '🧠' : '👥')}</span>
+                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
+                          trade.source === 'Analyse du H' 
+                            ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                            : (trade.source === 'Scan SMC Jarvis' 
+                                ? 'bg-primary/15 text-primary border border-primary/30' 
+                                : 'bg-gray-100 dark:bg-darkCard text-textMuted border border-gray-200/60 dark:border-darkBorder')
+                        }`}>
+                          {trade.source}
+                        </span>
                       </div>
-                      <div className="text-[10px] text-textMuted truncate">
+                      <div className="text-[10px] text-textMuted truncate mt-0.5 max-w-[200px]">
                         {trade.setup || trade.notes}
                       </div>
                     </td>
