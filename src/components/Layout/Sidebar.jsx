@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe, Bell } from 'lucide-react';
+import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe, Bell, TrendingUp } from 'lucide-react';
 import { NotificationBadgeButton } from '../ui/NotificationBannerPrompt';
 import LanguageSlideToggle from '../ui/LanguageSlideToggle';
 import ThemeToggle from '../Theme/ThemeToggle';
@@ -23,6 +23,7 @@ const Sidebar = ({
     { name: t('navWeek'), path: '/week', icon: Columns },
     { name: t('navProjects'), path: '/projects', icon: Folder },
     { name: t('navStats'), path: '/stats', icon: BarChart2 },
+    { name: t('navTrading'), path: '/trading', icon: TrendingUp },
     { name: t('navMonthlyReview'), path: '/monthly-review', icon: Sparkles, badge: hasUnreadMonthlyRecap ? '1er' : null },
   ];
 

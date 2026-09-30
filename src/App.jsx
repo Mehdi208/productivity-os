@@ -22,6 +22,7 @@ import Projects from './pages/Projects';
 import Stats from './pages/Stats';
 import Challenge30Days from './pages/Challenge30Days';
 import MonthlyReview from './pages/MonthlyReview';
+import TradingJournal from './pages/TradingJournal';
 
 import DailyBriefingModal from './components/DailyBriefing/DailyBriefingModal';
 import PriorityCopilot from './components/PriorityCoach/PriorityCopilot';
@@ -1289,6 +1290,7 @@ const AppContent = () => {
                   />
                 } 
               />
+              <Route path="/trading" element={<TradingJournal />} />
             </Routes>
           </main>
         </div>

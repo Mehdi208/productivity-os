@@ -227,4 +227,33 @@ After EVERY code change, bug fix, or feature implementation on this project (Pro
 | Before `firebase deploy` | All 5 gates + security scan |
 | Session start on this project | Gate 4 (full UI spot check) |
 
+---
 
+## 13. Zero Silent Modification & Mandatory Document Integrity Protocol (Anti-Hallucination & Document Gate)
+
+**THIS IS MANDATORY FOR ALL PROJECTS, SCRIPTS, AND ARTIFACTS ON THIS MACHINE.**
+
+Never declare a file, document, or export "modified", "generated", or "done" based on assumption or unchecked script execution.
+
+### 13.1. Zero Blind Replacement Mandate
+* **No Unverified Script Replacements:** It is strictly forbidden to run string replacements via shell, PowerShell, or scripts without programmatically asserting that replacements were actually performed.
+  - In Python: always verify `assert target_string in content` or `assert count > 0`. If `count == 0`, throw an immediate fatal exception.
+  - In PowerShell: never use `@""@` multiline string `.Replace()` calls, as silent CRLF vs LF mismatches cause zero replacements while exiting with code 0.
+  - When editing project files, always prioritize Antigravity's built-in `replace_file_content` (which fails fast if the string is absent) or strict Python scripts with explicit assertions.
+
+### 13.2. Mandatory Post-Generation Diff & Content Assertion
+* After any file generation, compilation, or export (HTML, PDF, JSON, DOCX, CSV):
+  - **Assert New Values:** Execute a targeted content search (`grep` or Python script) to confirm all requested new values (dates, reference numbers, amounts, badges, texts) exist verbatim in the output file.
+  - **Assert Obsolete Values Removed:** Confirm that old values (draft dates, old totals, obsolete references, "proforma" labels, placeholder text) have been completely removed.
+  - If any obsolete value remains or any new value is missing, the file is REJECTED and MUST be reprocessed before reporting to the user.
+
+### 13.3. Mandatory Visual Inspection Gate for Documents, PDFs & Visual Assets
+* Before delivering ANY document (PDF, invoice, devis, receipt, report, legal notice) or UI asset to the user:
+  1. **Render Preview:** Generate a high-resolution screenshot or preview image of the rendered output (e.g. via Microsoft Edge headless `--screenshot` or Puppeteer/Playwright).
+  2. **Direct Visual Audit by the Agent:** Call the `view_file` tool on the resulting preview image to inspect the visual rendering directly.
+  3. **Visual Integrity Checklist:**
+     - Header, badge, title, and reference are clearly visible and match the user prompt.
+     - All figures, tables, and totals align properly without wrapping, overlap, or scientific notation.
+     - Document fits cleanly on designated page format (e.g. single A4 page) without orphaned footers.
+     - Signature block, dates, and contact information are fully populated and optically sharp.
+  4. **Strict No-Blind-Delivery Policy:** Never provide a download link or notify the user that a document is ready without having personally verified the rendered image via `view_file`.

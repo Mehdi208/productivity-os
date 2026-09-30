@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   X, Calendar, Columns, Folder, BarChart2, Play, Sparkles, 
   HelpCircle, Smartphone, Trash2, Sun, Moon, Globe, RefreshCw,
-  Award, Flame
+  Award, Flame, TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
@@ -31,6 +31,7 @@ const MobileDrawer = ({
     { name: t('navWeek'), path: '/week', icon: Columns },
     { name: t('navProjects'), path: '/projects', icon: Folder },
     { name: t('navStats'), path: '/stats', icon: BarChart2 },
+    { name: t('navTrading'), path: '/trading', icon: TrendingUp },
     { name: t('navMonthlyReview'), path: '/monthly-review', icon: Sparkles, badge: hasUnreadMonthlyRecap ? '1er' : null },
     { name: t('navChallenge'), path: '/challenge', icon: Flame, isSpecial: true },
   ];
