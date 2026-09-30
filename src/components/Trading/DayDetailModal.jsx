@@ -94,11 +94,24 @@ const DayDetailModal = ({ isOpen, onClose, selectedDay, onAddTradeForDay }) => {
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] text-textMuted">
-                    <span>{t.source === 'Analyse du H' ? '👑 Analyse du H' : '🧠 Scan SMC Jarvis'}</span>
+                    <span className="inline-flex items-center gap-1 font-semibold">
+                      {t.source === 'Analyse du H' && (
+                        <span className="text-amber-500 font-bold">👑 Analyse du H</span>
+                      )}
+                      {t.source === 'Scan SMC Jarvis' && (
+                        <span className="text-primary font-bold">🧠 Scan SMC Jarvis</span>
+                      )}
+                      {t.source === 'Copy Trading (Passé)' && (
+                        <span className="text-textMuted font-medium">👥 Copy Trading (Passé)</span>
+                      )}
+                      {!['Analyse du H', 'Scan SMC Jarvis', 'Copy Trading (Passé)'].includes(t.source) && (
+                        <span>{t.source}</span>
+                      )}
+                    </span>
                     <span>Statut : <strong className="text-textMain">{t.status}</strong></span>
                   </div>
 
-                  {t.setup && (
+                  {t.setup && !t.setup.toLowerCase().includes('copy trading') && (
                     <div className="mt-1.5 pt-1.5 border-t border-gray-200/40 dark:border-darkBorder/40 text-[10px] text-textMuted italic">
                       « {t.setup} »
                     </div>
