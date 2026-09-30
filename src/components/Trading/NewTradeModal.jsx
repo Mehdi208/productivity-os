@@ -2,19 +2,26 @@ import React, { useState } from 'react';
 import { X, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SYMBOL_OPTIONS = [
+const DEFAULT_SHARIA_SYMBOLS = [
   'XAU/USD',
+  'SILVER',
+  'EUR/USD',
+  'GBP/USD',
+  'USD/CAD',
+  'USD/JPY',
+  'AUD/USD',
+  'AUD/JPY',
+  'GBP/AUD',
+  'GBP/JPY',
   'BTC/USDT',
   'ETH/USDT',
-  'SOL/USDT',
-  'GBP/USD',
-  'EUR/USD',
-  'AUD/USD',
-  'USD/JPY',
-  'GBP/JPY'
+  'SOL/USDT'
 ];
 
-const NewTradeModal = ({ isOpen, onClose, onSave, tradeToEdit = null }) => {
+const NewTradeModal = ({ isOpen, onClose, onSave, tradeToEdit = null, existingSymbols = [] }) => {
+  const [isCustomSymbol, setIsCustomSymbol] = useState(false);
+  const symbolOptions = Array.from(new Set([...DEFAULT_SHARIA_SYMBOLS, ...existingSymbols.filter(Boolean)])).sort();
+
   const [formData, setFormData] = useState(() => {
     if (tradeToEdit) return { ...tradeToEdit };
     return {
@@ -88,18 +95,46 @@ const NewTradeModal = ({ isOpen, onClose, onSave, tradeToEdit = null }) => {
             {/* Row 1: Symbol & Side */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-bold text-textMuted uppercase text-[10px] mb-1">
-                  Actif / Paire
-                </label>
-                <select
-                  value={formData.symbol}
-                  onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-                  className="w-full p-2.5 rounded-2xl bg-gray-100 dark:bg-darkCard border border-gray-200/60 dark:border-darkBorder text-textMain font-bold focus:outline-none focus:border-primary"
-                >
-                  {SYMBOL_OPTIONS.map(sym => (
-                    <option key={sym} value={sym}>{sym}</option>
-                  ))}
-                </select>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-bold text-textMuted uppercase text-[10px]">
+                    Actif / Paire
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomSymbol(!isCustomSymbol)}
+                    className="text-[9px] font-bold text-primary hover:underline"
+                  >
+                    {isCustomSymbol ? 'Choisir dans la liste' : '+ Autre symbole'}
+                  </button>
+                </div>
+
+                {isCustomSymbol ? (
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: USD/CAD, SILVER..."
+                    value={formData.symbol}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
+                    className="w-full p-2.5 rounded-2xl bg-gray-100 dark:bg-darkCard border border-gray-200/60 dark:border-darkBorder text-textMain font-bold focus:outline-none focus:border-primary uppercase"
+                  />
+                ) : (
+                  <select
+                    value={formData.symbol}
+                    onChange={(e) => {
+                      if (e.target.value === '__CUSTOM__') {
+                        setIsCustomSymbol(true);
+                      } else {
+                        setFormData({ ...formData, symbol: e.target.value });
+                      }
+                    }}
+                    className="w-full p-2.5 rounded-2xl bg-gray-100 dark:bg-darkCard border border-gray-200/60 dark:border-darkBorder text-textMain font-bold focus:outline-none focus:border-primary cursor-pointer"
+                  >
+                    {symbolOptions.map(sym => (
+                      <option key={sym} value={sym}>{sym}</option>
+                    ))}
+                    <option value="__CUSTOM__">+ Saisir un autre actif...</option>
+                  </select>
+                )}
               </div>
 
               <div>

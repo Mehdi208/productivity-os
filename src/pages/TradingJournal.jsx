@@ -183,6 +183,7 @@ const TradingJournal = () => {
         onClose={() => setIsNewTradeOpen(false)}
         onSave={handleSaveTrade}
         tradeToEdit={tradeToEdit}
+        existingSymbols={Array.from(new Set((data.trades || []).map(t => t.symbol)))}
       />
 
       <DayDetailModal
