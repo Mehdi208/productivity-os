@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Award, Target, ShieldCheck, Wallet, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, Award, Target, ShieldCheck, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const TradingKPIs = ({ kpis }) => {
@@ -26,9 +26,23 @@ const TradingKPIs = ({ kpis }) => {
           <h3 className="text-2xl font-black text-textMain tracking-tight">
             {kpis.currentCapital.toFixed(2)} $
           </h3>
-          <span className="text-xs font-bold text-emerald-500 flex items-center">
-            <ArrowUpRight size={14} />
-            +{(kpis.currentCapital - kpis.startingCapital).toFixed(2)} $
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            En direct
+          </span>
+        </div>
+
+        {/* PnL global cumulé depuis dépôt */}
+        <div className="mt-1 flex items-center gap-1.5 text-xs">
+          <span className="text-[11px] text-textMuted font-medium">P&L Global :</span>
+          <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-black text-[11px] ${
+            (kpis.currentCapital - kpis.startingCapital) >= 0
+              ? 'text-emerald-500 bg-emerald-500/10'
+              : 'text-rose-500 bg-rose-500/10'
+          }`}>
+            {(kpis.currentCapital - kpis.startingCapital) >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+            {(kpis.currentCapital - kpis.startingCapital) >= 0 ? '+' : ''}
+            {(kpis.currentCapital - kpis.startingCapital).toFixed(2)} $
           </span>
         </div>
         <div className="mt-2.5 pt-2.5 border-t border-gray-100 dark:border-darkBorder/60 flex items-center justify-between text-[10px] text-textMuted font-medium">
