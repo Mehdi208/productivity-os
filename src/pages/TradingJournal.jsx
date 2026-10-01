@@ -4,10 +4,16 @@ import {
   loadTradingData, 
   saveTradingData, 
   subscribeTradingUpdates, 
-  computeTradingKPIs 
+  computeTradingKPIs,
+  computeSessionStats,
+  getAIAuditData,
+  getActiveStrategy
 } from '../data/tradingJournalEngine';
 import TradingKPIs from '../components/Trading/TradingKPIs';
 import TradingHeatmap from '../components/Trading/TradingHeatmap';
+import WeeklyPnLCalendar from '../components/Trading/WeeklyPnLCalendar';
+import SessionBreakdown from '../components/Trading/SessionBreakdown';
+import AIAuditRecommendations from '../components/Trading/AIAuditRecommendations';
 import TradingEquityChart from '../components/Trading/TradingEquityChart';
 import TradeLogTable from '../components/Trading/TradeLogTable';
 import NewTradeModal from '../components/Trading/NewTradeModal';
@@ -17,6 +23,7 @@ import { useLanguage } from '../context/LanguageContext';
 const TradingJournal = () => {
   const { lang } = useLanguage();
   const [data, setData] = useState(() => loadTradingData());
+  const [activeStrategy, setActiveStrategy] = useState(() => getActiveStrategy());
   const [isNewTradeOpen, setIsNewTradeOpen] = useState(false);
   const [tradeToEdit, setTradeToEdit] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -39,6 +46,16 @@ const TradingJournal = () => {
   // Compute current KPIs
   const currentMonthKey = `${curYear}-${String(curMonth + 1).padStart(2, '0')}`;
   const kpis = useMemo(() => computeTradingKPIs(data, currentMonthKey), [data, currentMonthKey]);
+
+  // Compute Sessions breakdown (Asie, Londres, New York)
+  const sessions = useMemo(() => computeSessionStats(data?.trades || []), [data?.trades]);
+
+  // Compute AI Audit Data (Points Forts, Points Faibles, Recommandations)
+  const auditData = useMemo(() => getAIAuditData(data?.trades || [], data?.account || {}, activeStrategy), [data?.trades, data?.account, activeStrategy]);
+
+  const handleStrategyUpdated = (updated) => {
+    setActiveStrategy(updated);
+  };
 
   const handlePrevMonth = () => {
     if (curMonth === 0) {
@@ -161,10 +178,27 @@ const TradingJournal = () => {
         lang={lang}
       />
 
-      {/* 3. Equity Curve (Recharts) */}
+      {/* 3. Daily PnL Weekly Calendar (Lundi - Dimanche avec sélecteur de date) */}
+      <WeeklyPnLCalendar
+        trades={data.trades || []}
+        onSelectDay={handleSelectDay}
+      />
+
+      {/* 4. Session Breakdown (Asie, Londres, New York) */}
+      <SessionBreakdown
+        sessions={sessions}
+      />
+
+      {/* 5. AI Audit & Tactical Recommendations (avec Bouton 1-Clic Appliquer) */}
+      <AIAuditRecommendations
+        auditData={auditData}
+        onStrategyUpdated={handleStrategyUpdated}
+      />
+
+      {/* 6. Equity Curve (Recharts) */}
       <TradingEquityChart data={data} kpis={kpis} />
 
-      {/* 4. Detailed Trade Log Table */}
+      {/* 7. Detailed Trade Log Table */}
       <TradeLogTable
         trades={data.trades || []}
         onNewTrade={() => {
