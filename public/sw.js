@@ -1,4 +1,4 @@
-const CACHE_NAME = 'productivity-os-cache-v2';
+const CACHE_NAME = 'productivity-os-cache-v4';
 
 const STATIC_ASSETS = [
   '/',
