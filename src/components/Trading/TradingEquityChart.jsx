@@ -92,7 +92,7 @@ const TradingEquityChart = ({ data, kpis }) => {
             />
 
             <YAxis 
-              domain={[150, 360]} 
+              domain={['auto', 'auto']} 
               tick={{ fontSize: 11, fill: '#64748B', fontWeight: 600 }}
               axisLine={false}
               tickLine={false}

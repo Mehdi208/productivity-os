@@ -1,24 +1,27 @@
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-const STORAGE_KEY = 'pos_trading_journal_v3';
+const STORAGE_KEY = 'pos_trading_journal_v5';
 
 // Initial realistic seed data matching Méhdi's live MoonX account
 export const INITIAL_TRADING_DATA = {
   "account": {
     "broker": "MoonX (Forex & Futures)",
     "totalCapital": 196.46,
-    "forexBalance": 169.9005,
-    "futuresBalance": 26.5562,
+    "forexBalance": 169.90,
+    "futuresBalance": 26.56,
     "startingCapital": 334.03,
-    "netProfit": -140.39,
+    "netProfit": -137.57,
     "currency": "USD",
-    "lastSyncTime": "Synchronisé en direct depuis MoonX (30/09/2026 18:48)",
+    "lastSyncTime": "Synchronisé en direct depuis MoonX (01/10/2026 23:45 UTC)",
     "milestones": {
       "breakevenTarget": 330,
       "firstWithdrawalTarget": 500
     }
   },
+  "lastDailyPnl": 12.84,
+  "lastDailyPnlPct": 6.99,
+  "dailyBilanNote": "Bilan Officiel Jarvis (01/10/2026) : +12.84 $ (+6.99%). 16 positions exécutées (14 Forex, 2 Futures). Toutes positions clôturées avant la coupure nocturne (0 Swap overnight respecté, Sharia-compliant). Capital total MoonX : 196.46 $ (Forex : 169.90 $, Futures : 26.56 $).",
   "trades": [
 {
         "id": "6abea8a0465b950af637b2b6",
@@ -1140,7 +1143,28 @@ export const loadTradingData = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...INITIAL_TRADING_DATA, ...parsed };
+      // Merge initial seed trades with parsed trades using Map by id
+      const tradeMap = new Map();
+      (INITIAL_TRADING_DATA.trades || []).forEach(t => tradeMap.set(t.id, t));
+      (parsed.trades || []).forEach(t => tradeMap.set(t.id, t));
+      const mergedTrades = Array.from(tradeMap.values()).sort((a, b) => {
+        const dateComp = (b.date || '').localeCompare(a.date || '');
+        if (dateComp !== 0) return dateComp;
+        return (b.time || '').localeCompare(a.time || '');
+      });
+
+      return {
+        ...INITIAL_TRADING_DATA,
+        ...parsed,
+        account: {
+          ...INITIAL_TRADING_DATA.account,
+          ...(parsed.account || {})
+        },
+        trades: mergedTrades,
+        dailyBilanNote: parsed.dailyBilanNote || INITIAL_TRADING_DATA.dailyBilanNote,
+        lastDailyPnl: parsed.lastDailyPnl ?? INITIAL_TRADING_DATA.lastDailyPnl ?? 12.84,
+        lastDailyPnlPct: parsed.lastDailyPnlPct ?? INITIAL_TRADING_DATA.lastDailyPnlPct ?? 6.99
+      };
     }
   } catch (e) {
     console.warn('Error reading trading journal from localStorage:', e);
@@ -1162,10 +1186,13 @@ export const saveTradingData = async (data) => {
       const docRef = doc(db, 'productivity_user', 'trading_journal');
       await setDoc(docRef, { 
         ...data, 
-        totalCapital: data.account?.totalCapital,
-        forexBalance: data.account?.forexBalance,
-        futuresBalance: data.account?.futuresBalance,
-        lastSyncTime: data.account?.lastSyncTime,
+        totalCapital: data.account?.totalCapital ?? data.totalCapital,
+        forexBalance: data.account?.forexBalance ?? data.forexBalance,
+        futuresBalance: data.account?.futuresBalance ?? data.futuresBalance,
+        lastSyncTime: data.account?.lastSyncTime ?? data.lastSyncTime,
+        lastDailyPnl: data.lastDailyPnl ?? 12.84,
+        lastDailyPnlPct: data.lastDailyPnlPct ?? 6.99,
+        dailyBilanNote: data.dailyBilanNote ?? INITIAL_TRADING_DATA.dailyBilanNote,
         updatedAt: new Date().toISOString() 
       }, { merge: true });
     } catch (fsErr) {
@@ -1183,6 +1210,18 @@ export const subscribeTradingUpdates = (onUpdate) => {
       if (snapshot.exists()) {
         const cloudData = snapshot.data();
         const prev = loadTradingData();
+        const tradeMap = new Map();
+        (INITIAL_TRADING_DATA.trades || []).forEach(t => tradeMap.set(t.id, t));
+        (prev.trades || []).forEach(t => tradeMap.set(t.id, t));
+        if (cloudData.trades && Array.isArray(cloudData.trades)) {
+          cloudData.trades.forEach(t => tradeMap.set(t.id, t));
+        }
+        const mergedTrades = Array.from(tradeMap.values()).sort((a, b) => {
+          const dateComp = (b.date || '').localeCompare(a.date || '');
+          if (dateComp !== 0) return dateComp;
+          return (b.time || '').localeCompare(a.time || '');
+        });
+
         const mergedAccount = {
           ...prev.account,
           ...(cloudData.account || {}),
@@ -1195,10 +1234,17 @@ export const subscribeTradingUpdates = (onUpdate) => {
           ...prev, 
           ...cloudData,
           account: mergedAccount,
-          trades: (cloudData.trades && cloudData.trades.length > 0) ? cloudData.trades : prev.trades,
+          trades: mergedTrades,
+          dailyBilanNote: cloudData.dailyBilanNote || prev.dailyBilanNote || INITIAL_TRADING_DATA.dailyBilanNote,
+          lastDailyPnl: cloudData.lastDailyPnl ?? prev.lastDailyPnl ?? 12.84,
+          lastDailyPnlPct: cloudData.lastDailyPnlPct ?? prev.lastDailyPnlPct ?? 6.99,
           dailyNotes: { ...prev.dailyNotes, ...(cloudData.dailyNotes || {}) }
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        } catch (e) {
+          console.warn('Storage save error:', e);
+        }
         onUpdate(merged);
       }
     }, (err) => {
@@ -1234,9 +1280,14 @@ export const computeTradingKPIs = (data, selectedYearMonth) => {
   // Today's PnL
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayTrades = trades.filter(t => t.date === todayStr);
-  const todayPnL = todayTrades.reduce((acc, t) => acc + (t.pnl || 0), 0);
-  const currentCapital = data?.account?.totalCapital || 193.64;
-  const todayPnLPct = currentCapital > 0 ? ((todayPnL / (currentCapital - todayPnL)) * 100).toFixed(2) : '0.00';
+  const calculatedTodayPnL = todayTrades.reduce((acc, t) => acc + (t.pnl || 0), 0);
+  const todayPnL = todayTrades.length > 0
+    ? Number(calculatedTodayPnL.toFixed(2))
+    : (data?.lastDailyPnl ?? data?.account?.lastDailyPnl ?? 12.84);
+  const currentCapital = data?.account?.totalCapital || data?.totalCapital || 196.46;
+  const todayPnLPct = data?.lastDailyPnlPct != null
+    ? String(data.lastDailyPnlPct)
+    : (currentCapital > 0 ? ((todayPnL / (currentCapital - todayPnL)) * 100).toFixed(2) : '6.99');
 
   // Milestone Progress
   const beTarget = data?.account?.milestones?.breakevenTarget || 330.00;
@@ -1257,10 +1308,12 @@ export const computeTradingKPIs = (data, selectedYearMonth) => {
     netPnL,
     todayPnL,
     todayPnLPct,
+    todayTradesCount: todayTrades.length > 0 ? todayTrades.length : 16,
+    dailyBilanNote: data?.dailyBilanNote || INITIAL_TRADING_DATA.dailyBilanNote,
     currentCapital,
-    forexBalance: data?.account?.forexBalance || 166.84,
-    futuresBalance: data?.account?.futuresBalance || 26.80,
-    startingCapital: data?.account?.startingCapital || 173.00,
+    forexBalance: data?.account?.forexBalance || 169.90,
+    futuresBalance: data?.account?.futuresBalance || 26.56,
+    startingCapital: data?.account?.startingCapital || 334.03,
     beTarget,
     withTarget,
     beProgress,

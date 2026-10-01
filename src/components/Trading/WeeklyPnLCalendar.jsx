@@ -72,10 +72,10 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
           <div className="flex items-center gap-1 bg-gray-100/80 dark:bg-darkCard px-2 py-1 rounded-2xl border border-gray-200/60 dark:border-darkBorder">
             <button
               onClick={handlePrevWeek}
-              className="p-1.5 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer"
+              className="min-h-[40px] min-w-[36px] flex items-center justify-center p-1.5 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
               title="Semaine précédente"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={18} />
             </button>
 
             <span className="text-xs font-bold text-textMain px-2 whitespace-nowrap">
@@ -84,34 +84,34 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
 
             <button
               onClick={handleNextWeek}
-              className="p-1.5 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer"
+              className="min-h-[40px] min-w-[36px] flex items-center justify-center p-1.5 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
               title="Semaine suivante"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={18} />
             </button>
           </div>
 
           {/* Direct Date Picker */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-none justify-end">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-              className="text-xs font-bold bg-gray-100/80 dark:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain rounded-2xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+              className="min-h-[44px] text-xs font-bold bg-gray-100/80 dark:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
               title="Sélectionner une date pour charger sa semaine"
             />
 
             <button
               onClick={handleResetToToday}
-              className="p-2 rounded-2xl bg-gray-100/80 dark:bg-darkCard hover:bg-card border border-gray-200/60 dark:border-darkBorder text-textMuted hover:text-primary transition-all text-xs font-bold cursor-pointer"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-2xl bg-gray-100/80 dark:bg-darkCard hover:bg-card border border-gray-200/60 dark:border-darkBorder text-textMuted hover:text-primary transition-all text-xs font-bold cursor-pointer active:scale-[0.96]"
               title="Revenir à aujourd'hui"
             >
-              <RotateCcw size={14} />
+              <RotateCcw size={15} />
             </button>
           </div>
 
           {/* Week Total PnL Badge */}
-          <div className={`px-3 py-1.5 rounded-2xl border flex items-center gap-2 ${
+          <div className={`min-h-[44px] px-3.5 py-2 rounded-2xl border flex items-center gap-2 ${
             isPositiveWeek && weekData.totalWeekTrades > 0
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
               : weekData.totalWeekTrades > 0 && !isPositiveWeek
@@ -131,11 +131,12 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
       </div>
 
       {/* 7 Daily Cases (Lundi au Dimanche) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-        {weekData.days.map((day) => {
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
+        {weekData.days.map((day, idx) => {
           const isPos = day.pnl > 0.001;
           const isNeg = day.pnl < -0.001;
           const hasActivity = day.hasTrades;
+          const isSunday = idx === 6;
 
           return (
             <motion.div
@@ -153,8 +154,10 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
                   });
                 }
               }}
-              className={`p-3.5 rounded-2xl border flex flex-col justify-between transition-all relative overflow-hidden ${
-                hasActivity ? 'cursor-pointer hover:shadow-md' : 'cursor-default opacity-85'
+              className={`p-3.5 rounded-2xl border flex flex-col justify-between transition-all relative overflow-hidden min-h-[96px] ${
+                isSunday ? 'col-span-2 sm:col-span-1' : ''
+              } ${
+                hasActivity ? 'cursor-pointer hover:shadow-md active:scale-[0.98]' : 'cursor-default opacity-85'
               } ${
                 day.isToday ? 'ring-2 ring-primary/60 dark:ring-primary/80' : ''
               } ${
