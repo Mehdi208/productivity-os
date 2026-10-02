@@ -117,7 +117,7 @@ const TradingJournal = () => {
   };
 
   return (
-    <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full select-none">
+    <div className="flex-1 p-3.5 sm:p-6 lg:p-8 pb-32 sm:pb-12 max-w-7xl mx-auto w-full select-none">
       
       {/* Top Banner / Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6 pb-4 border-b border-gray-100 dark:border-darkBorder/60">
@@ -179,7 +179,7 @@ const TradingJournal = () => {
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-textMain">
                   Bilan Officiel du Jour · 01 Octobre 2026
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1 whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   0 Swap · Sharia OK
                 </span>
@@ -212,7 +212,10 @@ const TradingJournal = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 mb-3">
           <div className="p-2.5 sm:p-3 rounded-2xl bg-card/75 dark:bg-darkCard/60 border border-gray-200/60 dark:border-darkBorder/50">
             <span className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase block">Trades Clôturés</span>
-            <span className="text-xs sm:text-sm font-black text-textMain mt-0.5 block">{kpis.todayTradesCount || 16} trades (0 overnight)</span>
+            <div className="flex items-baseline gap-1 mt-0.5 flex-wrap">
+              <span className="text-xs sm:text-sm font-black text-textMain">{kpis.todayTradesCount || 16} trades</span>
+              <span className="text-[8.5px] font-bold text-emerald-500 whitespace-nowrap">(0 swap)</span>
+            </div>
           </div>
           <div className="p-2.5 sm:p-3 rounded-2xl bg-card/75 dark:bg-darkCard/60 border border-gray-200/60 dark:border-darkBorder/50">
             <span className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase block">Capital MoonX</span>

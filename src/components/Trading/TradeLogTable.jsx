@@ -205,28 +205,48 @@ const TradeLogTable = ({ trades = [], onNewTrade, onSelectTrade }) => {
             const isWin = (trade.pnl || 0) > 0;
             const isLoss = (trade.pnl || 0) < 0;
 
+            let sourceLabel = trade.source;
+            let sourceClass = 'bg-gray-100 dark:bg-darkCard text-textMuted border-gray-200/60 dark:border-darkBorder';
+            if ((trade.source || '').includes('Le H') || (trade.source || '').includes('Analyse du H')) {
+              sourceLabel = '🎯 Le H';
+              sourceClass = 'bg-amber-500/15 text-amber-500 border-amber-500/30';
+            } else if ((trade.source || '').includes('Jarvis')) {
+              sourceLabel = '🤖 Jarvis SMC';
+              sourceClass = 'bg-primary/15 text-primary border-primary/30';
+            } else if ((trade.source || '').includes('Copy')) {
+              sourceLabel = '📜 Ancien Copy';
+              sourceClass = 'bg-gray-200/70 dark:bg-darkBorder/60 text-textMuted border-gray-300 dark:border-darkBorder';
+            }
+
+            let statusClass = 'bg-gray-100 dark:bg-darkCard text-textMain border-gray-200/60 dark:border-darkBorder';
+            if ((trade.status || '').includes('TP') || (trade.status || '').includes('Validé')) {
+              statusClass = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/25';
+            } else if ((trade.status || '').includes('SL')) {
+              statusClass = 'bg-rose-500/10 text-rose-500 border-rose-500/25';
+            }
+
             return (
               <div 
                 key={trade.id}
                 onClick={() => onSelectTrade && onSelectTrade(trade)}
-                className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-darkCard/50 border border-gray-200/70 dark:border-darkBorder/70 space-y-2.5 active:scale-[0.98] transition-all cursor-pointer shadow-xs min-h-[48px]"
+                className="p-3 sm:p-3.5 rounded-2xl bg-gray-50/90 dark:bg-darkCard/60 border border-gray-200/80 dark:border-darkBorder/80 space-y-2 active:scale-[0.98] transition-all cursor-pointer shadow-xs min-h-[48px]"
               >
                 {/* Top: Asset, Side, Lot, and PnL */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 xs:gap-2 min-w-0">
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider whitespace-nowrap shrink-0 ${
                       trade.side === 'BUY' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
                     }`}>
                       {trade.side}
                     </span>
-                    <strong className="text-textMain font-black text-sm">{trade.symbol}</strong>
-                    <span className="text-[10px] font-mono font-bold text-textMuted bg-gray-200/60 dark:bg-darkBorder/60 px-1.5 py-0.5 rounded-md">
+                    <strong className="text-textMain font-black text-xs xs:text-sm truncate">{trade.symbol}</strong>
+                    <span className="text-[9.5px] font-mono font-bold text-textMuted bg-gray-200/60 dark:bg-darkBorder/60 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">
                       {trade.lot.toFixed(2)} lot
                     </span>
                   </div>
 
-                  <div className="text-right">
-                    <span className={`font-black text-base ${
+                  <div className="text-right shrink-0">
+                    <span className={`font-black text-sm xs:text-base whitespace-nowrap ${
                       isWin ? 'text-emerald-600 dark:text-emerald-400' : (isLoss ? 'text-rose-600 dark:text-rose-400' : 'text-blue-500')
                     }`}>
                       {isWin ? '+' : ''}{trade.pnl.toFixed(2)} $
@@ -235,37 +255,31 @@ const TradeLogTable = ({ trades = [], onNewTrade, onSelectTrade }) => {
                 </div>
 
                 {/* Middle: In / Out price and Pips */}
-                <div className="flex items-center justify-between text-xs font-mono bg-card dark:bg-darkCard px-3 py-2 rounded-xl border border-gray-200/50 dark:border-darkBorder/50">
-                  <div className="flex items-center gap-1.5 text-[11px]">
-                    <span className="text-[10px] uppercase font-sans text-textMuted font-bold">In:</span>
-                    <span className="text-textMain font-semibold">{trade.entryPrice}</span>
-                    <span className="text-textMuted mx-0.5">➔</span>
-                    <span className="text-[10px] uppercase font-sans text-textMuted font-bold">Out:</span>
-                    <span className="text-textMain font-semibold">{trade.exitPrice}</span>
+                <div className="flex items-center justify-between text-xs font-mono bg-card dark:bg-darkCard px-2.5 py-1.5 rounded-xl border border-gray-200/60 dark:border-darkBorder/60">
+                  <div className="flex items-center gap-1 text-[10.5px] truncate">
+                    <span className="text-textMuted uppercase font-sans text-[9px] font-bold shrink-0">In:</span>
+                    <span className="text-textMain font-bold truncate">{trade.entryPrice}</span>
+                    <span className="text-textMuted mx-0.5 shrink-0">➔</span>
+                    <span className="text-textMuted uppercase font-sans text-[9px] font-bold shrink-0">Out:</span>
+                    <span className="text-textMain font-bold truncate">{trade.exitPrice}</span>
                   </div>
-                  <span className={`font-bold font-mono text-[11px] ${trade.pips >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  <span className={`font-black font-mono text-[10.5px] ml-2 shrink-0 ${trade.pips >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                     {trade.pips > 0 ? `+${trade.pips}` : trade.pips} p
                   </span>
                 </div>
 
                 {/* Bottom: Source, Status, and Date */}
-                <div className="flex items-center justify-between pt-0.5 text-[11px]">
-                  <div className="flex items-center gap-1.5">
-                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
-                      trade.source === 'Analyse du H' 
-                        ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
-                        : (trade.source === 'Scan SMC Jarvis' 
-                            ? 'bg-primary/15 text-primary border border-primary/30' 
-                            : 'bg-gray-100 dark:bg-darkCard text-textMuted border border-gray-200/60 dark:border-darkBorder')
-                    }`}>
-                      {trade.source}
+                <div className="flex items-center justify-between gap-1.5 pt-0.5 text-[10.5px]">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold border whitespace-nowrap shrink-0 ${sourceClass}`}>
+                      {sourceLabel}
                     </span>
-                    <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard text-[10px] font-bold text-textMain border border-gray-200/60 dark:border-darkBorder">
+                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold border whitespace-nowrap shrink-0 ${statusClass}`}>
                       {trade.status}
                     </span>
                   </div>
 
-                  <div className="text-[10px] text-textMuted font-medium text-right">
+                  <div className="text-[9.5px] text-textMuted font-mono whitespace-nowrap shrink-0 text-right">
                     {trade.date} · {trade.time || 'Intraday'}
                   </div>
                 </div>

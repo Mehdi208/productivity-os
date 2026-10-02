@@ -124,8 +124,8 @@ const TradingHeatmap = ({
             cardStyle = 'bg-blue-500/10 dark:bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400 hover:border-blue-500/60';
           }
 
-          // Format PnL text compactly so it never overflows or truncates
-          const formattedPnL = Math.abs(cell.pnl) >= 100 
+          // Format PnL text compactly so it never overflows or truncates on mobile
+          const formattedPnL = Math.abs(cell.pnl) >= 10 
             ? `${isWinDay ? '+' : ''}${Math.round(cell.pnl)}$` 
             : `${isWinDay ? '+' : ''}${cell.pnl.toFixed(1)}$`;
 
@@ -133,7 +133,7 @@ const TradingHeatmap = ({
             <button
               key={cell.id}
               onClick={() => onSelectDay && onSelectDay(cell)}
-              className={`min-h-[56px] sm:min-h-[72px] sm:aspect-[4/3] p-1 sm:p-2 rounded-xl sm:rounded-2xl border flex flex-col justify-between text-left transition-all duration-150 relative overflow-hidden group cursor-pointer hover:scale-[1.02] ${cardStyle}`}
+              className={`min-h-[50px] sm:min-h-[72px] sm:aspect-[4/3] p-1 sm:p-2 rounded-xl sm:rounded-2xl border flex flex-col justify-between text-left transition-all duration-150 relative overflow-hidden group cursor-pointer hover:scale-[1.02] ${cardStyle}`}
             >
               {/* Day number & compact trade count */}
               <div className="flex items-center justify-between w-full">
@@ -141,7 +141,7 @@ const TradingHeatmap = ({
                   {cell.dayNum}
                 </span>
                 {hasTrades && (
-                  <span className="text-[8px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.5 rounded-md bg-black/40 text-white/90 backdrop-blur-xs leading-none">
+                  <span className="text-[7.5px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.2 rounded-md bg-black/40 text-white/90 backdrop-blur-xs leading-none">
                     <span className="sm:hidden">{cell.tradeCount}</span>
                     <span className="hidden sm:inline">{cell.tradeCount} {cell.tradeCount > 1 ? 'trades' : 'trade'}</span>
                   </span>
@@ -151,7 +151,7 @@ const TradingHeatmap = ({
               {/* PnL amount in center/bottom */}
               {hasTrades ? (
                 <div className="w-full mt-auto">
-                  <div className={`text-[9.5px] sm:text-xs md:text-sm font-black tracking-tight leading-tight truncate ${isWinDay ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  <div className={`text-[9px] sm:text-xs md:text-sm font-black tracking-tight leading-tight truncate ${isWinDay ? 'text-emerald-500' : 'text-rose-500'}`}>
                     <span className="sm:hidden">{formattedPnL}</span>
                     <span className="hidden sm:inline">{isWinDay ? '+' : ''}{cell.pnl.toFixed(2)} $</span>
                   </div>
@@ -160,7 +160,7 @@ const TradingHeatmap = ({
                   </div>
                 </div>
               ) : (
-                <div className="text-[8px] sm:text-[9px] text-textMuted/50 font-medium self-center mt-auto">
+                <div className="text-[8px] sm:text-[9px] text-textMuted/40 font-medium self-center mt-auto">
                   {cell.isWeekend ? 'Crypto' : '—'}
                 </div>
               )}

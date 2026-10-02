@@ -166,11 +166,11 @@ const AIAuditRecommendations = ({ auditData, onStrategyUpdated }) => {
                   key={item.id}
                   className="p-2.5 sm:p-3 rounded-xl bg-card border border-emerald-500/15"
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 mb-1">
                     <span className="font-extrabold text-[11px] sm:text-xs text-textMain leading-tight">
                       {item.title}
                     </span>
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 shrink-0">
+                    <span className="self-start xs:self-auto text-[9px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 shrink-0 whitespace-nowrap">
                       {item.metric}
                     </span>
                   </div>
@@ -211,11 +211,11 @@ const AIAuditRecommendations = ({ auditData, onStrategyUpdated }) => {
                   key={item.id}
                   className="p-2.5 sm:p-3 rounded-xl bg-card border border-rose-500/15"
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 mb-1">
                     <span className="font-extrabold text-[11px] sm:text-xs text-textMain leading-tight">
                       {item.title}
                     </span>
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 text-rose-500 shrink-0">
+                    <span className="self-start xs:self-auto text-[9px] font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 text-rose-500 shrink-0 whitespace-nowrap">
                       {item.metric}
                     </span>
                   </div>
@@ -274,23 +274,23 @@ const AIAuditRecommendations = ({ auditData, onStrategyUpdated }) => {
               >
                 <div>
                   {/* Top line of card: Checkbox + Priority + Impact */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2 min-h-[32px]">
-                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center transition-all ${
+                  <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1.5 mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 transition-all ${
                         isSelected 
                           ? 'bg-primary text-white shadow-xs' 
                           : 'border-2 border-gray-300 dark:border-gray-600 text-transparent'
                       }`}>
                         <Check size={13} strokeWidth={3} />
                       </div>
-                      <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                      <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md whitespace-nowrap ${
                         isSelected ? 'bg-primary/10 text-primary' : 'bg-gray-200 dark:bg-darkBorder text-textMuted'
                       }`}>
                         {rec.priority}
                       </span>
                     </div>
 
-                    <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md whitespace-nowrap">
+                    <span className="self-start xs:self-auto text-[9px] sm:text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md leading-tight">
                       {rec.impact}
                     </span>
                   </div>
@@ -309,9 +309,9 @@ const AIAuditRecommendations = ({ auditData, onStrategyUpdated }) => {
                 </div>
 
                 {/* Parameter Code Box */}
-                <div className="pt-2 border-t border-gray-200/50 dark:border-darkBorder/40 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-textMuted">
-                  <span>Paramètre :</span>
-                  <code className={`font-bold px-1.5 py-0.5 rounded text-[9px] truncate max-w-[200px] sm:max-w-none ${
+                <div className="pt-2 border-t border-gray-200/50 dark:border-darkBorder/40 flex flex-col xs:flex-row xs:items-center justify-between gap-1 text-[9px] sm:text-[10px] font-mono text-textMuted">
+                  <span className="shrink-0">Paramètre :</span>
+                  <code className={`font-bold px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] truncate max-w-full xs:max-w-[240px] ${
                     isSelected ? 'bg-primary/10 text-primary' : 'bg-gray-100 dark:bg-darkBorder/50 text-textMuted'
                   }`}>
                     {rec.targetParam}

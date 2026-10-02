@@ -43,48 +43,66 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
     <div className="p-4 sm:p-6 rounded-3xl bg-card border border-gray-200/80 dark:border-darkBorder shadow-sm mb-6 select-none">
       
       {/* Top Header & Controls */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 pb-3.5 sm:pb-4 border-b border-gray-100 dark:border-darkBorder/60">
+      <div className="flex flex-col gap-3.5 mb-4 sm:mb-5 pb-3.5 sm:pb-4 border-b border-gray-100 dark:border-darkBorder/60">
         
-        {/* Title */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold shrink-0">
-            <CalendarIcon size={18} />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <h3 className="font-extrabold text-sm sm:text-lg text-textMain leading-tight">
-                Calendrier PnL Journalier
-              </h3>
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
-                Lundi — Dimanche
-              </span>
+        {/* Row 1: Title and Net Semaine Badge */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold shrink-0">
+              <CalendarIcon size={18} />
             </div>
-            <p className="text-[10px] sm:text-xs text-textMuted font-medium mt-0.5 hidden xs:block">
-              Visualisation claire du gain ou de la perte généré chaque jour de la semaine choisie.
-            </p>
+            <div>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h3 className="font-extrabold text-sm sm:text-lg text-textMain leading-tight">
+                  Calendrier PnL Journalier
+                </h3>
+                <span className="hidden sm:inline text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                  Lundi — Dimanche
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-textMuted font-medium mt-0.5 hidden xs:block">
+                Visualisation claire du gain ou de la perte généré chaque jour de la semaine choisie.
+              </p>
+            </div>
+          </div>
+
+          {/* Week Total PnL Badge */}
+          <div className={`min-h-[36px] px-3 py-1.5 rounded-2xl border flex items-center gap-1.5 shrink-0 ${
+            isPositiveWeek && weekData.totalWeekTrades > 0
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+              : weekData.totalWeekTrades > 0 && !isPositiveWeek
+              ? 'bg-rose-500/10 border-rose-500/20 text-rose-500'
+              : 'bg-gray-100 dark:bg-darkCard border-gray-200/60 dark:border-darkBorder text-textMuted'
+          }`}>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-textMuted hidden xs:inline">
+              Net Semaine :
+            </span>
+            <span className="text-xs sm:text-sm font-black whitespace-nowrap">
+              {isPositiveWeek ? '+' : ''}{weekData.totalWeekPnL.toFixed(2)} $
+            </span>
           </div>
         </div>
 
-        {/* Date Selector & Week Nav */}
-        <div className="flex flex-wrap items-center gap-2 self-stretch lg:self-auto justify-between lg:justify-end w-full lg:w-auto">
+        {/* Row 2: Date Selector & Week Nav */}
+        <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
           
           {/* Week Label & Nav */}
-          <div className="flex items-center gap-1 bg-gray-100/80 dark:bg-darkCard px-1.5 py-1 rounded-2xl border border-gray-200/60 dark:border-darkBorder">
+          <div className="flex items-center gap-1 bg-gray-100/80 dark:bg-darkCard px-1.5 py-1 rounded-2xl border border-gray-200/60 dark:border-darkBorder flex-1 sm:flex-none justify-between sm:justify-start">
             <button
               onClick={handlePrevWeek}
-              className="min-h-[36px] min-w-[32px] flex items-center justify-center p-1 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
+              className="min-h-[32px] min-w-[30px] flex items-center justify-center p-1 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
               title="Semaine précédente"
             >
               <ChevronLeft size={16} />
             </button>
 
-            <span className="text-xs font-bold text-textMain px-1.5 whitespace-nowrap">
+            <span className="text-xs font-bold text-textMain px-2 whitespace-nowrap text-center">
               {weekData.weekLabel}
             </span>
 
             <button
               onClick={handleNextWeek}
-              className="min-h-[36px] min-w-[32px] flex items-center justify-center p-1 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
+              className="min-h-[32px] min-w-[30px] flex items-center justify-center p-1 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
               title="Semaine suivante"
             >
               <ChevronRight size={16} />
@@ -92,38 +110,22 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
           </div>
 
           {/* Direct Date Picker & Reset */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-              className="min-h-[38px] text-xs font-bold bg-gray-100/80 dark:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain rounded-2xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+              className="min-h-[36px] text-xs font-bold bg-gray-100/80 dark:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain rounded-2xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
               title="Sélectionner une date pour charger sa semaine"
             />
 
             <button
               onClick={handleResetToToday}
-              className="min-h-[38px] min-w-[38px] flex items-center justify-center p-2 rounded-2xl bg-gray-100/80 dark:bg-darkCard hover:bg-card border border-gray-200/60 dark:border-darkBorder text-textMuted hover:text-primary transition-all text-xs font-bold cursor-pointer active:scale-[0.96]"
+              className="min-h-[36px] min-w-[36px] flex items-center justify-center p-2 rounded-2xl bg-gray-100/80 dark:bg-darkCard hover:bg-card border border-gray-200/60 dark:border-darkBorder text-textMuted hover:text-primary transition-all text-xs font-bold cursor-pointer active:scale-[0.96]"
               title="Revenir à aujourd'hui"
             >
               <RotateCcw size={14} />
             </button>
-          </div>
-
-          {/* Week Total PnL Badge */}
-          <div className={`min-h-[38px] px-3 py-1.5 rounded-2xl border flex items-center gap-1.5 ${
-            isPositiveWeek && weekData.totalWeekTrades > 0
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-              : weekData.totalWeekTrades > 0 && !isPositiveWeek
-              ? 'bg-rose-500/10 border-rose-500/20 text-rose-500'
-              : 'bg-gray-100 dark:bg-darkCard border-gray-200/60 dark:border-darkBorder text-textMuted'
-          }`}>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-textMuted">
-              Net Semaine :
-            </span>
-            <span className="text-xs sm:text-sm font-black whitespace-nowrap">
-              {isPositiveWeek ? '+' : ''}{weekData.totalWeekPnL.toFixed(2)} $
-            </span>
           </div>
 
         </div>
@@ -171,34 +173,32 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
               {/* Day Header */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[11px] font-black uppercase tracking-wider ${
-                    day.isToday ? 'text-primary' : 'text-textMuted'
-                  }`}>
-                    {day.dayShort}
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className={`text-xs font-black uppercase tracking-wider ${
+                      day.isToday ? 'text-primary' : 'text-textMain'
+                    }`}>
+                      {day.dayShort}
+                    </span>
+                    <span className="text-[11px] font-bold text-textMuted">
+                      {day.dayNum} {day.monthLabel}
+                    </span>
+                  </div>
                   
                   {day.isToday && (
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-primary text-white">
+                    <span className="text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded-full bg-primary text-white">
                       Auj.
                     </span>
                   )}
                   {day.isWeekend && !day.isToday && (
-                    <span className="text-[9px] font-bold text-textMuted opacity-70">
+                    <span className="text-[8.5px] font-bold text-textMuted/70">
                       WE
                     </span>
                   )}
                 </div>
 
-                <div className="text-xs font-bold text-textMain mb-2.5">
-                  {day.dayNum} {day.monthLabel}
-                </div>
-
                 {/* Day Net PnL Box */}
-                <div className="mb-2">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-0.5">
-                    PnL Jour
-                  </div>
-                  <div className={`text-base sm:text-lg font-black tracking-tight ${
+                <div className="my-1.5">
+                  <div className={`text-sm sm:text-base font-black tracking-tight ${
                     isPos ? 'text-emerald-500' : isNeg ? 'text-rose-500' : 'text-textMuted'
                   }`}>
                     {isPos ? '+' : ''}{day.pnl.toFixed(2)} $
