@@ -35,25 +35,30 @@ const TradingHeatmap = ({
     <div className="p-3.5 sm:p-5 rounded-3xl bg-card border border-gray-200/80 dark:border-darkBorder shadow-sm mb-6 select-none">
       
       {/* Heatmap Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3.5 border-b border-gray-100 dark:border-darkBorder/60">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3.5 pb-3 border-b border-gray-100 dark:border-darkBorder/60">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
             <CalendarIcon size={18} />
           </div>
           <div>
-            <h3 className="font-extrabold text-sm sm:text-base text-textMain leading-tight">
-              {lang === 'en' ? 'Monthly PnL Heatmap' : 'Calendrier PnL Mensuel (Style TradeZella)'}
-            </h3>
-            <span className="text-[11px] sm:text-xs text-textMuted font-medium">
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-extrabold text-sm sm:text-base text-textMain leading-tight">
+                {lang === 'en' ? 'Monthly PnL Heatmap' : 'Calendrier PnL Mensuel'}
+              </h3>
+              <span className="hidden sm:inline text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                TradeZella Style
+              </span>
+            </div>
+            <p className="text-[10px] sm:text-xs text-textMuted font-medium mt-0.5 hidden xs:block">
               {lang === 'en' ? 'Color-coded daily consistency overview' : 'Consistance des journées de trading en direct'}
-            </span>
+            </p>
           </div>
         </div>
 
         {/* Month Selector & Total */}
-        <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end w-full sm:w-auto">
+        <div className="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end w-full sm:w-auto">
           <div className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-darkCard border border-gray-200/60 dark:border-darkBorder flex items-center gap-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold text-textMuted uppercase whitespace-nowrap">
+            <span className="text-[9px] sm:text-[11px] font-bold text-textMuted uppercase whitespace-nowrap">
               {lang === 'en' ? 'Net Month :' : 'Net Mois :'}
             </span>
             <span className={`text-xs sm:text-sm font-black whitespace-nowrap ${isMonthPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
@@ -64,17 +69,17 @@ const TradingHeatmap = ({
           <div className="flex items-center gap-1 bg-gray-100 dark:bg-darkCard p-1 rounded-xl border border-gray-200/60 dark:border-darkBorder">
             <button 
               onClick={onPrevMonth}
-              className="p-1 rounded-lg hover:bg-white dark:hover:bg-gray-800 text-textMuted hover:text-textMain transition-colors"
+              className="min-h-[32px] min-w-[30px] flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-gray-800 text-textMuted hover:text-textMain transition-colors cursor-pointer"
               title="Mois précédent"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="px-2 text-xs font-bold text-textMain min-w-[95px] sm:min-w-[110px] text-center">
+            <span className="px-1.5 text-xs font-bold text-textMain min-w-[85px] sm:min-w-[110px] text-center whitespace-nowrap">
               {monthLabel}
             </span>
             <button 
               onClick={onNextMonth}
-              className="p-1 rounded-lg hover:bg-white dark:hover:bg-gray-800 text-textMuted hover:text-textMain transition-colors"
+              className="min-h-[32px] min-w-[30px] flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-gray-800 text-textMuted hover:text-textMain transition-colors cursor-pointer"
               title="Mois suivant"
             >
               <ChevronRight size={16} />

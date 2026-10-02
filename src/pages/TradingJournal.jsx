@@ -120,34 +120,34 @@ const TradingJournal = () => {
     <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full select-none">
       
       {/* Top Banner / Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100 dark:border-darkBorder/60">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6 pb-4 border-b border-gray-100 dark:border-darkBorder/60">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black tracking-wider uppercase">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] sm:text-[10px] font-black tracking-wider uppercase">
               Trading & Performance OS
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black tracking-wider uppercase flex items-center gap-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] sm:text-[10px] font-black tracking-wider uppercase flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Jarvis Sentinel H24 Connecté
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-textMain tracking-tight">
             Journal de Trading & PnL
           </h1>
-          <p className="text-xs text-textMuted font-medium mt-0.5">
+          <p className="text-[11px] sm:text-xs text-textMuted font-medium mt-0.5">
             Suivi asymétrique des gains, respect du money management et conformité Sharia (0 Riba).
           </p>
         </div>
 
         {/* Top Controls */}
-        <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+        <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end w-full sm:w-auto">
           <button
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2.5 rounded-2xl bg-card border border-gray-200/80 dark:border-darkBorder hover:bg-gray-100 dark:hover:bg-darkCard text-textMuted hover:text-textMain transition-all text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.96]"
+            className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-2xl bg-card border border-gray-200/80 dark:border-darkBorder hover:bg-gray-100 dark:hover:bg-darkCard text-textMuted hover:text-textMain transition-all text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.96]"
             title="Rafraîchir la synchronisation"
           >
-            <RefreshCw size={15} className={isSyncing ? 'animate-spin text-primary' : ''} />
+            <RefreshCw size={14} className={isSyncing ? 'animate-spin text-primary' : ''} />
             <span>Sync Cloud</span>
           </button>
 
@@ -156,7 +156,7 @@ const TradingJournal = () => {
               setTradeToEdit(null);
               setIsNewTradeOpen(true);
             }}
-            className="flex-1 sm:flex-none min-h-[44px] bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-primary/25 transition-all text-xs active:scale-[0.96]"
+            className="flex-1 sm:flex-none min-h-[44px] bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-primary/25 transition-all text-xs active:scale-[0.96] cursor-pointer"
           >
             <Plus size={16} />
             <span>Nouveau Trade</span>
@@ -165,67 +165,71 @@ const TradingJournal = () => {
       </div>
 
       {/* 0. Bilan Officiel du Jour (Jarvis Sentinel H24 & MoonX) */}
-      <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-card to-primary/10 border border-emerald-500/30 dark:border-emerald-500/25 shadow-sm relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3.5 pb-3.5 border-b border-emerald-500/20">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 mt-0.5 sm:mt-0">
+      <div className="mb-5 sm:mb-6 p-3.5 sm:p-5 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-card to-primary/10 border border-emerald-500/30 dark:border-emerald-500/25 shadow-sm relative overflow-hidden">
+        
+        {/* Header du Bilan avec Titre, Badge et Hero PnL */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3.5 pb-3 border-b border-emerald-500/20">
+          
+          <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 mt-0.5 sm:mt-0">
               <ShieldCheck size={20} />
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-textMain">
                   Bilan Officiel du Jour · 01 Octobre 2026
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  0 Swap · 100% Flat (Sharia OK)
+                  0 Swap · Sharia OK
                 </span>
               </div>
-              <p className="text-[11px] text-textMuted font-medium mt-0.5">
+              <p className="text-[10px] sm:text-[11px] text-textMuted font-medium mt-0.5">
                 Rapport certifié par Jarvis Sentinel H24 • Clôture stricte avant la coupure nocturne MoonX.
               </p>
             </div>
           </div>
 
-          {/* Big Hero PnL */}
-          <div className="flex items-center gap-3 self-stretch sm:self-auto justify-between sm:justify-end bg-card/90 dark:bg-darkCard/90 px-4 py-2.5 rounded-2xl border border-emerald-500/30 shadow-xs">
+          {/* Big Hero PnL - Pleine largeur optimisée sur mobile */}
+          <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-3 sm:gap-4 bg-card/95 dark:bg-darkCard/95 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl border border-emerald-500/30 shadow-xs">
             <div>
-              <div className="text-[10px] font-bold text-textMuted uppercase tracking-wider">Gain Net du Jour</div>
-              <div className="text-xl sm:text-2xl font-black text-emerald-500 tracking-tight">
+              <div className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase tracking-wider">Gain Net du Jour</div>
+              <div className="text-lg sm:text-2xl font-black text-emerald-500 tracking-tight leading-none mt-0.5">
                 +{kpis.todayPnL > 0 ? kpis.todayPnL.toFixed(2) : '12.84'} $
               </div>
             </div>
             <div className="text-right pl-3 border-l border-gray-200 dark:border-darkBorder">
-              <div className="text-[10px] font-bold text-textMuted uppercase tracking-wider">Rendement</div>
-              <div className="text-sm sm:text-base font-black text-emerald-500">
+              <div className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase tracking-wider">Rendement</div>
+              <div className="text-xs sm:text-base font-black text-emerald-500 leading-none mt-0.5">
                 +{kpis.todayPnLPct || '6.99'} %
               </div>
             </div>
           </div>
+
         </div>
 
-        {/* 4 Summary Cards Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-3.5">
-          <div className="p-3 rounded-2xl bg-card/70 dark:bg-darkCard/50 border border-gray-200/60 dark:border-darkBorder/50">
-            <span className="text-[10px] font-bold text-textMuted uppercase block">Positions Clôturées</span>
-            <span className="text-xs sm:text-sm font-black text-textMain">{kpis.todayTradesCount || 16} trades (14 Forex / 2 Futures)</span>
+        {/* 4 Summary Cards Grid - Libellés concis pour zéro débordement */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 mb-3">
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-card/75 dark:bg-darkCard/60 border border-gray-200/60 dark:border-darkBorder/50">
+            <span className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase block">Trades Clôturés</span>
+            <span className="text-xs sm:text-sm font-black text-textMain mt-0.5 block">{kpis.todayTradesCount || 16} trades (0 overnight)</span>
           </div>
-          <div className="p-3 rounded-2xl bg-card/70 dark:bg-darkCard/50 border border-gray-200/60 dark:border-darkBorder/50">
-            <span className="text-[10px] font-bold text-textMuted uppercase block">Capital Consolidé MoonX</span>
-            <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400">{kpis.currentCapital.toFixed(2)} $</span>
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-card/75 dark:bg-darkCard/60 border border-gray-200/60 dark:border-darkBorder/50">
+            <span className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase block">Capital MoonX</span>
+            <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-0.5 block">{kpis.currentCapital.toFixed(2)} $</span>
           </div>
-          <div className="p-3 rounded-2xl bg-card/70 dark:bg-darkCard/50 border border-gray-200/60 dark:border-darkBorder/50">
-            <span className="text-[10px] font-bold text-textMuted uppercase block">Solde Forex MoonX</span>
-            <span className="text-xs sm:text-sm font-black text-textMain">{kpis.forexBalance.toFixed(2)} $</span>
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-card/75 dark:bg-darkCard/60 border border-gray-200/60 dark:border-darkBorder/50">
+            <span className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase block">Solde Forex</span>
+            <span className="text-xs sm:text-sm font-black text-textMain mt-0.5 block">{kpis.forexBalance.toFixed(2)} $</span>
           </div>
-          <div className="p-3 rounded-2xl bg-card/70 dark:bg-darkCard/50 border border-gray-200/60 dark:border-darkBorder/50">
-            <span className="text-[10px] font-bold text-textMuted uppercase block">Solde Futures MoonX</span>
-            <span className="text-xs sm:text-sm font-black text-textMain">{kpis.futuresBalance.toFixed(2)} $</span>
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-card/75 dark:bg-darkCard/60 border border-gray-200/60 dark:border-darkBorder/50">
+            <span className="text-[9px] sm:text-[10px] font-bold text-textMuted uppercase block">Solde Futures</span>
+            <span className="text-xs sm:text-sm font-black text-textMain mt-0.5 block">{kpis.futuresBalance.toFixed(2)} $</span>
           </div>
         </div>
 
         {/* Jarvis Commentary & Action */}
-        <div className="text-xs text-textMuted leading-relaxed flex items-start gap-2.5 bg-card/80 dark:bg-darkCard/70 p-3 rounded-2xl border border-emerald-500/20">
+        <div className="text-[11px] sm:text-xs text-textMuted leading-relaxed flex items-start gap-2 bg-card/85 dark:bg-darkCard/75 p-2.5 sm:p-3 rounded-2xl border border-emerald-500/20">
           <span className="text-emerald-500 font-black shrink-0">🤖 J.A.R.V.I.S. :</span>
           <span className="font-medium text-textMain">{kpis.dailyBilanNote || "Toutes les positions ont été débouclées avec succès avant le seuil nocturne. Zéro frais de swap ou d'intérêt overnight, capital 100% liquide et sécurisé. La sentinelle locale reprendra les opérations dès votre réveil."}</span>
         </div>

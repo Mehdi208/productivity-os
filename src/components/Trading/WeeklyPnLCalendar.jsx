@@ -43,82 +43,82 @@ const WeeklyPnLCalendar = ({ trades = [], onSelectDay }) => {
     <div className="p-4 sm:p-6 rounded-3xl bg-card border border-gray-200/80 dark:border-darkBorder shadow-sm mb-6 select-none">
       
       {/* Top Header & Controls */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-5 pb-4 border-b border-gray-100 dark:border-darkBorder/60">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 pb-3.5 sm:pb-4 border-b border-gray-100 dark:border-darkBorder/60">
         
         {/* Title */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold shrink-0">
-            <CalendarIcon size={20} />
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold shrink-0">
+            <CalendarIcon size={18} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-extrabold text-base sm:text-lg text-textMain leading-tight">
-                Calendrier PnL Journalier (Lundi — Dimanche)
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h3 className="font-extrabold text-sm sm:text-lg text-textMain leading-tight">
+                Calendrier PnL Journalier
               </h3>
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
-                Vue Hebdomadaire
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                Lundi — Dimanche
               </span>
             </div>
-            <p className="text-xs text-textMuted font-medium mt-0.5">
+            <p className="text-[10px] sm:text-xs text-textMuted font-medium mt-0.5 hidden xs:block">
               Visualisation claire du gain ou de la perte généré chaque jour de la semaine choisie.
             </p>
           </div>
         </div>
 
         {/* Date Selector & Week Nav */}
-        <div className="flex flex-wrap items-center gap-2.5 self-stretch lg:self-auto justify-between lg:justify-end w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2 self-stretch lg:self-auto justify-between lg:justify-end w-full lg:w-auto">
           
           {/* Week Label & Nav */}
-          <div className="flex items-center gap-1 bg-gray-100/80 dark:bg-darkCard px-2 py-1 rounded-2xl border border-gray-200/60 dark:border-darkBorder">
+          <div className="flex items-center gap-1 bg-gray-100/80 dark:bg-darkCard px-1.5 py-1 rounded-2xl border border-gray-200/60 dark:border-darkBorder">
             <button
               onClick={handlePrevWeek}
-              className="min-h-[40px] min-w-[36px] flex items-center justify-center p-1.5 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
+              className="min-h-[36px] min-w-[32px] flex items-center justify-center p-1 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
               title="Semaine précédente"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={16} />
             </button>
 
-            <span className="text-xs font-bold text-textMain px-2 whitespace-nowrap">
+            <span className="text-xs font-bold text-textMain px-1.5 whitespace-nowrap">
               {weekData.weekLabel}
             </span>
 
             <button
               onClick={handleNextWeek}
-              className="min-h-[40px] min-w-[36px] flex items-center justify-center p-1.5 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
+              className="min-h-[36px] min-w-[32px] flex items-center justify-center p-1 rounded-xl hover:bg-card text-textMuted hover:text-textMain transition-all cursor-pointer active:scale-[0.96]"
               title="Semaine suivante"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </button>
           </div>
 
-          {/* Direct Date Picker */}
-          <div className="flex items-center gap-1.5 flex-1 sm:flex-none justify-end">
+          {/* Direct Date Picker & Reset */}
+          <div className="flex items-center gap-1.5">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-              className="min-h-[44px] text-xs font-bold bg-gray-100/80 dark:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+              className="min-h-[38px] text-xs font-bold bg-gray-100/80 dark:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain rounded-2xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
               title="Sélectionner une date pour charger sa semaine"
             />
 
             <button
               onClick={handleResetToToday}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-2xl bg-gray-100/80 dark:bg-darkCard hover:bg-card border border-gray-200/60 dark:border-darkBorder text-textMuted hover:text-primary transition-all text-xs font-bold cursor-pointer active:scale-[0.96]"
+              className="min-h-[38px] min-w-[38px] flex items-center justify-center p-2 rounded-2xl bg-gray-100/80 dark:bg-darkCard hover:bg-card border border-gray-200/60 dark:border-darkBorder text-textMuted hover:text-primary transition-all text-xs font-bold cursor-pointer active:scale-[0.96]"
               title="Revenir à aujourd'hui"
             >
-              <RotateCcw size={15} />
+              <RotateCcw size={14} />
             </button>
           </div>
 
           {/* Week Total PnL Badge */}
-          <div className={`min-h-[44px] px-3.5 py-2 rounded-2xl border flex items-center gap-2 ${
+          <div className={`min-h-[38px] px-3 py-1.5 rounded-2xl border flex items-center gap-1.5 ${
             isPositiveWeek && weekData.totalWeekTrades > 0
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
               : weekData.totalWeekTrades > 0 && !isPositiveWeek
               ? 'bg-rose-500/10 border-rose-500/20 text-rose-500'
               : 'bg-gray-100 dark:bg-darkCard border-gray-200/60 dark:border-darkBorder text-textMuted'
           }`}>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-textMuted">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-textMuted">
               Net Semaine :
             </span>
             <span className="text-xs sm:text-sm font-black whitespace-nowrap">

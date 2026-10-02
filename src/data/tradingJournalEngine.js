@@ -1607,6 +1607,9 @@ export const getWeeklyPnLDays = (referenceDateStr, trades = []) => {
 // ==========================================
 // AI STRATEGY STORAGE & PERSISTENCE
 // ==========================================
+// ==========================================
+// AI STRATEGY STORAGE & PERSISTENCE
+// ==========================================
 const STRATEGY_STORAGE_KEY = 'pos_trading_active_strategy';
 
 export const getActiveStrategy = () => {
@@ -1619,51 +1622,61 @@ export const getActiveStrategy = () => {
   return {
     isApplied: false,
     appliedAt: null,
-    name: 'Stratégie Base Jarvis SMC & Sniper',
+    name: 'Stratégie Base Jarvis Sniper & Intraday',
+    selectedRecIds: ['rec_intraday_swing', 'rec_fast_be', 'rec_sharia_safety'],
     rules: [
-      { id: 'london_scalp', title: 'Session Londres (07h00 - 12h00 UTC)', status: 'Inactif', value: 'Non automatisé' },
-      { id: 'dynamic_tp', title: 'Take Profit Crypto', status: 'Standard', value: 'TP Fixe +1.5%' },
-      { id: 'lot_sizing', title: 'Dimensionnement des Lots', status: 'Fixe', value: '0.02 lot par défaut' },
-      { id: 'sharia_safety', title: 'Clôture Sécurité Sharia', status: 'Standard', value: '21h45 UTC (0 Riba)' }
+      { id: 'rec_intraday_swing', title: 'Trades Intraday Haute Conviction (200-400 pips)', status: 'Standard', value: '1 à 2 trades/jour max (Objectif 100$-150$)' },
+      { id: 'rec_fast_be', title: 'Sécurisation Rapide (Fast BE à +35 pips)', status: 'Standard', value: 'Passage au Break-Even dès +35 pips (0 Risque)' },
+      { id: 'rec_tactical_scalp', title: 'Scalping Tactique Restreint (M15/M5)', status: 'Inactif', value: 'Strictement limité à 1-2 replis tactiques/jour' },
+      { id: 'rec_sharia_safety', title: 'Clôture de Sécurité Sharia (21h30 UTC)', status: 'Standard', value: '21h30 UTC (0 Swap / 0 Overnight)' }
     ]
   };
 };
 
-export const applyAIStrategy = async (customRules = null) => {
+export const applyAIStrategy = async (selectedRules = null, selectedIds = []) => {
+  const allAvailableRules = [
+    { 
+      id: 'rec_intraday_swing', 
+      title: 'Trades Intraday Haute Conviction (200-400 pips)', 
+      status: 'Actif & Prioritaire', 
+      value: 'Zones Sniper Le H (Order Blocks H1/M15). Entrée 9h-15h UTC, tenue sur grands mouvements.',
+      impact: 'Objectif +100$ à +150$ par trade avec 1 seul setup majeur' 
+    },
+    { 
+      id: 'rec_fast_be', 
+      title: 'Sécurisation Rapide (Fast Break-Even +35 pips)', 
+      status: 'Actif & Blindé', 
+      value: 'Passage SL à Breakeven (+0.40$) dès +35 pips. Le trade devient un Free-Roll sans stress.',
+      impact: '0 perte possible une fois le mouvement enclenché' 
+    },
+    { 
+      id: 'rec_tactical_scalp', 
+      title: 'Scalping Tactique Restreint (M15/M5)', 
+      status: 'Modéré / Optionnel', 
+      value: 'Uniquement en cas de range plat ou pullbacks confirmés. Maximum 1 à 2 micro-scalps/jour.',
+      impact: 'Interdiction de sur-trader (zéro scalp compulsif)' 
+    },
+    { 
+      id: 'rec_sharia_safety', 
+      title: 'Verrouillage Sharia 21h30 UTC & Bilan Instantané', 
+      status: 'Actif & Garanti', 
+      value: 'Coupe-circuit strict à 21h30 UTC (0 Swap MoonX, capital 100% flat) + Bilan Telegram & OS.',
+      impact: 'Garantie absolue 0 Riba & discipline éthique 100%' 
+    }
+  ];
+
+  const rulesToSave = selectedRules || (
+    selectedIds.length > 0 
+      ? allAvailableRules.filter(r => selectedIds.includes(r.id))
+      : allAvailableRules
+  );
+
   const updated = {
     isApplied: true,
     appliedAt: new Date().toISOString(),
     name: 'Stratégie Optimisée Jarvis AI (Recommandations Validées)',
-    rules: customRules || [
-      { 
-        id: 'london_scalp', 
-        title: 'Session Londres (07h00 - 12h00 UTC)', 
-        status: 'Actif & Optimisé', 
-        value: 'Scalp M15 Agressif Actif (XAU/USD & GBP/USD)',
-        impact: '+18% rentabilité matinale' 
-      },
-      { 
-        id: 'dynamic_tp', 
-        title: 'Take Profit Hybride Crypto', 
-        status: 'Actif & Optimisé', 
-        value: 'TP1 +1.5% partiel / TP2 +3.8% runner + Fast-BE +0.40$',
-        impact: 'Capture des extensions de tendance' 
-      },
-      { 
-        id: 'lot_sizing', 
-        title: 'Dimensionnement des Lots Asymétrique', 
-        status: 'Actif & Optimisé', 
-        value: '0.03 lot sur Haute Conviction (Score >= 5/5) / 0.02 lot standard',
-        impact: 'Maximisation du Risk/Reward' 
-      },
-      { 
-        id: 'sharia_safety', 
-        title: 'Verrouillage Sharia 21h30 UTC', 
-        status: 'Actif & Optimisé', 
-        value: 'Coupe-circuit avancé à 21h30 UTC (0 Swap, anti-spread MoonX)',
-        impact: 'Garantie absolue 0 Riba' 
-      }
-    ]
+    selectedRecIds: selectedIds.length > 0 ? selectedIds : rulesToSave.map(r => r.id),
+    rules: rulesToSave
   };
 
   try {
@@ -1697,22 +1710,22 @@ export const getAIAuditData = (trades = [], account = {}, activeStrategy = null)
       id: 's1',
       title: 'Discipline Sharia Absolue (Score 100%)',
       metric: '0 Riba / 0 Swap',
-      description: 'Zéro position conservée la nuit. Les coupures quotidiennes avant 21h45 UTC éliminent 100% des frais de swap usuraire et immunisent le capital contre les gaps nocturnes.',
+      description: 'Zéro position conservée la nuit. Les coupures quotidiennes avant 21h30 UTC éliminent 100% des frais de swap usuraire et immunisent le capital contre les gaps nocturnes.',
       tag: 'Conformité Éthique'
     },
     {
       id: 's2',
-      title: 'Excellente Asymétrie Risk/Reward (R:R > 3.2)',
-      metric: 'TP +7.88$ vs SL -0.27$',
-      description: 'Vos gains unitaires sur XAU/USD et BTC/USDT dominent outrageusement vos micro-pertes grâce au Break-Even serré (+0.40$) et aux TP calculés.',
+      title: 'Excellente Asymétrie Risk/Reward (R:R > 3.5)',
+      metric: 'TP +10.80$ vs SL -1.50$',
+      description: 'Vos gains unitaires sur XAU/USD dominent vos micro-pertes grâce au Break-Even serré (+0.40$) et aux TP calculés sur de grands swings.',
       tag: 'Mathématiques'
     },
     {
       id: 's3',
-      title: 'Vélocité et Efficacité des Scalps Jarvis M15',
-      metric: `${jarvisWR}% Winrate Jarvis`,
-      description: 'Les interventions algorithmiques de Jarvis (scan SMC sur M15/M5) affichent un taux de réussite parfait sans exposition prolongée au bruit du marché.',
-      tag: 'Algorithme'
+      title: 'Précision des Entrées Snipers (Méthode du H)',
+      metric: `${jarvisWR}% Taux Gagnant`,
+      description: 'Les zones identifiées sur balayage de liquidité (Stop-Hunt) offrent des départs immédiats sans subir de drawdown excessif.',
+      tag: 'Méthodologie'
     },
     {
       id: 's4',
@@ -1726,66 +1739,66 @@ export const getAIAuditData = (trades = [], account = {}, activeStrategy = null)
   const weaknesses = [
     {
       id: 'w1',
-      title: 'Sous-Exploitation Critique de la Session de Londres',
-      metric: 'Seulement 3 trades (6% du volume)',
-      description: 'La session de Londres (07h00 - 13h00 UTC) concentre la liquidité bancaire européenne mais reste quasi-inactive dans votre historique, vous privant des plus gros mouvements matinaux sur l\'Or et GBP/USD.',
-      tag: 'Opportunité Perdue'
+      title: 'Tentations de Micro-Scalping Parasite (M1/M5)',
+      metric: 'Risque de sur-trading inutile',
+      description: 'Prendre 10 petits trades à 5$ génère du stress et des commissions de spread MoonX. Privilégier 1 seul grand mouvement intraday (200-400 pips) qui va chercher 100$ à 150$.',
+      tag: 'Psychologie & Discipline'
     },
     {
       id: 'w2',
       title: 'Passif Négatif du Copy-Trading Ancien (Asie & Nuit)',
       metric: `${copyPnL.toFixed(2)}$ de pertes passées`,
-      description: 'L\'ancien trader suivi ouvrait des positions la nuit pendant la session asiatique avec un taux de réussite de 26%, plombant l\'historique global avant la reprise en main de Jarvis.',
+      description: 'L\'ancien trader suivi ouvrait des positions la nuit pendant la session asiatique avec un taux de réussite médiocre (26%), plombant l\'historique avant la reprise en main par Jarvis.',
       tag: 'Héritage Passé'
     },
     {
       id: 'w3',
-      title: 'Take-Profit Crypto Trop Conservateur sur Fort Momentum',
-      metric: 'TP fixe à +1.5% vs extensions +3.5%',
-      description: 'Sur les gros breakouts de tendance (comme le rallye BTC de 15h), sortir 100% de la position à +1.5% laisse trop d\'argent sur la table.',
+      title: 'Sortie Trop Précoce sur les Grandes Tendances',
+      metric: 'Couper un trade à 50 pips au lieu de 250 pips',
+      description: 'Sur les configurations à fort potentiel (London Open & NY Open), couper trop tôt laisse la majeure partie de l\'impulsion sur la table.',
       tag: 'Optimisation Gain'
     }
   ];
 
   const recommendations = [
     {
-      id: 'rec_london_scalp',
-      priority: 'Haute Priorité',
-      title: 'Activation Scalping Automatisé Session de Londres (07h00 - 12h00 UTC)',
-      impact: '+18% de rentabilité hebdo estimée',
-      description: 'Programmer Jarvis pour lancer le scanner SMC dès 07h00 UTC sur XAU/USD et GBP/USD afin de capter les cassures de range asiatique (Asian High/Low Sweeps).',
-      targetParam: 'London_Scalp_Active = TRUE (07:00 UTC)'
+      id: 'rec_intraday_swing',
+      priority: 'Haute Priorité (Stratégie Maître)',
+      title: 'Priorité Absolue aux Trades Intraday Haute Conviction (200 à 400 pips)',
+      impact: 'Viser 100$ à 150$ par trade sur 1 seul setup propre',
+      description: 'Attendre patiemment la grande mèche de manipulation (Session Londres 08h30-10h ou New York 13h30-15h). Entrer sur l\'Order Block et tenir la position toute la matinée ou l\'après-midi jusqu\'à l\'objectif.',
+      targetParam: 'Mode = INTRADAY_HIGH_CONVICTION (Target: 200-400 pips, SL: 10 pips)'
     },
     {
-      id: 'rec_dynamic_tp',
-      priority: 'Haute Priorité',
-      title: 'Take-Profit Hybride Dynamique sur Crypto (TP1 1.5% + TP2 3.8%)',
-      impact: '+25% de capture sur les tendances fortes',
-      description: 'Clôturer 50% du volume au TP1 (+1.5%), sécuriser au Break-Even immédiat (+0.40$), et laisser courir les 50% restants vers le TP2 (+3.8%) pour profiter des rallyes.',
-      targetParam: 'TP_Mode = Hybrid_Runner (TP1: +1.5%, TP2: +3.8%, FastBE: +0.40$)'
+      id: 'rec_fast_be',
+      priority: 'Haute Priorité (Sécurité Psychologique)',
+      title: 'Sécurisation Éclair au Break-Even dès +35 pips (Free-Roll 0 Risque)',
+      impact: 'Élimination totale de tout risque de perte dès l\'impulsion',
+      description: 'Dès que le prix décale de +35 pips en notre faveur, remonter immédiatement le Stop Loss à Prix d\'Entrée + 0.40$. Le trade devient entièrement gratuit et peut courir sans stress vers +250 pips.',
+      targetParam: 'Fast_BE_Trigger = +35 pips (Lock Entry + 0.40$)'
     },
     {
-      id: 'rec_lot_sizing',
-      priority: 'Moyenne Priorité',
-      title: 'Dimensionnement Asymétrique des Lots selon la Force du Signal',
-      impact: 'R:R optimisé sans sur-risque',
-      description: 'Passer à 0.03 lot sur les signaux haute conviction (score >= 5/5 ou confirmation Le H), et conserver 0.01-0.02 lot sur les configurations de scalping standard.',
-      targetParam: 'Forex_Lots = 0.03 (High Conviction) / 0.02 (Standard)'
+      id: 'rec_tactical_scalp',
+      priority: 'Usage Restreint (Optionnel)',
+      title: 'Scalping Tactique Limité aux Ranges Évidents (Max 1 à 2 trades/jour)',
+      impact: 'Barrière anti-surtrading (aucun trade impulsif)',
+      description: 'Ne pas forcer le scalping en boucle. L\'autoriser uniquement en tant que repli opportuniste lorsque le marché est en consolidation plate sans tendance franche, avec max 1 ou 2 cartouches.',
+      targetParam: 'Scalp_Allowance = TACTICAL_ONLY (Max_Daily_Scalps = 2)'
     },
     {
       id: 'rec_sharia_safety',
-      priority: 'Sécurité Vitale',
-      title: 'Clôture de Sécurité Sharia Avancée à 21h30 UTC (+15 min de marge)',
-      impact: '0 Swap Garanti & Évitement Spreads MoonX',
-      description: 'Avancer la clôture systématique de 21h45 à 21h30 UTC pour éviter l\'écartement des spreads interbancaires de fin de journée de MoonX.',
+      priority: 'Sécurité Vitale & Sharia',
+      title: 'Verrouillage Sharia 21h30 UTC & Bilan Instantané (0 Overnight / 0 Swap)',
+      impact: '100% Halal Garanti & Zéro Frais de Nuit',
+      description: 'Clôture automatique et inconditionnelle de tout trade avant 21h30 UTC. Envoi instantané du bilan journalier officiel sur Telegram et synchronisation avec Productivity OS.',
       targetParam: 'Auto_Cutoff_UTC = 21:30 (Force Flat 0 Overnight)'
     }
   ];
 
   return {
-    overallScore: 88,
-    grade: 'A-',
-    disciplineRating: 'Excellente (Conforme Sharia)',
+    overallScore: 92,
+    grade: 'A',
+    disciplineRating: 'Excellente (Conforme Sharia & Vision Haute Conviction)',
     jarvisWR,
     jarvisPnL: Number(jarvisPnL.toFixed(2)),
     copyPnL: Number(copyPnL.toFixed(2)),
@@ -1794,6 +1807,7 @@ export const getAIAuditData = (trades = [], account = {}, activeStrategy = null)
     recommendations,
     sessions,
     isApplied: Boolean(activeStrategy?.isApplied),
-    appliedAt: activeStrategy?.appliedAt || null
+    appliedAt: activeStrategy?.appliedAt || null,
+    selectedRecIds: activeStrategy?.selectedRecIds || ['rec_intraday_swing', 'rec_fast_be', 'rec_sharia_safety']
   };
 };
