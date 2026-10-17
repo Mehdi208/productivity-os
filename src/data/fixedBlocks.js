@@ -2,13 +2,23 @@
 // Pristine by default: no hardcoded routines forced on the user.
 // Emmanuella can define custom daily routines that repeat each day, or single-day tasks.
 
-export const getFixedRoutineBlocks = (_dateStr) => {
-  // Empty by default: let Emmanuella define her own schedule freely
-  return [];
+export const getFixedRoutineBlocks = (dateStr) => {
+  return [
+    {
+      id: 'routine_quran_daily',
+      title: '📖 Lecture du Saint Coran (1 page / jour)',
+      start: '06:30',
+      end: '06:50',
+      subtitle: 'Spiritualité • 1 page quotidienne & Méditation',
+      isRoutine: true,
+      category: 'spirituality',
+      checkable: true
+    }
+  ];
 };
 
 export const getBlocksForDate = (_dateObj = new Date()) => {
-  return [];
+  return getFixedRoutineBlocks();
 };
 
 export const getDaySchedule = (dateStr, customBlocksByDate = {}, dailyRoutines = []) => {

@@ -16,9 +16,10 @@ export const translations = {
     navWeek: 'Week',
     navProjects: 'Projects',
     navStats: 'Stats',
-    navTrading: 'Trading & PnL',
+    navSpirituality: 'Spirituality & Quran',
     navMonthlyReview: 'Monthly Review',
     navChallenge: '30-Day Challenge',
+    navJudo: 'Judo National (-60kg)',
     navFocus: 'Focus Studio',
     navBriefing: 'Daily Journal',
     navCoach: 'AI Coach',
@@ -344,7 +345,20 @@ export const translations = {
     projectDescLabel: 'Short Description & Objectives',
     projectDescPlaceholder: 'Project details...',
     createProjectBtn: 'Create Project',
-    filterByPriority: 'Filter by Priority'
+    filterByPriority: 'Filter by Priority',
+
+    // Must Not Do System
+    navMustNotDo: 'Must Not Do',
+    mndTitle: 'Must Not Do (Anti-Habits)',
+    mndSubtitle: 'Daily discipline & fasting windows',
+    mndRespectLabel: 'Respected',
+    mndLockedUntil12: 'Closed • Fasting until 12:00',
+    mndWarningLastCall: 'Last call (ends 07:00)',
+    mndWindowOpenUntil7: 'Open until 07:00',
+    mndLunchActiveNow: 'Lunch active (12:00-12:45) !',
+    mndLunchLast10m: 'Ends in 10 min (12:45) !',
+    mndWaiting12h: 'Waiting (12:00)',
+    mndLunchClosed: 'Window 12:00-12:45 closed'
   },
   fr: {
     // Brand & Greeting
@@ -359,9 +373,10 @@ export const translations = {
     navWeek: 'Semaine',
     navProjects: 'Projets',
     navStats: 'Statistiques',
-    navTrading: 'Trading & PnL',
+    navSpirituality: 'Spiritualité & Coran',
     navMonthlyReview: 'Bilan Mensuel',
     navChallenge: 'Défi 30 Jours',
+    navJudo: 'Judo National (-60kg)',
     navFocus: 'Studio Focus',
     navBriefing: 'Journal du jour',
     navCoach: 'Coach IA',
@@ -687,7 +702,20 @@ export const translations = {
     projectDescLabel: 'Description courte & Objectifs',
     projectDescPlaceholder: 'Détails du projet...',
     createProjectBtn: 'Créer le projet',
-    filterByPriority: 'Filtrer par Priorité'
+    filterByPriority: 'Filtrer par Priorité',
+
+    // Must Not Do System
+    navMustNotDo: 'Must Not Do',
+    mndTitle: 'Must Not Do (Ce qu\'il faut éviter)',
+    mndSubtitle: 'Discipline quotidienne & fenêtres de jeûne',
+    mndRespectLabel: 'Respecté',
+    mndLockedUntil12: 'Fermé • Zéro repas jusqu\'à 12h',
+    mndWarningLastCall: 'Dernier appel (fin 07h00)',
+    mndWindowOpenUntil7: 'Ouvert jusqu\'à 07h00',
+    mndLunchActiveNow: 'Créneau actif (12h00-12h45) !',
+    mndLunchLast10m: 'Fin dans 10 min (12h45) !',
+    mndWaiting12h: 'En attente (12h00)',
+    mndLunchClosed: 'Créneau 12h-12h45 clos'
   }
 };
 

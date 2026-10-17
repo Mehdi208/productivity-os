@@ -22,7 +22,8 @@ import Projects from './pages/Projects';
 import Stats from './pages/Stats';
 import Challenge30Days from './pages/Challenge30Days';
 import MonthlyReview from './pages/MonthlyReview';
-import TradingJournal from './pages/TradingJournal';
+import Spirituality from './pages/Spirituality';
+import JudoProgram from './pages/JudoProgram';
 
 import DailyBriefingModal from './components/DailyBriefing/DailyBriefingModal';
 import PriorityCopilot from './components/PriorityCoach/PriorityCopilot';
@@ -35,6 +36,9 @@ import PWAInstallPrompt, { PWAInstallModal } from './components/PWA/PWAInstallPr
 import OnboardingModal from './components/Onboarding/OnboardingModal';
 import { useAgendaNotificationWatcher } from './hooks/useAgendaNotificationWatcher';
 import { useMonthlyRecapWatcher } from './hooks/useMonthlyRecapWatcher';
+import { useMustNotDoNotificationWatcher } from './hooks/useMustNotDoNotificationWatcher';
+import { getTodayMustNotDoData, saveTodayMustNotDoData } from './data/mustNotDoEngine';
+import MustNotDoModal from './components/MustNotDo/MustNotDoModal';
 import { formatMonthLabel } from './data/monthlyReviewEngine';
 import { Menu, Globe, Sparkles, ArrowRight, X } from 'lucide-react';
 
@@ -109,6 +113,13 @@ const AppContent = () => {
       window.removeEventListener('visibilitychange', handleDayCheck);
     };
   }, []);
+
+  // Must-Not-Do System State & Daily Reset
+  const [mustNotDoData, setMustNotDoData] = useState(() => getTodayMustNotDoData());
+  const [showMustNotDoModal, setShowMustNotDoModal] = useState(false);
+
+  // Watcher for meal windows and 60-min hydration pop-up alerts
+  useMustNotDoNotificationWatcher(mustNotDoData);
 
   // Hook de langue bilingue
   const { lang, toggleLanguage, t } = useLanguage();
@@ -532,8 +543,40 @@ const AppContent = () => {
         hydrationMl: next,
         hydrationDate: todayStr
       });
+
+      // Reset the 60-min hydration timer on positive intake
+      if (amount > 0) {
+        setMustNotDoData(mPrev => {
+          const mNext = { ...mPrev, lastHydrationTimestamp: Date.now() };
+          saveTodayMustNotDoData(mNext);
+          return mNext;
+        });
+      }
+
       return next;
     });
+  };
+
+  const handleToggleMeal = (mealType) => {
+    setMustNotDoData(prev => {
+      const isDone = !prev.meals?.[mealType];
+      const nowStr = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const next = {
+        ...prev,
+        meals: {
+          ...prev.meals,
+          [mealType]: isDone,
+          [`${mealType}Time`]: isDone ? nowStr : null
+        }
+      };
+      saveTodayMustNotDoData(next);
+      return next;
+    });
+  };
+
+  const handleUpdateMustNotDoData = (newData) => {
+    setMustNotDoData(newData);
+    saveTodayMustNotDoData(newData);
   };
 
   // Proactive Copilot trigger when a task is created
@@ -1155,6 +1198,7 @@ const AppContent = () => {
           onForceSync={handleForceSync}
           onOpenTour={() => setShowOnboardingTour(true)}
           hasUnreadMonthlyRecap={hasUnreadRecap}
+          onOpenMustNotDo={() => setShowMustNotDoModal(true)}
         />
         
         <main className={`flex-1 flex flex-col min-w-0 p-3.5 sm:p-6 max-w-[1600px] w-full mx-auto min-h-0 h-full ${isWeekPage ? 'md:overflow-hidden md:p-4 lg:p-6' : 'overflow-y-auto lg:p-8'}`}>
@@ -1218,6 +1262,9 @@ const AppContent = () => {
                   onUpdateRdvStatus={handleUpdateChallengeRdvStatus}
                   onUpdateRdvDetails={handleUpdateChallengeRdvDetails}
                   onDeleteRdv={handleDeleteChallengeRdv}
+                  mustNotDoData={mustNotDoData}
+                  onToggleMeal={handleToggleMeal}
+                  onOpenMustNotDoModal={() => setShowMustNotDoModal(true)}
                 />
               } 
             />
@@ -1290,7 +1337,8 @@ const AppContent = () => {
                   />
                 } 
               />
-              <Route path="/trading" element={<TradingJournal />} />
+              <Route path="/spirituality" element={<Spirituality />} />
+              <Route path="/judo" element={<JudoProgram />} />
             </Routes>
           </main>
         </div>
@@ -1314,6 +1362,7 @@ const AppContent = () => {
           lastSyncTime={lastSyncTime}
           onForceSync={handleForceSync}
           hasUnreadMonthlyRecap={hasUnreadRecap}
+          onOpenMustNotDo={() => setShowMustNotDoModal(true)}
         />
 
         {/* Onboarding Welcome Tour Modal */}
@@ -1331,7 +1380,14 @@ const AppContent = () => {
           onClose={() => setShowInstallModal(false)}
         />
 
-
+        {/* Must Not Do System Modal */}
+        <MustNotDoModal
+          isOpen={showMustNotDoModal}
+          onClose={() => setShowMustNotDoModal(false)}
+          mustNotDoData={mustNotDoData}
+          onUpdateMustNotDoData={handleUpdateMustNotDoData}
+          onAddWater={handleAddWater}
+        />
 
         {/* Priority Coach Copilot (Floating bottom-right button on desktop, integrated in BottomNav on mobile) */}
         <PriorityCopilot

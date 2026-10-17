@@ -30,3 +30,9 @@ serviceAccountKey.json
 
 .vercel
 .firebase/
+
+# Local scripts & exports
+compile_and_preview_*.py
+generate_book_*.py
+guide_depannage_outlook.html
+Kit_NotebookLM_Mehdi/

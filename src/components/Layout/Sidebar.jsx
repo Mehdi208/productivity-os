@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe, Bell, TrendingUp } from 'lucide-react';
+import { Calendar, Columns, Folder, BarChart2, Sparkles, Plus, RefreshCw, Flame, Award, HelpCircle, Globe, Bell, BookOpen, Ban, Trophy } from 'lucide-react';
 import { NotificationBadgeButton } from '../ui/NotificationBannerPrompt';
 import LanguageSlideToggle from '../ui/LanguageSlideToggle';
 import ThemeToggle from '../Theme/ThemeToggle';
@@ -14,7 +14,8 @@ const Sidebar = ({
   onOpenTour, 
   hasUnreadMonthlyRecap = false,
   isDark = false,
-  onToggleTheme
+  onToggleTheme,
+  onOpenMustNotDo
 }) => {
   const { lang, t } = useLanguage();
 
@@ -23,7 +24,8 @@ const Sidebar = ({
     { name: t('navWeek'), path: '/week', icon: Columns },
     { name: t('navProjects'), path: '/projects', icon: Folder },
     { name: t('navStats'), path: '/stats', icon: BarChart2 },
-    { name: t('navTrading'), path: '/trading', icon: TrendingUp },
+    { name: t('navSpirituality'), path: '/spirituality', icon: BookOpen, badge: 'Coran' },
+    { name: t('navJudo'), path: '/judo', icon: Trophy, badge: '-60kg' },
     { name: t('navMonthlyReview'), path: '/monthly-review', icon: Sparkles, badge: hasUnreadMonthlyRecap ? '1er' : null },
   ];
 
@@ -149,6 +151,16 @@ const Sidebar = ({
             </NavLink>
           );
         })}
+
+        {/* Must Not Do Quick Trigger */}
+        <button
+          onClick={onOpenMustNotDo}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all text-red-600 dark:text-red-400 hover:bg-red-500/10 border border-red-500/20 active:scale-95 mt-2"
+        >
+          <Ban size={15} strokeWidth={2.5} />
+          <span className="flex-1 text-left truncate">{t('navMustNotDo') || 'Must Not Do'}</span>
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+        </button>
       </nav>
 
       {/* Desktop Preferences Bar (Language Slide & Theme & Tour) */}

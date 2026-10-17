@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Sparkles, Check, Brain, Play, Calendar as CalendarIcon, Droplet, Plus, Globe, Building, ArrowRight, Eye } from 'lucide-react';
 import ScoreCard from '../components/Dashboard/ScoreCard';
 import TasksCard from '../components/Dashboard/TasksCard';
@@ -9,6 +9,8 @@ import { recommendFocusTechnique } from '../data/focusTechniques';
 import { NotificationBannerPrompt } from '../components/ui/NotificationBannerPrompt';
 import { useLanguage } from '../context/LanguageContext';
 import ChallengeRdvDetailsModal from '../components/Calendar/ChallengeRdvDetailsModal';
+import MustNotDoCard from '../components/MustNotDo/MustNotDoCard';
+import SpiritualityCard from '../components/Dashboard/SpiritualityCard';
 
 const Today = ({ 
   score = 0, 
@@ -25,7 +27,10 @@ const Today = ({
   onOpenCoach,
   onUpdateRdvStatus,
   onUpdateRdvDetails,
-  onDeleteRdv
+  onDeleteRdv,
+  mustNotDoData,
+  onToggleMeal,
+  onOpenMustNotDoModal
 }) => {
   const navigate = useNavigate();
   const [selectedRdvBlock, setSelectedRdvBlock] = useState(null);
@@ -33,7 +38,10 @@ const Today = ({
 
   const getCategoryBadge = (title = '') => {
     const lower = title.toLowerCase();
-    if (lower.includes('sport') || lower.includes('gym') || lower.includes('wellness') || lower.includes('bien-être')) {
+    if (lower.includes('coran') || lower.includes('priere') || lower.includes('prière') || lower.includes('spirituel') || lower.includes('dhikr') || lower.includes('quran')) {
+      return { label: 'Spiritualité', bg: 'bg-emerald-600 text-amber-300 font-extrabold shadow-sm ring-1 ring-amber-400/40' };
+    }
+    if (lower.includes('sport') || lower.includes('gym') || lower.includes('wellness') || lower.includes('bien-être') || lower.includes('judo')) {
       return { label: lang === 'en' ? 'Wellness' : 'Bien-être', bg: 'bg-emerald-600 text-white font-bold shadow-sm' };
     }
     if (lower.includes('routine') || lower.includes('lunch') || lower.includes('déjeuner') || lower.includes('break')) {
@@ -289,6 +297,41 @@ const Today = ({
             </div>
 
           </div>
+
+          {/* Must Not Do (Anti-Habits) System */}
+          <MustNotDoCard
+            mustNotDoData={mustNotDoData}
+            onToggleMeal={onToggleMeal}
+            onAddWater={onAddWater}
+            onOpenDetailsModal={onOpenMustNotDoModal}
+          />
+
+          {/* Spiritualité & Coran Card */}
+          <SpiritualityCard />
+
+          {/* Quick Judo Prep Card */}
+          <Link
+            to="/judo"
+            className="block p-4 rounded-3xl bg-gradient-to-r from-red-500/10 via-amber-500/10 to-primary/10 border border-red-500/30 hover:border-red-500/60 shadow-sm transition-all group cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black text-base shadow-md shadow-red-500/25 flex-shrink-0 group-hover:scale-105 transition-transform">
+                  🥋
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-black uppercase text-red-600 dark:text-red-400 tracking-wider">Équipe Nationale</span>
+                    <span className="text-[10px] font-bold text-textMuted">• -60 kg</span>
+                  </div>
+                  <h4 className="text-xs font-black text-textMain truncate mt-0.5">Entraînement Judo & Force</h4>
+                </div>
+              </div>
+              <span className="text-xs text-primary font-bold flex-shrink-0 group-hover:translate-x-0.5 transition-transform">
+                Ouvrir →
+              </span>
+            </div>
+          </Link>
         </section>
 
       </div>

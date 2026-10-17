@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   X, Calendar, Columns, Folder, BarChart2, Play, Sparkles, 
   HelpCircle, Smartphone, Trash2, Sun, Moon, Globe, RefreshCw,
-  Award, Flame, TrendingUp
+  Award, Flame, BookOpen, Ban, Trophy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
@@ -22,7 +22,8 @@ const MobileDrawer = ({
   syncStatus,
   lastSyncTime,
   onForceSync,
-  hasUnreadMonthlyRecap = false
+  hasUnreadMonthlyRecap = false,
+  onOpenMustNotDo
 }) => {
   const { lang, toggleLanguage, t } = useLanguage();
 
@@ -31,7 +32,8 @@ const MobileDrawer = ({
     { name: t('navWeek'), path: '/week', icon: Columns },
     { name: t('navProjects'), path: '/projects', icon: Folder },
     { name: t('navStats'), path: '/stats', icon: BarChart2 },
-    { name: t('navTrading'), path: '/trading', icon: TrendingUp },
+    { name: t('navSpirituality'), path: '/spirituality', icon: BookOpen, badge: 'Coran' },
+    { name: t('navJudo'), path: '/judo', icon: Trophy, badge: '-60kg' },
     { name: t('navMonthlyReview'), path: '/monthly-review', icon: Sparkles, badge: hasUnreadMonthlyRecap ? '1er' : null },
     { name: t('navChallenge'), path: '/challenge', icon: Flame, isSpecial: true },
   ];
@@ -178,6 +180,19 @@ const MobileDrawer = ({
             <span className="text-[10px] font-extrabold text-textMuted uppercase tracking-wider px-2 block mb-1">
               Tools & Focus
             </span>
+
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenMustNotDo && onOpenMustNotDo();
+              }}
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all border border-red-500/20 active:scale-95 mb-1"
+            >
+              <Ban size={16} strokeWidth={2.5} />
+              <span className="flex-1 text-left">{t('navMustNotDo') || 'Must Not Do'}</span>
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            </button>
 
             <button
               type="button"
