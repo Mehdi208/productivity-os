@@ -33,7 +33,6 @@ const JudoProgram = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   // Session Rating Form State
-  const [ratingScore, setRatingScore] = useState(9);
   const [ratingRpe, setRatingRpe] = useState(8);
   const [athleteNotes, setAthleteNotes] = useState('');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState(false);
@@ -63,6 +62,14 @@ const JudoProgram = () => {
     return judoState.completedExercises[currentSessionId] || [];
   }, [judoState.completedExercises, currentSessionId]);
 
+  // Automatic calculation of session score based on exercises completed
+  const totalExercisesCount = activeSession.exercises.length;
+  const completedCount = completedExerciseIds.length;
+  const computedScore = useMemo(() => {
+    if (totalExercisesCount === 0) return 0;
+    return Number(((completedCount / totalExercisesCount) * 10).toFixed(1));
+  }, [completedCount, totalExercisesCount]);
+
   // Existing rating for current session if already done
   const existingRating = useMemo(() => {
     return judoState.sessionRatings[currentSessionId] || null;
@@ -71,11 +78,9 @@ const JudoProgram = () => {
   // Pre-fill rating form if already reviewed
   useEffect(() => {
     if (existingRating) {
-      setRatingScore(existingRating.score);
-      setRatingRpe(existingRating.rpe);
+      setRatingRpe(existingRating.rpe || 8);
       setAthleteNotes(existingRating.notes || '');
     } else {
-      setRatingScore(9);
       setRatingRpe(8);
       setAthleteNotes('');
     }
@@ -128,7 +133,7 @@ const JudoProgram = () => {
   const handleSubmitRating = (e) => {
     e.preventDefault();
     const updated = recordSessionRating(currentSessionId, {
-      score: ratingScore,
+      score: computedScore,
       rpe: ratingRpe,
       notes: athleteNotes
     });
@@ -563,37 +568,54 @@ const JudoProgram = () => {
           <div className="flex flex-wrap items-center justify-between pb-2 border-b border-gray-200/60 dark:border-darkBorder gap-2">
             <div className="flex items-center gap-2">
               <Award size={18} className="text-amber-500" />
-              <h3 className="text-xs sm:text-sm font-black text-textMain">Attribution de la Note & Bilan</h3>
+              <h3 className="text-xs sm:text-sm font-black text-textMain">Bilan & Note Automatique de Séance</h3>
             </div>
             {existingRating && (
               <span className="text-[10px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                Déjà notée : {existingRating.score}/10
+                Note enregistrée : {existingRating.score}/10
               </span>
             )}
           </div>
 
           <form onSubmit={handleSubmitRating} className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* Note globale / 10 */}
-              <div className="space-y-1">
+              {/* Note Calculée Automatiquement en fonction des exercices cochés */}
+              <div className="bg-card p-3 rounded-xl border border-gray-200/80 dark:border-darkBorder space-y-2 flex flex-col justify-between">
                 <div className="flex justify-between items-center text-xs font-bold">
-                  <label className="text-textMain">Note Globale :</label>
-                  <span className="text-amber-500 font-black text-base">{ratingScore} / 10</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    <label className="text-textMain">Note Automatique :</label>
+                  </div>
+                  <span className="text-amber-500 font-black text-xl tracking-tight">
+                    {computedScore} <span className="text-xs text-textMuted font-medium">/ 10</span>
+                  </span>
                 </div>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="10" 
-                  step="0.5"
-                  value={ratingScore} 
-                  onChange={(e) => setRatingScore(parseFloat(e.target.value))}
-                  className="w-full accent-amber-500 cursor-pointer h-2 bg-gray-200 dark:bg-darkCard rounded-lg"
-                />
-                <div className="flex justify-between text-[9px] text-textMuted font-medium">
-                  <span>1 (Bâclée)</span>
-                  <span>5 (Moyen)</span>
-                  <span>8.5 (Pro)</span>
-                  <span>10 (Champion)</span>
+
+                {/* Progress bar of completed exercises */}
+                <div className="w-full bg-gray-100 dark:bg-darkCard rounded-full h-2.5 overflow-hidden p-0.5 border border-gray-200/50 dark:border-darkBorder">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      computedScore === 10 
+                        ? 'bg-emerald-500' 
+                        : computedScore >= 7 
+                        ? 'bg-gradient-to-r from-amber-500 to-emerald-500' 
+                        : 'bg-amber-500'
+                    }`}
+                    style={{ width: `${Math.min(100, totalExercisesCount > 0 ? (completedCount / totalExercisesCount) * 100 : 0)}%` }}
+                  />
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-textMuted">
+                  <span>{completedCount}/{totalExercisesCount} exercices cochés</span>
+                  <span className="font-extrabold text-textMain">
+                    {computedScore === 10 
+                      ? '🏆 100% Complète (10/10)' 
+                      : computedScore >= 8 
+                      ? '⚡ Rythme Pro' 
+                      : computedScore >= 5 
+                      ? '👍 Partielle' 
+                      : '⚠️ Cochez vos exercices'}
+                  </span>
                 </div>
               </div>
 
@@ -636,7 +658,7 @@ const JudoProgram = () => {
             <div className="pt-1">
               {saveSuccessMsg && (
                 <div className="mb-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 size={14} /> Séance et note enregistrées avec succès !
+                  <CheckCircle2 size={14} /> Séance validée avec la note calculée de {computedScore}/10 !
                 </div>
               )}
 
@@ -645,7 +667,7 @@ const JudoProgram = () => {
                 className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-black px-6 py-3 rounded-xl text-xs shadow-md shadow-primary/25 transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
                 <Award size={15} />
-                <span>Enregistrer & Noter ma Séance 🥋</span>
+                <span>Valider le Bilan ({computedScore}/10 calculé) 🥋</span>
               </button>
             </div>
           </form>
