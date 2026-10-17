@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Trophy, Flame, CheckCircle2, Clock, Play, Pause, RotateCcw, 
-  Zap, Award, Scale, Calendar, Star, Info, Check, Eye, X, AlertTriangle
+  Zap, Award, Scale, Calendar, Star, Info, Check, Eye, X, AlertTriangle, ChevronRight
 } from 'lucide-react';
 import { 
   JUDO_PROGRAM_DATA, 
@@ -100,8 +100,9 @@ const JudoProgram = () => {
   }, [isTimerRunning, timerRemaining]);
 
   const handleStartTimer = (secs) => {
-    setTimerSeconds(secs);
-    setTimerRemaining(secs);
+    const s = parseInt(secs, 10) || 90;
+    setTimerSeconds(s);
+    setTimerRemaining(s);
     setIsTimerRunning(true);
   };
 
@@ -118,6 +119,9 @@ const JudoProgram = () => {
   const handleToggleExercise = (exerciseId) => {
     const updated = toggleExerciseCompletion(currentSessionId, exerciseId);
     setJudoState({ ...updated });
+    try {
+      playDigitalChime();
+    } catch {}
   };
 
   // Submit Session Evaluation
@@ -172,193 +176,147 @@ const JudoProgram = () => {
   }, [currentMonthData, activeWeekNum]);
 
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6 pb-28 md:pb-12 animate-in fade-in duration-200">
+    <div className="w-full max-w-5xl mx-auto space-y-3.5 sm:space-y-6 pb-32 md:pb-12 animate-in fade-in duration-200">
       
       {/* 1. Header: Elite Judo Athlete Identity */}
-      <div className="bg-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200/80 dark:border-darkBorder shadow-sm relative overflow-hidden transition-colors">
+      <div className="bg-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-gray-200/80 dark:border-darkBorder shadow-sm relative overflow-hidden transition-colors">
         <div className="absolute -right-8 -top-8 w-44 h-44 bg-red-500/10 dark:bg-red-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="hidden sm:block absolute right-12 bottom-0 opacity-5 dark:opacity-10 pointer-events-none select-none text-9xl font-black">
           柔道
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-          <div className="space-y-1.5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 relative z-10">
+          <div className="space-y-1 sm:space-y-1.5">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30">
-                <Trophy size={12} className="sm:w-3.5 sm:h-3.5" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30">
+                <Trophy size={12} className="flex-shrink-0" />
                 <span>Objectif : Équipe Nationale (-60 kg)</span>
               </span>
-              <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 <Flame size={12} />
-                <span>Rythme Compétition Pro</span>
+                <span>Rythme Pro</span>
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-textMain tracking-tight">
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-black text-textMain tracking-tight">
               Judo High-Performance OS 🥋
             </h1>
-            <p className="text-xs md:text-sm text-textMuted max-w-2xl leading-relaxed">
-              Programme athlétique sur 3 mois calibré pour la force polyarticulaire, la poigne (*kumi-kata*), 
-              la mobilité active et la montée de catégorie de <span className="font-bold text-textMain">55 kg vers 60 kg</span> avec sac 5 kg max, élastique et barre de traction.
+            <p className="text-xs sm:text-sm text-textMuted max-w-2xl leading-relaxed">
+              Force polyarticulaire, poigne (*kumi-kata*) et montée de catégorie de <span className="font-bold text-textMain">55 kg vers 60 kg</span>.
             </p>
           </div>
 
           {/* Quick Equipment Tag */}
-          <div className="flex flex-col gap-1.5 sm:gap-2 bg-background/80 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-gray-200/80 dark:border-darkBorder md:text-right">
-            <span className="text-[10px] font-black uppercase tracking-wider text-textMuted">Matériel Calibré</span>
-            <div className="flex flex-wrap items-center md:justify-end gap-1.5 text-xs font-bold text-textMain">
-              <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard border border-gray-200 dark:border-darkBorder text-[11px]">🎒 Sac 5 kg max</span>
-              <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard border border-gray-200 dark:border-darkBorder text-[11px]">⚡ Élastique</span>
-              <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard border border-gray-200 dark:border-darkBorder text-[11px]">🪵 Barre</span>
-            </div>
+          <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-bold text-textMain pt-1 md:pt-0">
+            <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard border border-gray-200 dark:border-darkBorder">🎒 Sac 5 kg</span>
+            <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard border border-gray-200 dark:border-darkBorder">⚡ Élastique</span>
+            <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-darkCard border border-gray-200 dark:border-darkBorder">🪵 Barre</span>
           </div>
         </div>
       </div>
 
-      {/* 2. Athlete Dashboard: Weight & Performance KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        
-        {/* Weight Progression Card (55 kg -> 60 kg) */}
-        <div className="col-span-2 md:col-span-2 bg-card rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm flex flex-col justify-between transition-colors">
-          <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-gray-100 dark:border-darkBorder">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                <Scale size={15} />
-              </div>
-              <div>
-                <h3 className="text-xs font-black text-textMain">Poids & Catégorie</h3>
-                <span className="text-[10px] text-textMuted hidden sm:inline">Prise de masse musculaire propre</span>
-              </div>
+      {/* 2. Unified Athlete Dashboard Card (Weight + Progress + KPIs) */}
+      <div className="bg-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-3 transition-colors">
+        {/* Weight Row Header */}
+        <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-darkBorder">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold flex-shrink-0">
+              <Scale size={16} />
             </div>
-
-            <button
-              onClick={() => setShowWeightModal(true)}
-              className="text-xs font-bold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer"
-            >
-              + Pesée
-            </button>
+            <div>
+              <h3 className="text-xs sm:text-sm font-black text-textMain">Progression Catégorie -60 kg</h3>
+              <span className="text-[10px] text-textMuted">Prise de masse musculaire propre</span>
+            </div>
           </div>
 
-          <div className="py-3 sm:py-4 space-y-2.5 sm:space-y-3">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">
-                  {kpis.currentWeight} <span className="text-xs sm:text-sm font-semibold text-textMuted">kg</span>
-                </span>
-                <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 ml-1.5 sm:ml-2">
-                  (+{kpis.weightProgressKg} kg)
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-[11px] sm:text-xs font-bold text-textMuted">Cible : </span>
-                <span className="text-xs sm:text-sm font-black text-textMain">{kpis.targetWeight} kg</span>
-                <div className="text-[9px] sm:text-[10px] text-textMuted">Reste : {kpis.remainingWeightKg} kg</div>
-              </div>
-            </div>
+          <button
+            onClick={() => setShowWeightModal(true)}
+            className="text-xs font-bold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer flex-shrink-0"
+          >
+            + Pesée
+          </button>
+        </div>
 
-            {/* Visual Progress Bar */}
-            <div className="w-full bg-gray-100 dark:bg-darkCard rounded-full h-2.5 sm:h-3 overflow-hidden p-0.5 border border-gray-200/50 dark:border-darkBorder">
-              <div 
-                className="bg-gradient-to-r from-primary to-emerald-500 h-full rounded-full transition-all duration-500" 
-                style={{ width: `${Math.max(5, kpis.weightPercent)}%` }} 
-              />
+        {/* Weight Metrics & Progress Bar */}
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <div>
+              <span className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">
+                {kpis.currentWeight} <span className="text-xs sm:text-sm font-semibold text-textMuted">kg</span>
+              </span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 ml-1.5">
+                (+{kpis.weightProgressKg} kg acquis)
+              </span>
             </div>
-            <div className="flex justify-between text-[9px] sm:text-[10px] text-textMuted font-bold">
-              <span>55.0 kg</span>
-              <span className="font-black text-textMain">{kpis.weightPercent}% de l’obj. -60 kg</span>
-              <span>60.0 kg</span>
+            <div className="text-right">
+              <span className="text-[11px] sm:text-xs font-bold text-textMuted">Cible : </span>
+              <span className="text-xs sm:text-sm font-black text-textMain">{kpis.targetWeight} kg</span>
+              <span className="text-[10px] text-textMuted ml-1">(Reste {kpis.remainingWeightKg} kg)</span>
             </div>
+          </div>
+
+          <div className="w-full bg-gray-100 dark:bg-darkCard rounded-full h-2.5 overflow-hidden p-0.5 border border-gray-200/50 dark:border-darkBorder">
+            <div 
+              className="bg-gradient-to-r from-primary to-emerald-500 h-full rounded-full transition-all duration-500" 
+              style={{ width: `${Math.max(5, kpis.weightPercent)}%` }} 
+            />
+          </div>
+          <div className="flex justify-between text-[9px] sm:text-[10px] text-textMuted font-bold">
+            <span>55.0 kg</span>
+            <span className="font-black text-textMain">{kpis.weightPercent}% de l’obj. -60 kg</span>
+            <span>60.0 kg</span>
           </div>
         </div>
 
-        {/* Sessions Completed KPI */}
-        <div className="col-span-1 md:col-span-1 bg-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm flex flex-col justify-between transition-colors">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold flex-shrink-0">
-              <CheckCircle2 size={15} />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-[11px] sm:text-xs font-black text-textMain truncate">Séances</h4>
-              <span className="text-[9px] sm:text-[10px] text-textMuted truncate block">Validées</span>
-            </div>
-          </div>
-
-          <div className="my-auto py-2">
-            <div className="text-2xl sm:text-3xl font-black text-textMain">
-              {kpis.totalSessions} <span className="text-xs sm:text-sm font-medium text-textMuted">séances</span>
-            </div>
-            <span className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-bold block mt-0.5 sm:mt-1 truncate">
-              Discipline de fer
+        {/* 3 Quick Stats Badges */}
+        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100 dark:border-darkBorder text-center">
+          <div className="bg-background/80 p-2 rounded-xl border border-gray-100 dark:border-darkBorder">
+            <span className="text-[9px] font-bold text-textMuted uppercase block">Séances</span>
+            <span className="text-sm sm:text-base font-black text-textMain mt-0.5 block">
+              {kpis.totalSessions} <span className="text-[10px] font-normal text-textMuted">validées</span>
             </span>
           </div>
-
-          <div className="text-[9px] sm:text-[10px] text-textMuted font-semibold border-t border-gray-100 dark:border-darkBorder pt-2 truncate">
-            Mois {activeMonthId} / 3
-          </div>
-        </div>
-
-        {/* Average Session Score KPI */}
-        <div className="col-span-1 md:col-span-1 bg-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm flex flex-col justify-between transition-colors">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold flex-shrink-0">
-              <Star size={15} />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-[11px] sm:text-xs font-black text-textMain truncate">Note Moyenne</h4>
-              <span className="text-[9px] sm:text-[10px] text-textMuted truncate block">Perçue</span>
-            </div>
-          </div>
-
-          <div className="my-auto py-2">
-            <div className="text-2xl sm:text-3xl font-black text-amber-500">
-              {kpis.avgScore} <span className="text-xs sm:text-sm font-medium text-textMuted">/10</span>
-            </div>
-            <span className="text-[10px] sm:text-[11px] text-textMuted font-bold block mt-0.5 sm:mt-1 truncate">
-              Standard Nat.
+          <div className="bg-background/80 p-2 rounded-xl border border-gray-100 dark:border-darkBorder">
+            <span className="text-[9px] font-bold text-textMuted uppercase block">Note Moy.</span>
+            <span className="text-sm sm:text-base font-black text-amber-500 mt-0.5 block">
+              {kpis.avgScore} <span className="text-[10px] font-normal text-textMuted">/10</span>
             </span>
           </div>
-
-          <div className="text-[9px] sm:text-[10px] text-textMuted font-semibold border-t border-gray-100 dark:border-darkBorder pt-2 truncate">
-            RPE 8 à 9 Cible
+          <div className="bg-background/80 p-2 rounded-xl border border-gray-100 dark:border-darkBorder">
+            <span className="text-[9px] font-bold text-textMuted uppercase block">Intensité</span>
+            <span className="text-sm sm:text-base font-black text-primary mt-0.5 block">
+              RPE 8-9
+            </span>
           </div>
         </div>
-
       </div>
 
-      {/* 3. Program Navigation: Months Tabs */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-black text-textMain uppercase tracking-wider flex items-center gap-2">
-            <Flame size={16} className="text-primary" />
+      {/* 3. Program Navigation: Months (Mobile Segmented Pills) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-black text-textMain uppercase tracking-wider flex items-center gap-1.5">
+            <Flame size={14} className="text-primary" />
             <span>Planification sur 3 Mois</span>
           </h2>
-          <span className="text-xs font-bold text-textMuted">Progression biomécanique continue</span>
+          <span className="text-[10px] font-bold text-textMuted">Mois actif : {activeMonthId}/3</span>
         </div>
 
-        {/* 3 Month Pills */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3">
+        {/* 3 Month Segmented Control */}
+        <div className="grid grid-cols-3 gap-1.5 bg-card p-1.5 rounded-2xl border border-gray-200/80 dark:border-darkBorder shadow-xs">
           {JUDO_PROGRAM_DATA.months.map((m) => {
             const isSelected = m.id === activeMonthId;
             return (
               <button
                 key={m.id}
                 onClick={() => handleSelectMonth(m.id)}
-                className={`text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer relative ${
+                className={`py-2 px-1 rounded-xl text-center transition-all cursor-pointer ${
                   isSelected 
-                    ? 'bg-card border-primary shadow-md ring-2 ring-primary/20' 
-                    : 'bg-card/60 hover:bg-card border-gray-200/80 dark:border-darkBorder'
+                    ? 'bg-primary text-white shadow-sm font-black' 
+                    : 'text-textMuted hover:text-textMain font-bold hover:bg-background/50'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    isSelected ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-darkCard text-textMuted'
-                  }`}>
-                    Mois {m.id}
-                  </span>
-                  {isSelected && <span className="text-xs text-primary font-black">Actif ⚡</span>}
-                </div>
-                <h3 className="text-xs font-bold text-textMain line-clamp-1">{m.title}</h3>
-                <p className="text-[10px] sm:text-[11px] text-textMuted line-clamp-2 mt-0.5">{m.subtitle}</p>
+                <span className="text-[10px] sm:text-xs block">Mois {m.id}</span>
+                <span className="text-[9px] opacity-80 truncate block hidden sm:block">{m.title.split(':')[1] || m.title}</span>
               </button>
             );
           })}
@@ -366,17 +324,17 @@ const JudoProgram = () => {
       </div>
 
       {/* 4. Week Selector within Active Month */}
-      <div className="bg-card rounded-xl sm:rounded-2xl p-2.5 sm:p-3 border border-gray-200/80 dark:border-darkBorder shadow-sm flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+      <div className="bg-card rounded-2xl p-2.5 sm:p-3 border border-gray-200/80 dark:border-darkBorder shadow-sm flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-black text-textMain">Semaine :</span>
-          <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-1">
             {availableWeeks.map(wNum => (
               <button
                 key={wNum}
                 onClick={() => setActiveWeekNum(wNum)}
-                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
                   activeWeekNum === wNum 
-                    ? 'bg-primary text-white shadow-sm' 
+                    ? 'bg-primary text-white shadow-sm font-black' 
                     : 'bg-background hover:bg-gray-100 dark:hover:bg-darkCard text-textMuted hover:text-textMain border border-gray-200/60 dark:border-darkBorder'
                 }`}
               >
@@ -386,15 +344,13 @@ const JudoProgram = () => {
           </div>
         </div>
 
-        {/* Current Week Focus Alert */}
-        <div className="text-[11px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl border border-amber-500/20 w-full sm:w-auto">
+        <div className="text-[10px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/20 w-full sm:w-auto truncate">
           🎯 {currentWeekMeta.focus || `Semaine ${activeWeekNum} : Intensité Judo`}
-          {currentWeekMeta.sessionModifiers && ` • ${currentWeekMeta.sessionModifiers}`}
         </div>
       </div>
 
-      {/* 5. Session Tabs (Séance 1, 2, 3 + Mobilité) - Scrollable on mobile */}
-      <div className="-mx-3 px-3 sm:mx-0 sm:px-0 flex overflow-x-auto no-scrollbar gap-2 pb-1.5 scroll-smooth">
+      {/* 5. Session Tabs (Séance 1, 2, 3 + Mobilité) */}
+      <div className="flex overflow-x-auto no-scrollbar gap-2 pb-1 w-full touch-pan-x">
         {baseSessions.map((session, idx) => {
           const isSelected = idx === activeSessionIndex;
           const sId = `m${activeMonthId}_w${activeWeekNum}_s${idx + 1}`;
@@ -404,25 +360,21 @@ const JudoProgram = () => {
             <button
               key={session.id}
               onClick={() => setActiveSessionIndex(idx)}
-              className={`flex-1 min-w-[155px] sm:min-w-[200px] p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-2 flex-shrink-0 ${
+              className={`flex-shrink-0 px-3 py-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
                 isSelected
                   ? 'bg-card border-primary ring-2 ring-primary/20 shadow-md'
                   : 'bg-card/70 hover:bg-card border-gray-200/80 dark:border-darkBorder'
               }`}
             >
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${idx === 0 ? 'bg-red-500' : idx === 1 ? 'bg-blue-500' : idx === 2 ? 'bg-emerald-500' : 'bg-amber-500'}`} />
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-red-500' : idx === 1 ? 'bg-blue-500' : idx === 2 ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                  <span className="text-[10px] font-black uppercase text-textMuted tracking-wider truncate">
-                    {idx === 3 ? 'Quotidien' : `Séance ${idx + 1}`}
-                  </span>
-                </div>
-                <h4 className="text-xs font-bold text-textMain truncate mt-0.5">{session.title.split(':')[1] || session.title}</h4>
+                <span className="text-[11px] font-black text-textMain truncate block">
+                  {idx === 3 ? 'Mobilité Quotidienne' : `Séance ${idx + 1}`}
+                </span>
               </div>
-
               {isDone && (
-                <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0" title="Séance notée et validée">
-                  <Check size={12} strokeWidth={3} />
+                <span className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+                  <Check size={10} strokeWidth={3} />
                 </span>
               )}
             </button>
@@ -431,39 +383,39 @@ const JudoProgram = () => {
       </div>
 
       {/* 6. Active Workout Session View */}
-      <div className="bg-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-4 sm:space-y-6 transition-colors">
+      <div className="bg-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-4 transition-colors">
         
-        {/* Session Top Bar & Tactical Judo Context */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between pb-3 sm:pb-4 border-b border-gray-100 dark:border-darkBorder gap-3 sm:gap-4">
+        {/* Session Top Bar & Stopwatch */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-gray-100 dark:border-darkBorder gap-3">
           <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-primary/10 text-primary">
                 {activeSession.type.toUpperCase()}
               </span>
               <span className="text-xs text-textMuted flex items-center gap-1">
                 <Clock size={12} />
-                <span>{activeSession.durationMin} minutes</span>
+                <span>{activeSession.durationMin} min</span>
               </span>
               <span className="text-xs text-textMuted font-bold">
                 • {completedExerciseIds.length}/{activeSession.exercises.length} validés
               </span>
             </div>
             <h2 className="text-base sm:text-lg md:text-xl font-black text-textMain">{activeSession.title}</h2>
-            <p className="text-xs text-primary dark:text-primary font-bold">
+            <p className="text-xs text-primary font-bold">
               🥋 Impact Judo : {activeSession.judoContext}
             </p>
           </div>
 
           {/* Integrated Rest Stopwatch */}
-          <div className="w-full md:w-auto justify-between md:justify-start flex items-center gap-2.5 sm:gap-3 bg-background p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-gray-200/80 dark:border-darkBorder">
+          <div className="flex items-center justify-between sm:justify-start gap-2.5 bg-background p-2.5 rounded-2xl border border-gray-200/80 dark:border-darkBorder">
             <div>
-              <div className="text-[9px] sm:text-[10px] font-black text-textMuted uppercase tracking-wider">Chrono Repos</div>
-              <div className={`text-xl sm:text-2xl font-black font-mono tracking-tight ${timerRemaining === 0 ? 'text-red-500 animate-pulse' : 'text-textMain'}`}>
+              <div className="text-[9px] font-black text-textMuted uppercase">Chrono Repos</div>
+              <div className={`text-xl font-black font-mono tracking-tight ${timerRemaining === 0 ? 'text-red-500 animate-pulse' : 'text-textMain'}`}>
                 {formatTimer(timerRemaining)}
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <button
                 onClick={handleToggleTimer}
                 className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all cursor-pointer shadow-sm active:scale-95"
@@ -480,142 +432,123 @@ const JudoProgram = () => {
               </button>
             </div>
 
-            <div className="flex flex-row md:flex-col gap-1.5 md:gap-1 pl-2.5 border-l border-gray-200 dark:border-darkBorder text-[10px] font-bold">
-              <button onClick={() => handleStartTimer(60)} className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-darkCard md:bg-transparent hover:text-primary transition-colors cursor-pointer">60s</button>
-              <button onClick={() => handleStartTimer(90)} className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-darkCard md:bg-transparent hover:text-primary transition-colors cursor-pointer">90s</button>
-              <button onClick={() => handleStartTimer(120)} className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-darkCard md:bg-transparent hover:text-primary transition-colors cursor-pointer">120s</button>
+            <div className="flex items-center gap-1 pl-2 border-l border-gray-200 dark:border-darkBorder text-[10px] font-bold">
+              <button onClick={() => handleStartTimer(60)} className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-darkCard hover:text-primary transition-colors cursor-pointer">60s</button>
+              <button onClick={() => handleStartTimer(90)} className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-darkCard hover:text-primary transition-colors cursor-pointer">90s</button>
+              <button onClick={() => handleStartTimer(120)} className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-darkCard hover:text-primary transition-colors cursor-pointer">120s</button>
             </div>
           </div>
         </div>
 
-        {/* Exercises Checklist */}
+        {/* Exercises Cards (Mobile-First Architecture) */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black text-textMuted uppercase tracking-wider">Exercices du Protocole (Coche au fur et à mesure)</h3>
-            <span className="text-[11px] font-bold text-textMuted">Tempo préconisé : 3s de descente</span>
+          <div className="flex items-center justify-between px-0.5">
+            <h3 className="text-xs font-black text-textMuted uppercase tracking-wider">Exercices du Protocole</h3>
+            <span className="text-[10px] font-bold text-textMuted">Tempo : 3s de descente</span>
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
+          <div className="space-y-3.5">
             {activeSession.exercises.map((ex, exIdx) => {
               const isChecked = completedExerciseIds.includes(ex.id);
 
               return (
                 <div
                   key={ex.id}
-                  onClick={() => handleToggleExercise(ex.id)}
-                  className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-start gap-2.5 sm:gap-3.5 select-none ${
+                  className={`rounded-2xl border transition-all overflow-hidden ${
                     isChecked
                       ? 'bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/40 shadow-xs'
-                      : 'bg-card hover:bg-background border-gray-200/80 dark:border-darkBorder'
+                      : 'bg-card border-gray-200/80 dark:border-darkBorder shadow-xs'
                   }`}
                 >
-                  {/* Top Bar on Mobile / Left Column on Desktop */}
-                  <div className="flex items-start gap-2.5 sm:gap-3 w-full sm:w-auto">
-                    {/* Interactive Checkbox */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleExercise(ex.id);
-                      }}
-                      className={`w-7 h-7 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1 transition-all ${
-                        isChecked 
-                          ? 'bg-emerald-500 text-white shadow-sm' 
-                          : 'border-2 border-gray-300 dark:border-gray-600 hover:border-primary'
-                      }`}
+                  {/* Exercise Photo Header with Badges */}
+                  {ex.imageUrl && (
+                    <div 
+                      onClick={() => setSelectedExerciseModal(ex)}
+                      className="relative w-full h-40 sm:h-52 bg-slate-950 overflow-hidden cursor-pointer group"
+                      title="Cliquer pour voir la décomposition technique en grand"
                     >
-                      {isChecked && <Check size={14} strokeWidth={3} />}
-                    </button>
+                      <img 
+                        src={ex.imageUrl} 
+                        alt={ex.name} 
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-                    {/* Exercise Photo Thumbnail with Zoom Trigger */}
-                    {ex.imageUrl && (
-                      <div 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedExerciseModal(ex);
-                        }}
-                        className="relative w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0 border border-gray-200/80 dark:border-darkBorder bg-gray-100 dark:bg-darkCard group/thumb cursor-pointer shadow-xs hover:ring-2 hover:ring-primary/40 transition-all"
-                        title="Cliquer pour voir la photo du mouvement et la démonstration en grand"
-                      >
-                        <img 
-                          src={ex.imageUrl} 
-                          alt={ex.name} 
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center text-white">
-                          <Eye size={18} />
-                        </div>
-                        <span className="absolute bottom-1 right-1 bg-black/75 backdrop-blur-xs text-[9px] font-bold text-white px-1.5 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
-                          <Eye size={10} /> Démo
+                      {/* Top Badges */}
+                      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-1.5">
+                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-black/60 text-white backdrop-blur-xs border border-white/10">
+                          #{exIdx + 1} • {ex.equipment}
                         </span>
-                      </div>
-                    )}
 
-                    {/* Mobile-Only Title & Badges alongside thumbnail */}
-                    <div className="sm:hidden flex-1 min-w-0 self-center">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-black text-textMuted">#{exIdx + 1}</span>
-                        <h4 className={`text-xs font-black truncate ${isChecked ? 'line-through text-textMuted' : 'text-textMain'}`}>
-                          {ex.name}
-                        </h4>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-1 mt-1">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-primary/10 text-primary">
-                          {ex.sets} × {ex.reps}
-                        </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-100 dark:bg-darkCard text-textMuted border border-gray-200 dark:border-darkBorder">
-                          {ex.equipment}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Exercise Content Body */}
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    {/* Desktop-only Title & Badges */}
-                    <div className="hidden sm:flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-textMuted">#{exIdx + 1}</span>
-                        <h4 className={`text-sm font-black ${isChecked ? 'line-through text-textMuted' : 'text-textMain'}`}>
-                          {ex.name}
-                        </h4>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 dark:bg-darkCard text-textMuted border border-gray-200 dark:border-darkBorder">
-                          {ex.equipment}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary/10 text-primary">
+                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-primary text-white shadow-sm">
                           {ex.sets} séries × {ex.reps}
                         </span>
                       </div>
-                    </div>
 
+                      {/* Bottom Info on Image */}
+                      <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-2">
+                        <div className="min-w-0">
+                          <h4 className="text-sm sm:text-base font-black text-white leading-tight drop-shadow-sm truncate">
+                            {ex.name}
+                          </h4>
+                          <span className="text-[10px] text-white/80 font-medium block mt-0.5 truncate">
+                            Tempo : {ex.tempo} • Repos : {ex.rest}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedExerciseModal(ex);
+                          }}
+                          className="px-2.5 py-1 rounded-xl bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold backdrop-blur-xs flex items-center gap-1 flex-shrink-0 cursor-pointer transition-colors"
+                        >
+                          <Eye size={12} />
+                          <span>Démo</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Exercise Body Information */}
+                  <div className="p-3 sm:p-4 space-y-2.5">
                     {/* Pro Athlete Coaching Cue */}
-                    <div className="text-[11px] sm:text-xs text-textMuted flex items-start gap-1.5 pt-0.5">
-                      <Info size={13} className="text-primary flex-shrink-0 mt-0.5" />
-                      <span><strong className="text-textMain">Exécution Pro :</strong> {ex.cue}</span>
+                    <div className="text-xs text-textMuted flex items-start gap-1.5">
+                      <Info size={14} className="text-primary flex-shrink-0 mt-0.5" />
+                      <span className="leading-relaxed"><strong className="text-textMain">Exécution Pro :</strong> {ex.cue}</span>
                     </div>
 
                     {/* Specific Judo Impact */}
-                    <div className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
-                      <Zap size={11} className="flex-shrink-0" />
-                      <span>Bénéfice Randori : {ex.judoImpact} • Repos : {ex.rest}</span>
+                    <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                      <Zap size={12} className="flex-shrink-0" />
+                      <span>Bénéfice Randori : {ex.judoImpact}</span>
                     </div>
 
-                    {/* Quick Button to Open Demo Modal */}
-                    <div className="pt-0.5 sm:pt-1 flex items-center gap-2">
+                    {/* Action Bar: Fat-Finger Validation & Quick Timer */}
+                    <div className="pt-2 flex flex-wrap items-center gap-2 border-t border-gray-100 dark:border-darkBorder">
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedExerciseModal(ex);
-                        }}
-                        className="text-[11px] font-bold text-primary hover:text-primary/80 flex items-center gap-1 hover:underline cursor-pointer"
+                        onClick={() => handleToggleExercise(ex.id)}
+                        className={`flex-1 min-h-[44px] rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
+                          isChecked
+                            ? 'bg-emerald-500 text-white shadow-sm'
+                            : 'bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20'
+                        }`}
                       >
-                        <Eye size={12} />
-                        <span>Voir la photo et les étapes détaillées</span>
+                        <Check size={16} strokeWidth={3} />
+                        <span>{isChecked ? 'Exercice Validé ! (Décocher)' : 'Valider cet Exercice'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleStartTimer(ex.rest || 90)}
+                        className="px-3 min-h-[44px] rounded-xl bg-background hover:bg-gray-100 dark:hover:bg-darkCard border border-gray-200/80 dark:border-darkBorder text-textMain text-xs font-bold flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                        title="Démarrer le chronomètre de repos pour cet exercice"
+                      >
+                        <Play size={12} className="text-primary fill-current" />
+                        <span>Repos {ex.rest || '90s'}</span>
                       </button>
                     </div>
                   </div>
@@ -626,8 +559,8 @@ const JudoProgram = () => {
         </div>
 
         {/* 7. Post-Session Review & Rating Card */}
-        <div className="bg-background rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-3.5 sm:space-y-4">
-          <div className="flex flex-wrap items-center justify-between pb-2.5 sm:pb-3 border-b border-gray-200/60 dark:border-darkBorder gap-2">
+        <div className="bg-background rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-3">
+          <div className="flex flex-wrap items-center justify-between pb-2 border-b border-gray-200/60 dark:border-darkBorder gap-2">
             <div className="flex items-center gap-2">
               <Award size={18} className="text-amber-500" />
               <h3 className="text-xs sm:text-sm font-black text-textMain">Attribution de la Note & Bilan</h3>
@@ -639,12 +572,12 @@ const JudoProgram = () => {
             )}
           </div>
 
-          <form onSubmit={handleSubmitRating} className="space-y-3.5 sm:space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <form onSubmit={handleSubmitRating} className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Note globale / 10 */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex justify-between items-center text-xs font-bold">
-                  <label className="text-textMain">Note Globale de la Séance :</label>
+                  <label className="text-textMain">Note Globale :</label>
                   <span className="text-amber-500 font-black text-base">{ratingScore} / 10</span>
                 </div>
                 <input 
@@ -656,7 +589,7 @@ const JudoProgram = () => {
                   onChange={(e) => setRatingScore(parseFloat(e.target.value))}
                   className="w-full accent-amber-500 cursor-pointer h-2 bg-gray-200 dark:bg-darkCard rounded-lg"
                 />
-                <div className="flex justify-between text-[9px] sm:text-[10px] text-textMuted">
+                <div className="flex justify-between text-[9px] text-textMuted font-medium">
                   <span>1 (Bâclée)</span>
                   <span>5 (Moyen)</span>
                   <span>8.5 (Pro)</span>
@@ -665,9 +598,9 @@ const JudoProgram = () => {
               </div>
 
               {/* RPE Effort (1 à 10) */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <div className="flex justify-between items-center text-xs font-bold">
-                  <label className="text-textMain">RPE (Intensité de l’effort) :</label>
+                  <label className="text-textMain">RPE (Effort Perçu) :</label>
                   <span className="text-red-500 font-black text-base">RPE {ratingRpe} / 10</span>
                 </div>
                 <input 
@@ -679,39 +612,37 @@ const JudoProgram = () => {
                   onChange={(e) => setRatingRpe(parseInt(e.target.value, 10))}
                   className="w-full accent-red-500 cursor-pointer h-2 bg-gray-200 dark:bg-darkCard rounded-lg"
                 />
-                <div className="flex justify-between text-[9px] sm:text-[10px] text-textMuted">
+                <div className="flex justify-between text-[9px] text-textMuted font-medium">
                   <span>RPE 6 (Échauffement)</span>
                   <span>RPE 8 (Match)</span>
-                  <span>RPE 10 (Échec total)</span>
+                  <span>RPE 10 (Échec)</span>
                 </div>
               </div>
             </div>
 
             {/* Athlete Notes */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-textMuted block">Notes & Ressenti du Judoka (Poigne, Vitesse, Fatigue) :</label>
+              <label className="text-xs font-bold text-textMuted block">Ressenti du Judoka (Poigne, Vitesse, Fatigue) :</label>
               <textarea 
                 rows={2}
-                placeholder="Ex : Superbe vitesse sur les uchi-komi, avant-bras brûlés sur les tractions kimono. Penser à bien s'hydrater..."
+                placeholder="Ex : Superbe vitesse sur les uchi-komi, avant-bras brûlés sur les tractions kimono..."
                 value={athleteNotes}
                 onChange={(e) => setAthleteNotes(e.target.value)}
-                className="w-full bg-card border border-gray-200 dark:border-darkBorder rounded-xl sm:rounded-2xl p-2.5 sm:p-3 text-xs text-textMain focus:outline-none focus:border-primary"
+                className="w-full bg-card border border-gray-200 dark:border-darkBorder rounded-xl p-2.5 text-xs text-textMain focus:outline-none focus:border-primary"
               />
             </div>
 
             {/* Submit Button */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1 sm:pt-2">
-              <div>
-                {saveSuccessMsg && (
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 animate-in fade-in">
-                    <CheckCircle2 size={14} /> Séance et note enregistrées avec succès !
-                  </span>
-                )}
-              </div>
+            <div className="pt-1">
+              {saveSuccessMsg && (
+                <div className="mb-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 size={14} /> Séance et note enregistrées avec succès !
+                </div>
+              )}
 
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-extrabold px-6 py-2.5 rounded-xl sm:rounded-2xl text-xs shadow-md shadow-primary/25 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-black px-6 py-3 rounded-xl text-xs shadow-md shadow-primary/25 transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
                 <Award size={15} />
                 <span>Enregistrer & Noter ma Séance 🥋</span>
@@ -721,6 +652,30 @@ const JudoProgram = () => {
         </div>
 
       </div>
+
+      {/* Floating Rest Stopwatch Pill (Active when timer is running or paused during workout) */}
+      {(isTimerRunning || (timerRemaining < timerSeconds && timerRemaining > 0)) && (
+        <div className="fixed bottom-20 md:bottom-8 right-3 sm:right-6 z-40 bg-slate-900/95 text-white backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-2xl border border-primary/50 flex items-center gap-2.5 animate-in slide-in-from-bottom-3 duration-200">
+          <Clock size={16} className={`text-primary ${isTimerRunning ? 'animate-spin' : ''}`} />
+          <div className="font-mono font-black text-sm tracking-tight">
+            {formatTimer(timerRemaining)}
+          </div>
+          <button
+            onClick={handleToggleTimer}
+            className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center cursor-pointer active:scale-95"
+            title={isTimerRunning ? 'Pause' : 'Reprendre'}
+          >
+            {isTimerRunning ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
+          </button>
+          <button
+            onClick={handleResetTimer}
+            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer active:scale-95"
+            title="Arrêter"
+          >
+            <RotateCcw size={12} />
+          </button>
+        </div>
+      )}
 
       {/* 8. Weight Modal */}
       {showWeightModal && (
@@ -762,20 +717,20 @@ const JudoProgram = () => {
 
       {/* 9. History of Evaluated Sessions */}
       {judoState.history && judoState.history.length > 0 && (
-        <div className="bg-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-3 sm:space-y-4 transition-colors">
-          <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-gray-100 dark:border-darkBorder">
+        <div className="bg-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-gray-200/80 dark:border-darkBorder shadow-sm space-y-3 transition-colors">
+          <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-darkBorder">
             <h3 className="text-xs font-black text-textMain uppercase tracking-wider flex items-center gap-2">
               <Calendar size={14} className="text-primary" />
-              <span>Historique des Séances Notées</span>
+              <span>Historique des Séances</span>
             </h3>
-            <span className="text-[11px] sm:text-xs text-textMuted font-bold">{judoState.history.length} entrées</span>
+            <span className="text-[10px] text-textMuted font-bold">{judoState.history.length} entrées</span>
           </div>
 
           <div className="divide-y divide-gray-100 dark:divide-darkBorder">
             {judoState.history.slice(0, 5).map((item, idx) => (
-              <div key={idx} className="py-2.5 sm:py-3 flex flex-col md:flex-row md:items-center justify-between gap-1.5 sm:gap-2 text-xs">
+              <div key={idx} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
                 <div>
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <span className="font-extrabold text-textMain uppercase">{item.sessionId.replace('_', ' • ')}</span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-500">
                       ★ {item.score}/10
@@ -786,7 +741,7 @@ const JudoProgram = () => {
                   </div>
                   {item.notes && <p className="text-textMuted text-[11px] mt-0.5 italic">« {item.notes} »</p>}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-textMuted font-medium">
+                <div className="text-[10px] text-textMuted font-medium">
                   {new Date(item.completedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
@@ -798,7 +753,7 @@ const JudoProgram = () => {
       {/* 10. Exercise Movement Demo & Photo Modal */}
       {selectedExerciseModal && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
-          <div className="bg-card rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-2xl border border-gray-100 dark:border-darkBorder max-h-[92vh] overflow-y-auto space-y-3.5 sm:space-y-4">
+          <div className="bg-card rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-2xl border border-gray-100 dark:border-darkBorder max-h-[92vh] overflow-y-auto space-y-3.5">
             
             {/* Modal Image Header */}
             <div className="relative w-full h-48 sm:h-64 rounded-t-2xl sm:rounded-t-3xl overflow-hidden bg-slate-950">
@@ -817,8 +772,8 @@ const JudoProgram = () => {
                 <X size={16} />
               </button>
 
-              <div className="absolute bottom-3 left-3.5 right-3.5 sm:bottom-3.5 sm:left-4 sm:right-4">
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+              <div className="absolute bottom-3 left-3.5 right-3.5">
+                <div className="flex flex-wrap items-center gap-1.5 mb-1">
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-primary text-white">
                     {selectedExerciseModal.equipment}
                   </span>
@@ -836,10 +791,10 @@ const JudoProgram = () => {
             </div>
 
             {/* Modal Content Body */}
-            <div className="p-4 sm:p-5 pt-0 space-y-3.5 sm:space-y-4">
+            <div className="p-4 sm:p-5 pt-0 space-y-3.5">
               
               {/* Tactical Judo Impact Box */}
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex items-start gap-2.5">
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2.5 sm:p-3 flex items-start gap-2.5">
                 <Zap size={16} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
                 <div className="text-xs">
                   <span className="font-black text-emerald-700 dark:text-emerald-300 block">Pourquoi cet exercice pour ton Judo ?</span>
@@ -854,21 +809,21 @@ const JudoProgram = () => {
                     Décomposition Technique (3 Étapes) :
                   </h4>
                   <div className="space-y-2 text-xs">
-                    <div className="bg-background p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-gray-200/80 dark:border-darkBorder flex items-start gap-2.5">
+                    <div className="bg-background p-2.5 sm:p-3 rounded-xl border border-gray-200/80 dark:border-darkBorder flex items-start gap-2.5">
                       <span className="w-5 h-5 rounded-lg bg-blue-500 text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
                       <div>
                         <strong className="text-textMain block font-bold">Position de Départ :</strong>
                         <span className="text-textMuted leading-relaxed">{selectedExerciseModal.steps.start}</span>
                       </div>
                     </div>
-                    <div className="bg-background p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-gray-200/80 dark:border-darkBorder flex items-start gap-2.5">
+                    <div className="bg-background p-2.5 sm:p-3 rounded-xl border border-gray-200/80 dark:border-darkBorder flex items-start gap-2.5">
                       <span className="w-5 h-5 rounded-lg bg-primary text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
                       <div>
                         <strong className="text-textMain block font-bold">Phase Active & Mouvement :</strong>
                         <span className="text-textMuted leading-relaxed">{selectedExerciseModal.steps.movement}</span>
                       </div>
                     </div>
-                    <div className="bg-background p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-gray-200/80 dark:border-darkBorder flex items-start gap-2.5">
+                    <div className="bg-background p-2.5 sm:p-3 rounded-xl border border-gray-200/80 dark:border-darkBorder flex items-start gap-2.5">
                       <span className="w-5 h-5 rounded-lg bg-emerald-500 text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
                       <div>
                         <strong className="text-textMain block font-bold">Phase Retour & Contrôle :</strong>
@@ -881,7 +836,7 @@ const JudoProgram = () => {
 
               {/* Error to Avoid */}
               {selectedExerciseModal.avoidMistake && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex items-start gap-2.5">
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 sm:p-3 flex items-start gap-2.5">
                   <AlertTriangle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
                   <div className="text-xs">
                     <span className="font-black text-amber-700 dark:text-amber-400 block">⚠️ Erreur technique à éviter absolument :</span>
